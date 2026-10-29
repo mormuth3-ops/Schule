@@ -30,6 +30,15 @@ const APPS = [
     datei: "apps/physik/millikan.html",
     neu: true
   },
+  {
+    titel: "Bruch-Blitz",
+    fach: "Mathematik",
+    thema: "Brüche",
+    klasse: "5",
+    beschreibung: "Erkenne, male, kürze und vergleiche Brüche in 8 Leveln. Wie lang wird deine Serie richtiger Antworten?",
+    datei: "apps/mathe/bruch-blitz.html",
+    neu: true
+  },
 
   /* Beispiel für einen weiteren Eintrag – zum Benutzen die
      Zeichen /* und *\/ drumherum entfernen und ausfüllen:
