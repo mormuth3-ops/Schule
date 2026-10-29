@@ -259,6 +259,50 @@
   .hinweis { text-align: center; margin-top: 34px; font-weight: 700; }
   .hinweis span { display: inline-block; background: var(--paper); border: 3px solid var(--ink); padding: 6px 14px; box-shadow: 4px 4px 0 var(--ink); transform: rotate(1deg); }
 
+
+  /* ---------- Modi, Tipps, Ergebnis ---------- */
+  .lv .rek2 { display: flex; justify-content: space-between; align-items: center; font-weight: 700; }
+  .lv .rek { margin-top: auto; }
+  .modusbox { text-align: center; }
+  .modus {
+    display: flex; flex-direction: column; gap: 2px; width: 100%; text-align: left; margin-bottom: 14px;
+    padding: 12px 16px; border: 3px solid var(--ink); border-radius: 12px; box-shadow: 5px 5px 0 var(--ink);
+    font: inherit; font-size: 16px; color: var(--ink); cursor: pointer; transition: transform .08s, box-shadow .08s;
+  }
+  .modus:hover, .modus:focus-visible { transform: translate(-2px,-2px); box-shadow: 7px 7px 0 var(--ink); outline: none; }
+  .modus.uebung { background: #dff1ff; } .modus.streak { background: #ffe1df; }
+  .modus .mk { font-family: Bangers, Impact, sans-serif; font-size: 28px; letter-spacing: .04em; }
+  .modus small { font-weight: 700; color: var(--muted); }
+  .streakbox.blau { background: var(--blue); }
+  .tippknopf { cursor: pointer; font: inherit; color: var(--ink); }
+  .tippknopf[disabled] { opacity: .4; cursor: default; }
+  .tippknopf:not([disabled]) { background: #fff3b0; animation: pop .5s; }
+  .punkte { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
+  .punkte span {
+    width: 30px; height: 30px; display: grid; place-items: center; border: 3px solid var(--ink); border-radius: 50%;
+    background: var(--paper); font-weight: 700; font-size: 16px; color: #fff;
+  }
+  .punkte span.ok { background: var(--green); } .punkte span.nein { background: var(--red); }
+  .punkte span.jetzt { background: #fff3b0; box-shadow: 0 0 0 3px var(--blue); }
+  .punkte.gross span { width: 36px; height: 36px; font-size: 20px; }
+  .tippbox {
+    margin: 14px 0; padding: 12px 16px; background: #fff7c7; border: 3px solid var(--ink); border-radius: 12px;
+    box-shadow: 4px 4px 0 var(--orange); font-size: 18px;
+  }
+  .tippbox .tk { font-family: Bangers, Impact, sans-serif; font-size: 24px; letter-spacing: .04em; margin-bottom: 4px; }
+  .tippbox .bild { margin: 8px 0; } .tippbox svg.fig { width: min(150px, 40vw); } .tippbox svg.fig.breit { width: min(300px, 80vw); } .tippbox svg.fig.strahl { width: min(380px, 100%); }
+  .tippbox .zeile { font-size: 26px; margin: 8px 0; }
+  .trost { font-weight: 700; margin: 4px 0 8px; }
+  .ergebnis { text-align: center; }
+  .ergebnis h2 { font-family: Bangers, Impact, sans-serif; font-weight: 400; font-size: 44px; letter-spacing: .04em; margin: 0; }
+  .ergzahl { font-family: Bangers, Impact, sans-serif; font-size: 72px; line-height: 1; margin: 6px 0; }
+  .ergzahl small { font-size: 26px; }
+  .ergebnis .sterne { font-size: 40px; color: #c9c1a5; letter-spacing: 4px; }
+  .ergebnis .sterne .an { color: var(--orange); -webkit-text-stroke: 1.5px var(--ink); }
+  .ergtext { font-size: 20px; font-weight: 700; margin: 16px auto; max-width: 520px; }
+  .frei { font-weight: 700; color: #137a3c; font-size: 19px; margin: 6px 0; }
+  .ergebnis .mitte { margin-top: 18px; }
+
   @media (max-width: 560px) {
     .hud { grid-template-columns: auto 1fr; }
     .hud .lvname { grid-column: 2; }
@@ -653,7 +697,7 @@ function L7(d) {
 }
 
 const GENS = [L1, L2, L3, L4, L5, L6, L7];
-function boss(d) { return pick(GENS)(d); }
+function boss(d) { const i = ri(0, GENS.length - 1), a = GENS[i](d); a.hinweisLv = i + 1; return a; }
 
 const LEVELS = [
   { nr: 1, name: 'Bruch-Detektiv', info: 'Welcher Anteil ist ausgemalt?', farbe: '--blue', ico: '🔍', gen: L1 },
@@ -667,19 +711,74 @@ const LEVELS = [
 ];
 
 /* =========================================================
+   TIPPS FÜR DEN ÜBUNGSMODUS  (Tipp 1 nach 3 Fehlern, Tipp 2 nach 7 Fehlern)
+   ========================================================= */
+const TIPPS = {
+  1: [
+    `Zähle zuerst <b>alle</b> Teile der Figur – das ist der <b>Nenner</b> (unten). Zähle dann nur die <b>roten</b> Teile – das ist der <b>Zähler</b> (oben).
+     <div class="bild">${figurSVG({ typ: 'kreis', n: 4 }, new Set([0, 1, 2]))}</div>3 von 4 Teilen sind rot → ${F(3, 4)}`,
+    `Typische Fehler: Zähle <b>nicht</b> die weißen Teile, und vergleiche <b>nicht</b> rot mit weiß (3 rot und 1 weiß ist <b>nicht</b> ${F(3, 1)}).
+     Der Nenner ist immer die Anzahl <b>aller</b> Teile. Tipp: Tippe beim Zählen jedes Teil mit dem Finger an.`
+  ],
+  2: [
+    `Schau auf den <b>Nenner</b>: Hat die Figur genau so viele Teile? Dann male so viele Teile aus, wie der <b>Zähler</b> sagt.
+     Bei ${F(2, 5)} und 5 Teilen malst du also 2 Teile aus.`,
+    `Hat die Figur <b>mehr</b> Teile als der Nenner, rechne zuerst: Teile : Nenner. So viele kleine Teile gehören zu einem Bruchteil.
+     Beispiel ${F(3, 4)} bei 8 Teilen: 8 : 4 = 2, also 3 · 2 = 6 Teile ausmalen.`
+  ],
+  3: [
+    `Beim <b>Erweitern</b> und <b>Kürzen</b> machst du mit Zähler <b>und</b> Nenner immer dasselbe – der Anteil bleibt gleich.
+     <div class="zeile">${F(2, 3)} = ${F('2 · 4', '3 · 4')} = ${F(8, 12)}</div>`,
+    `So findest du die fehlende Zahl: Schau, wie aus der einen Zahl die andere wurde. Aus 3 wird 12 – das ist · 4. Also auch 2 · 4 = 8.
+     <b>Vollständig kürzen:</b> Teile oben und unten so lange durch dieselbe Zahl (2, 3, 5 …), bis es nicht mehr geht. ${F(12, 18)} → ${F(6, 9)} → ${F(2, 3)}`
+  ],
+  4: [
+    `Zähle die <b>Abschnitte</b> zwischen 0 und 1 – nicht die Striche! Die Zahl der Abschnitte ist der <b>Nenner</b>.
+     <div class="bild">${strahlSVG({ M: 1, n: 4 }, 3)}</div>4 Abschnitte, Markierung beim 3. → ${F(3, 4)}`,
+    `Jeder Abschnitt ist ${F(1, 'n')} lang. Für ${F(3, 5)} springst du 3 Abschnitte von 0 nach rechts.
+     Ist der Strahl feiner eingeteilt, erweitere zuerst: ${F(1, 2)} auf einem Achtel-Strahl ist ${F(4, 8)}, also 4 Abschnitte.`
+  ],
+  5: [
+    `<b>Gleicher Nenner:</b> Der größere Zähler gewinnt (${F(3, 7)} &gt; ${F(2, 7)}).<br>
+     <b>Gleicher Zähler:</b> Der kleinere Nenner gewinnt, weil die Stücke größer sind (${F(1, 3)} &gt; ${F(1, 5)}).`,
+    `Sind Zähler und Nenner verschieden, mache zuerst die <b>Nenner gleich</b> (erweitern) und vergleiche dann die Zähler.
+     <div class="zeile">${F(2, 3)} = ${F(8, 12)} &nbsp; und &nbsp; ${F(3, 4)} = ${F(9, 12)} &nbsp; → &nbsp; ${F(2, 3)} &lt; ${F(3, 4)}</div>`
+  ],
+  6: [
+    `<b>Erst teilen, dann malnehmen:</b> Teile die Größe durch den Nenner. Das Ergebnis nimmst du mal den Zähler.`,
+    `Beispiel ${F(3, 4)} von 20 kg: 20 : 4 = 5 kg (das ist ${F(1, 4)}), dann 3 · 5 = 15 kg.<br>
+     Merke dir: 1 h = 60 min · 1 m = 100 cm · 1 kg = 1000 g · 1 Tag = 24 h`
+  ],
+  7: [
+    `Ein Ganzes hat so viele Teile, wie der Nenner sagt: ${F(4, 4)} = 1. Beim <b>unechten Bruch</b> zählst du <b>alle</b> ausgemalten Teile – der Nenner bleibt gleich.
+     <div class="bild">${kreiseSVG(2, 4, 7)}</div>7 Viertel → ${F(7, 4)} = ${G(1, 3, 4)}`,
+    `<b>Unechter Bruch → gemischte Zahl:</b> ${F(11, 4)} → 11 : 4 = 2 Rest 3 → ${G(2, 3, 4)}<br>
+     <b>Gemischte Zahl → unechter Bruch:</b> ${G(2, 3, 4)} → 2 · 4 + 3 = 11 → ${F(11, 4)}`
+  ]
+};
+const AUFMUNTERN = [
+  'Kein Problem – jetzt weißt du, wie es geht!', 'Fehler sind zum Lernen da!', 'Fast! Schau dir den Weg kurz an.',
+  'Nicht schlimm – die nächste klappt!', 'Dranbleiben, du schaffst das!', 'Halb so wild – weiter geht’s!',
+  'Jeder Profi hat mal klein angefangen.', 'Kopf hoch – du bist auf einem guten Weg!'
+];
+const UEBUNG_AUFGABEN = 10, UEBUNG_FREI_AB = 8;
+
+/* =========================================================
    SPEICHER & STATUS
    ========================================================= */
 const SPEICHER = 'bruchblitz_v1';
 const ALLE_FREI = new URLSearchParams(location.search).has('alle');
 let speicher = (() => { try { return JSON.parse(localStorage.getItem(SPEICHER)) || { tiere: {} }; } catch (e) { return { tiere: {} }; } })();
 const sichern = () => { try { localStorage.setItem(SPEICHER, JSON.stringify(speicher)); } catch (e) {} };
-const profil = t => (speicher.tiere[t] ??= { best: {}, aufgaben: 0 });
+const profil = t => { const p = (speicher.tiere[t] ??= { best: {}, aufgaben: 0 }); p.uebung ??= {}; return p; };
 const bestVon = nr => profil(S.tier).best[nr] || 0;
-const frei = nr => ALLE_FREI || nr === 1 || bestVon(nr - 1) >= FREI_AB;
+const uebVon = nr => profil(S.tier).uebung[nr] || 0;
+const frei = nr => ALLE_FREI || nr === 1 || bestVon(nr - 1) >= FREI_AB || uebVon(nr - 1) >= UEBUNG_FREI_AB;
 const stufe = () => S.streak < 5 ? 0 : S.streak < 12 ? 1 : 2;
 
-const S = { tier: null, lv: null, streak: 0, runde: null, a: null, wartet: false, timer: null, auswahl: null };
+const S = { tier: null, lv: null, modus: 'streak', streak: 0, runde: null, a: null, wartet: false, timer: null, auswahl: null };
 const app = document.getElementById('app');
+const ueb = () => S.modus === 'uebung';
 
 /* =========================================================
    BILDSCHIRME
@@ -689,7 +788,7 @@ function zeigeStart() {
   app.innerHTML = `
     <header class="titel">
       <h1>Bruch-<span class="blitz">Blitz</span></h1>
-      <div class="bubble">Wie lang wird deine Serie richtiger Antworten? Wähle zuerst dein Tier!</div>
+      <div class="bubble">Übe Brüche in 8 Leveln – mit Tipps im Übungsmodus oder als Challenge im Streak-Modus. Wähle zuerst dein Tier!</div>
     </header>
     <div class="tiergitter">${TIERE.map(([n, e], i) =>
       `<button class="tier${speicher.letztes === n ? ' zuletzt' : ''}" data-i="${i}"><span class="emo">${e}</span><span class="nm">${n}</span></button>`).join('')}
@@ -701,10 +800,11 @@ function zeigeStart() {
   scrollTo(0, 0);
 }
 
-function sterne(b) {
-  const n = b >= 20 ? 3 : b >= 12 ? 2 : b >= 5 ? 1 : 0;
+function sterne(n) {
   return `<span class="sterne" aria-label="${n} von 3 Sternen">${[0, 1, 2].map(i => `<span class="${i < n ? 'an' : ''}">★</span>`).join('')}</span>`;
 }
+const streakSterne = b => b >= 20 ? 3 : b >= 12 ? 2 : b >= 5 ? 1 : 0;
+const uebSterne = p => p >= 10 ? 3 : p >= 8 ? 2 : p >= 6 ? 1 : 0;
 
 function zeigeKarte() {
   S.lv = null;
@@ -713,46 +813,89 @@ function zeigeKarte() {
       <div class="spieler"><span class="emo">${emojiVon(S.tier)}</span><b>${S.tier}</b></div>
       <button class="btn klein" id="wechsel">Tier wechseln</button>
     </div>
-    <div class="bubble" style="display:block;margin-top:28px">Löse Aufgaben ohne Fehler hintereinander – das ist deine <b>Streak</b> 🔥. Mit einer ${FREI_AB}er-Streak schaltest du das nächste Level frei. Je länger die Streak, desto kniffliger die Aufgaben!</div>
+    <div class="bubble" style="display:block;margin-top:28px">In jedem Level kannst du wählen: <b>📝 Üben</b> – 10 Aufgaben mit Tipps – oder <b>🔥 Streak</b> – so viele richtige Antworten hintereinander wie möglich.
+      Das nächste Level öffnet sich mit <b>${UEBUNG_FREI_AB} von 10</b> beim Üben oder einer <b>${FREI_AB}er-Streak</b>.</div>
     <div class="lvgitter">${LEVELS.map(lv => {
-      const offen = frei(lv.nr), b = bestVon(lv.nr);
+      const offen = frei(lv.nr), b = bestVon(lv.nr), u = uebVon(lv.nr);
       return `<button class="lv" data-nr="${lv.nr}" style="--farbe:var(${lv.farbe})" ${offen ? '' : 'disabled'}>
         <div class="kopf"><span class="ico">${lv.ico}</span><span class="nr">Level ${lv.nr}</span></div>
         <div class="inhalt"><strong>${lv.name}</strong><p>${lv.info}</p>
-          <div class="rek"><span>Rekord: 🔥 ${b}</span>${sterne(b)}</div></div>
-        ${offen ? '' : `<div class="schloss"><span>🔒 Erst eine ${FREI_AB}er-Streak<br>in Level ${lv.nr - 1}</span></div>`}
+          <div class="rek"><span>📝 Üben: ${u}/10</span>${sterne(uebSterne(u))}</div>
+          <div class="rek2"><span>🔥 Streak: ${b}</span>${sterne(streakSterne(b))}</div></div>
+        ${offen ? '' : `<div class="schloss"><span>🔒 Erst ${UEBUNG_FREI_AB} von 10 beim Üben<br>oder eine ${FREI_AB}er-Streak in Level ${lv.nr - 1}</span></div>`}
       </button>`;
     }).join('')}</div>`;
   document.getElementById('wechsel').onclick = zeigeStart;
-  app.querySelectorAll('.lv:not([disabled])').forEach(b => b.onclick = () => starteLevel(+b.dataset.nr));
+  app.querySelectorAll('.lv:not([disabled])').forEach(b => b.onclick = () => waehleModus(+b.dataset.nr));
   scrollTo(0, 0);
 }
 
-function starteLevel(nr) {
-  S.lv = LEVELS[nr - 1]; S.streak = 0;
-  S.runde = { id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`, start: Date.now(), letzte: Date.now(), aktiv: 0, aufgaben: 0, richtig: 0, best: 0, gesendet: 0 };
+function waehleModus(nr) {
+  const lv = LEVELS[nr - 1];
+  const m = document.createElement('div'); m.className = 'modal';
+  m.innerHTML = `<div class="aufgabe modusbox"><h2>${lv.ico} ${lv.name}</h2>
+    <p style="margin:0 0 14px">Wie möchtest du spielen?</p>
+    <button class="modus uebung" data-m="uebung"><span class="mk">📝 Übungsmodus</span><span>10 Aufgaben · Tipps, wenn es mal hakt · Ergebnis am Ende</span><small>Bestes Ergebnis: ${uebVon(nr)}/10</small></button>
+    <button class="modus streak" data-m="streak"><span class="mk">🔥 Streak-Modus</span><span>Wie viele schaffst du ohne Fehler? Es wird immer kniffliger!</span><small>Rekord: ${bestVon(nr)}</small></button>
+    <button class="btn klein" id="abbruch" style="margin-top:6px">Zurück</button></div>`;
+  document.body.appendChild(m);
+  m.querySelectorAll('.modus').forEach(b => b.onclick = () => { m.remove(); starteLevel(nr, b.dataset.m); });
+  m.querySelector('#abbruch').onclick = () => m.remove();
+  m.onclick = e => { if (e.target === m) m.remove(); };
+  m.querySelector('.modus').focus();
+}
+
+function starteLevel(nr, modus) {
+  S.lv = LEVELS[nr - 1]; S.modus = modus; S.streak = 0;
+  S.runde = { id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`, start: Date.now(), letzte: Date.now(), aktiv: 0,
+    aufgaben: 0, richtig: 0, fehler: 0, best: 0, gesendet: 0, verlauf: [], tipps: 0 };
+  const rechts = ueb()
+    ? `<div class="streakbox blau" id="sbox"><span class="zahl" id="nrbox">1/${UEBUNG_AUFGABEN}</span><small>Aufgabe</small></div>
+       <button class="rekordbox tippknopf" id="tippknopf" disabled><span class="zahl">💡</span><small>Tipps</small></button>`
+    : `<div class="streakbox" id="sbox"><span class="zahl" id="streak">0</span><small>🔥 Streak</small></div>
+       <div class="rekordbox"><span class="zahl" id="rekord">${bestVon(nr)}</span><small>Rekord</small></div>`;
   app.innerHTML = `
     <div class="hud">
       <button class="btn klein" id="zurueck">◀ Levels</button>
-      <div class="lvname"><small>Level ${nr} · ${emojiVon(S.tier)} ${S.tier}</small>${S.lv.name}</div>
-      <div class="streakbox" id="sbox"><span class="zahl" id="streak">0</span><small>🔥 Streak</small></div>
-      <div class="rekordbox"><span class="zahl" id="rekord">${bestVon(nr)}</span><small>Rekord</small></div>
+      <div class="lvname"><small>Level ${nr} · ${ueb() ? '📝 Übungsmodus' : '🔥 Streak-Modus'} · ${emojiVon(S.tier)} ${S.tier}</small>${S.lv.name}</div>
+      ${rechts}
     </div>
+    ${ueb() ? `<div class="punkte" id="punkte">${'<span></span>'.repeat(UEBUNG_AUFGABEN)}</div>` : ''}
     <section class="aufgabe" id="aufgabe" aria-live="polite"></section>`;
   document.getElementById('zurueck').onclick = beendeLevel;
+  if (ueb()) document.getElementById('tippknopf').onclick = zeigeTipps;
   neueAufgabe();
 }
 
 function hud(pop) {
+  if (ueb()) {
+    const R = S.runde;
+    document.getElementById('nrbox').textContent = `${Math.min(R.aufgaben + 1, UEBUNG_AUFGABEN)}/${UEBUNG_AUFGABEN}`;
+    document.querySelectorAll('#punkte span').forEach((s, i) => {
+      s.className = i < R.verlauf.length ? (R.verlauf[i] ? 'ok' : 'nein') : i === R.verlauf.length ? 'jetzt' : '';
+      s.textContent = i < R.verlauf.length ? (R.verlauf[i] ? '✓' : '✗') : '';
+    });
+    const t = document.getElementById('tippknopf'); if (t) t.disabled = !R.tipps;
+    return;
+  }
   document.getElementById('streak').textContent = S.streak;
   document.getElementById('rekord').textContent = bestVon(S.lv.nr);
   if (pop) { const b = document.getElementById('sbox'); b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop'); }
 }
 
+function uebStufe() {
+  const R = S.runde, i = R.aufgaben;
+  let d = R.fehler >= 3 ? (i < 6 ? 0 : 1) : (i < 4 ? 0 : i < 8 ? 1 : 2);
+  if (S.lv.nr === 8) d = Math.max(1, Math.min(d, R.fehler >= 3 ? 1 : 2));
+  return d;
+}
+
 function neueAufgabe() {
   clearTimeout(S.timer);
-  const d = S.lv.nr === 8 ? Math.max(1, stufe()) : stufe();
+  if (ueb() && S.runde.aufgaben >= UEBUNG_AUFGABEN) { zeigeErgebnis(); return; }
+  const d = ueb() ? uebStufe() : (S.lv.nr === 8 ? Math.max(1, stufe()) : stufe());
   const a = S.lv.gen(d); S.a = a; S.wartet = false; S.auswahl = null;
+  if (ueb()) hud(false);
   const box = document.getElementById('aufgabe');
   let h = `<span class="stufe s${d}">${['leicht', 'mittel', 'schwer'][d]}</span>
     <p class="frage">${a.frage}</p>
@@ -783,7 +926,7 @@ function neueAufgabe() {
     box.querySelectorAll('.klickbar .teil').forEach(p => p.onclick = () => {
       if (S.wartet) return;
       p.classList.toggle('an');
-      document.getElementById('anz').textContent = box.querySelectorAll('.teil.an').length;
+      document.getElementById('anz').textContent = box.querySelectorAll('#bild .teil.an').length;
     });
     document.getElementById('pruefen').onclick = () => pruefe(box.querySelectorAll('#bild .teil.an').length);
   }
@@ -819,34 +962,113 @@ function pruefe(antwort, knopf) {
   auswerten(ok);
 }
 
+/* Welcher Tipp gehört zur aktuellen Aufgabe? (im Boss-Level der Tipp des Ursprungs-Levels) */
+const tippLevel = () => S.a.hinweisLv || S.lv.nr;
+function tippHTML(stufe, lvNr) {
+  return `<div class="tippbox"><div class="tk">💡 Tipp ${stufe} vom Bruch-Profi</div>${TIPPS[lvNr][stufe - 1]}</div>`;
+}
+
 function auswerten(ok) {
   const R = S.runde, p = profil(S.tier), nr = S.lv.nr, jetzt = Date.now();
   R.aktiv += Math.min(jetzt - R.letzte, 120000); R.letzte = jetzt;
-  R.aufgaben++; p.aufgaben++;
+  R.aufgaben++; p.aufgaben++; R.verlauf.push(ok);
+  const letzte = ueb() && R.aufgaben >= UEBUNG_AUFGABEN;
+
   if (ok) {
     R.richtig++; S.streak++; R.best = Math.max(R.best, S.streak);
-    const alt = p.best[nr] || 0;
-    if (S.streak > alt) p.best[nr] = S.streak;
-    sichern(); hud(true);
-    const meilenstein = MEILENSTEINE.includes(S.streak);
-    knall(meilenstein ? `${S.streak}er-Streak!` : pick(['Richtig!', 'Zack!', 'Bäm!', 'Klasse!', 'Stark!', 'Wumms!', 'Super!']), meilenstein ? 'gross' : '');
-    if (alt < FREI_AB && S.streak === FREI_AB && nr < 8 && !ALLE_FREI) toast(nr === 7 ? '⚡ Das Boss-Level ist frei! ⚡' : `🔓 Level ${nr + 1} ist freigeschaltet!`);
-    else if (S.streak === alt + 1 && alt >= 3) toast('🏆 Neuer Rekord!');
-    S.timer = setTimeout(neueAufgabe, meilenstein ? 1500 : 950);
+    if (!ueb()) {
+      const alt = p.best[nr] || 0, warFrei = nr < 8 && frei(nr + 1);
+      if (S.streak > alt) p.best[nr] = S.streak;
+      sichern(); hud(true);
+      const meilenstein = MEILENSTEINE.includes(S.streak);
+      knall(meilenstein ? `${S.streak}er-Streak!` : pick(['Richtig!', 'Zack!', 'Bäm!', 'Klasse!', 'Stark!', 'Wumms!', 'Super!']), meilenstein ? 'gross' : '');
+      if (!warFrei && nr < 8 && frei(nr + 1)) toast(nr === 7 ? '⚡ Das Boss-Level ist frei! ⚡' : `🔓 Level ${nr + 1} ist freigeschaltet!`);
+      else if (S.streak === alt + 1 && alt >= 3) toast('🏆 Neuer Rekord!');
+      S.timer = setTimeout(neueAufgabe, meilenstein ? 1500 : 950);
+    } else {
+      sichern(); hud(false);
+      knall(S.streak >= 3 ? `${S.streak} in Folge!` : pick(['Richtig!', 'Super!', 'Klasse!', 'Genau!', 'Prima!']), '');
+      S.timer = setTimeout(neueAufgabe, 950);
+    }
   } else {
-    const war = S.streak; S.streak = 0; sichern(); hud(false);
-    knall('Autsch!', 'schlecht');
+    const war = S.streak; S.streak = 0; R.fehler++;
+    sichern(); hud(false);
     const a = S.a;
+    let kopf, tipp = '';
+    if (ueb()) {
+      knall('Hoppla!', 'schlecht');
+      kopf = pick(AUFMUNTERN);
+      if (R.fehler === 3 || R.fehler === 7) {
+        const st = R.fehler === 3 ? 1 : 2;
+        R.tipps = Math.max(R.tipps, st); R.tippLv = tippLevel();
+        tipp = tippHTML(st, R.tippLv);
+        hud(false);
+      }
+    } else {
+      knall('Autsch!', 'schlecht');
+      kopf = war > 0 ? `Oh nein – deine ${war}er-Streak ist geplatzt!` : 'Leider nicht richtig.';
+    }
     document.getElementById('rueck').innerHTML = `<div class="falschbox">
-      <div class="autsch">${war > 0 ? `Oh nein – deine ${war}er-Streak ist geplatzt!` : 'Leider nicht richtig.'}</div>
+      <div class="autsch">${kopf}</div>
+      ${!ueb() && war >= 3 ? `<p class="trost">${pick(['Starke Serie! Die nächste wird noch länger.', 'Gleich nochmal – du hast den Dreh raus!', 'Das war richtig gut – auf ein Neues!'])}</p>` : ''}
       <div>Richtig ist: <span class="loes">${a.loesungHTML}</span></div>
       ${a.loesungBild ? `<div class="bild">${a.loesungBild}</div>` : ''}
       <p>${a.erklaerung}</p>
-      <button class="btn blau" id="weiter">Neue Streak starten ▶</button></div>`;
+      ${tipp}
+      <button class="btn blau" id="weiter">${letzte ? 'Zum Ergebnis ▶' : ueb() ? (tipp ? 'Verstanden – weiter ▶' : 'Weiter ▶') : 'Neue Streak starten ▶'}</button></div>`;
     const w = document.getElementById('weiter'); w.onclick = neueAufgabe; w.focus({ preventScroll: true });
-    w.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    (tipp ? document.querySelector('#rueck .tippbox') : w).scrollIntoView({ behavior: 'smooth', block: tipp ? 'start' : 'nearest' });
   }
   if (R.aufgaben % 5 === 0) senden(false);
+}
+
+function zeigeTipps() {
+  const R = S.runde; if (!R || !R.tipps) return;
+  const m = document.createElement('div'); m.className = 'modal';
+  let h = '';
+  for (let s = 1; s <= R.tipps; s++) h += tippHTML(s, R.tippLv || S.lv.nr);
+  m.innerHTML = `<div class="aufgabe" style="max-width:560px;text-align:left">${h}<div class="mitte"><button class="btn gruen" id="ok">Weiter üben ▶</button></div></div>`;
+  document.body.appendChild(m);
+  m.querySelector('#ok').onclick = () => m.remove();
+  m.onclick = e => { if (e.target === m) m.remove(); };
+}
+
+function zeigeErgebnis() {
+  const R = S.runde, nr = S.lv.nr, p = profil(S.tier);
+  const alt = p.uebung[nr] || 0, warFrei = nr < 8 && frei(nr + 1);
+  if (R.richtig > alt) p.uebung[nr] = R.richtig;
+  sichern(); senden(false);
+  const neuFrei = !warFrei && nr < 8 && frei(nr + 1);
+  const r = R.richtig;
+  const text = r === 10 ? 'Perfekt – alles richtig! Trau dich jetzt an den Streak-Modus! 🔥'
+    : r >= 8 ? 'Super! Du hast das richtig gut drauf.'
+    : r >= 6 ? 'Gut gemacht! Noch eine Runde, dann sitzt es.'
+    : r >= 4 ? 'Du bist auf dem Weg! Schau dir die Tipps noch einmal an und versuch es erneut.'
+    : 'Nicht aufgeben! Lies dir die Tipps in Ruhe durch – beim nächsten Mal wird es besser.';
+  const tippsAnsehen = R.tipps ? R.tipps : (R.fehler >= 2 ? 1 : 0);
+  if (tippsAnsehen && !R.tipps) { R.tipps = 1; R.tippLv = S.lv.nr === 8 ? null : nr; }
+  document.getElementById('aufgabe').innerHTML = `<div class="ergebnis">
+    <h2>${r >= 8 ? 'Geschafft!' : 'Runde beendet!'}</h2>
+    <div class="ergzahl">${r} <small>von ${UEBUNG_AUFGABEN} richtig</small></div>
+    ${sterne(uebSterne(r))}
+    <div class="punkte gross">${R.verlauf.map(v => `<span class="${v ? 'ok' : 'nein'}">${v ? '✓' : '✗'}</span>`).join('')}</div>
+    <p class="ergtext">${text}</p>
+    ${neuFrei ? `<p class="frei">🔓 ${nr === 7 ? 'Das Boss-Level' : `Level ${nr + 1}`} ist jetzt freigeschaltet!</p>` : ''}
+    ${r > alt && alt > 0 ? '<p class="frei">🏆 Neues Bestergebnis!</p>' : ''}
+    <div class="mitte">
+      <button class="btn gruen" id="nochmal">Nochmal 10 ▶</button>
+      ${R.tipps && (R.tippLv || S.lv.nr !== 8) ? '<button class="btn" id="tipps">💡 Tipps ansehen</button>' : ''}
+      ${r >= 8 ? '<button class="btn rot" id="zustreak">🔥 Streak-Modus</button>' : ''}
+      <button class="btn" id="levels">◀ Levels</button>
+    </div></div>`;
+  const nochmal = document.getElementById('nochmal');
+  nochmal.onclick = () => starteLevel(nr, 'uebung');
+  document.getElementById('levels').onclick = () => { S.runde = null; zeigeKarte(); };
+  const t = document.getElementById('tipps'); if (t) t.onclick = zeigeTipps;
+  const z = document.getElementById('zustreak'); if (z) z.onclick = () => starteLevel(nr, 'streak');
+  if (r >= 8) knall(r === 10 ? 'Perfekt!' : 'Stark!', 'gross');
+  R.fertig = true;
+  nochmal.focus({ preventScroll: true });
 }
 
 function knall(text, art) {
@@ -870,11 +1092,11 @@ function beendeLevel() {
   const R = S.runde;
   senden(false);
   S.runde = null;
-  if (!R || !R.aufgaben) { zeigeKarte(); return; }
+  if (!R || !R.aufgaben || R.fertig) { zeigeKarte(); return; }
   const m = document.createElement('div'); m.className = 'modal';
-  m.innerHTML = `<div class="aufgabe"><h2>Runde geschafft!</h2>
-    <div class="bilanz"><div><b>${R.aufgaben}</b><small>Aufgaben</small></div><div><b>${R.richtig}</b><small>richtig</small></div><div><b>🔥 ${R.best}</b><small>beste Streak</small></div></div>
-    <p>${R.best >= 10 ? 'Wahnsinn – was für eine Serie!' : R.best >= 5 ? 'Starke Leistung!' : 'Weiter üben – die nächste Streak wird länger!'}</p>
+  m.innerHTML = `<div class="aufgabe"><h2>${ueb() ? 'Übung abgebrochen' : 'Runde geschafft!'}</h2>
+    <div class="bilanz"><div><b>${R.aufgaben}</b><small>Aufgaben</small></div><div><b>${R.richtig}</b><small>richtig</small></div><div><b>🔥 ${R.best}</b><small>beste Serie</small></div></div>
+    <p>${ueb() ? 'Komm bald wieder und mach die 10 Aufgaben voll!' : R.best >= 10 ? 'Wahnsinn – was für eine Serie!' : R.best >= 5 ? 'Starke Leistung!' : 'Weiter üben – die nächste Streak wird länger!'}</p>
     <button class="btn gruen" id="ok">Weiter ▶</button></div>`;
   document.body.appendChild(m);
   m.querySelector('#ok').onclick = () => { m.remove(); zeigeKarte(); };
@@ -887,7 +1109,7 @@ function senden(beacon) {
   if (!SHEET_URL || !R || !R.aufgaben || R.gesendet === R.aufgaben) return;
   R.gesendet = R.aufgaben;
   const daten = JSON.stringify({
-    id: R.id, tier: S.tier, level: S.lv.nr, levelName: S.lv.name,
+    id: R.id, tier: S.tier, level: S.lv.nr, levelName: `${S.lv.name} (${ueb() ? 'Übung' : 'Streak'})`,
     aufgaben: R.aufgaben, richtig: R.richtig, streak: R.best,
     dauer: Math.round(R.aktiv / 6000) / 10
   });
