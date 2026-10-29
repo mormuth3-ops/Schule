@@ -266,7 +266,10 @@
 
   <footer><span>Läuft im Browser – auch auf Tablet und Handy!</span></footer>
 
-<script src="apps.js"></script>
+<script>
+  // apps.js immer frisch laden, damit neue Einträge sofort erscheinen
+  document.write('<script src="apps.js?v=' + Date.now() + '"><\/script>');
+</script>
 <script>
   const FARBEN = ['--blue', '--red', '--green', '--purple', '--orange'];
   const liste = document.getElementById('liste');
