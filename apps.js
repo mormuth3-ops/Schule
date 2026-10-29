@@ -25,8 +25,8 @@ const APPS = [
     titel: "Millikan-Versuch",
     fach: "Physik",
     thema: "Elektrizitätslehre",
-    klasse: "9/10",
-    beschreibung: "Bestimme die Elementarladung, indem du geladene Öltröpfchen im elektrischen Feld zum Schweben bringst.",
+    klasse: "11/12",
+    beschreibung: "Ein Gespräch mit Millikan: Bringe Öltröpfchen im elektrischen Feld zum Schweben und finde heraus, dass Ladung gequantelt ist.",
     datei: "apps/physik/millikan.html",
     neu: true
   },

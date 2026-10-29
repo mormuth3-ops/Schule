@@ -1,25 +1,726 @@
-<!doctype html>
-<html lang="de">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Millikan-Versuch</title>
-<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
+<!doctype html><html lang="de"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Ein Gespräch mit Millikan</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
-  body { margin:0; min-height:100vh; display:grid; place-items:center; padding:16px; box-sizing:border-box;
-    font:700 18px/1.4 "Comic Neue", system-ui, sans-serif; color:#111;
-    background:#ffd23f radial-gradient(rgba(0,0,0,.13) 1.6px, transparent 1.7px) 0 0/14px 14px; }
-  .box { background:#fffdf6; border:3px solid #111; box-shadow:8px 8px 0 #111; padding:28px; max-width:460px; text-align:center; transform:rotate(-1deg); }
-  h1 { font:400 clamp(2.4rem,9vw,3.4rem)/1 Bangers, Impact, sans-serif; letter-spacing:.04em; margin:0 0 12px; color:#ef3e36; }
-  a { display:inline-block; margin-top:16px; padding:6px 18px 3px; font:400 22px Bangers, Impact, sans-serif; letter-spacing:.06em;
-    color:#fff; background:#2e86de; border:3px solid #111; border-radius:10px; box-shadow:3px 3px 0 #111; text-decoration:none; }
+/* Layout: ein Laborpult – Kopfleiste mit Stufen-Schalter, darunter eine Spalte pro Stufe, Millikan-Telefon als feste Karte */
+:root{
+  --bg:#eef1f3; --panel:#ffffff; --ink:#1d2830; --muted:#5b6872; --line:#cfd6db;
+  --brass:#9a6b17; --brass-soft:#f3e7cf; --glow:#0e7c8c; --ok:#227a3f; --ok-soft:#dff1e4; --bad:#b03a2e; --bad-soft:#f8e0dc;
+  --plate:#5a6670;
+  --f-disp:"Barlow Condensed","Arial Narrow",sans-serif;
+  --f-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141a1f; --panel:#1d252c; --ink:#e4e9ec; --muted:#9aa7b0; --line:#33404a;
+  --brass:#d9a54a; --brass-soft:#3a2f1c; --glow:#4cc3d3; --ok:#6fcf8c; --ok-soft:#1f3a29; --bad:#ef8a7e; --bad-soft:#43231f; --plate:#8b98a2; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141a1f; --panel:#1d252c; --ink:#e4e9ec; --muted:#9aa7b0; --line:#33404a;
+  --brass:#d9a54a; --brass-soft:#3a2f1c; --glow:#4cc3d3; --ok:#6fcf8c; --ok-soft:#1f3a29; --bad:#ef8a7e; --bad-soft:#43231f; --plate:#8b98a2; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font:17px/1.55 var(--f-body)}
+.wrap{max-width:900px;margin:0 auto;padding-block:20px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{font-family:var(--f-disp);font-weight:700;letter-spacing:.01em;line-height:1.1;margin:0;text-wrap:balance}
+h1{font-size:2.4rem} h2{font-size:1.8rem} h3{font-size:1.25rem;font-weight:600}
+p{margin:0;max-width:65ch}
+.eyebrow{font-family:var(--f-disp);text-transform:uppercase;letter-spacing:.12em;font-size:.85rem;color:var(--brass);font-weight:600}
+header{display:flex;flex-direction:column;gap:8px}
+.steps{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.steps button{font:600 1rem var(--f-disp);letter-spacing:.04em;text-transform:uppercase;padding:10px 6px;border:1.5px solid var(--line);background:var(--panel);color:var(--muted);border-radius:6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.steps button small{font:400 .8rem var(--f-body);text-transform:none;letter-spacing:0}
+.steps button.done{border-color:var(--ok);color:var(--ok)}
+.steps button.active{border-color:var(--brass);color:var(--ink);background:var(--brass-soft)}
+.steps button:disabled{opacity:.45;cursor:not-allowed}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.phone{border-left:4px solid var(--brass)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+button.btn{font:600 1rem var(--f-body);padding:10px 16px;border-radius:6px;border:1.5px solid var(--brass);background:var(--brass);color:#fff;cursor:pointer}
+button.btn.ghost{background:transparent;color:var(--brass)}
+button.btn:disabled{opacity:.4;cursor:not-allowed}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--glow);outline-offset:2px}
+pre.prompt{white-space:pre-wrap;font:14px/1.5 var(--f-mono);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:12px;max-height:260px;overflow:auto;margin:0;user-select:all}
+.say{font:15px/1.4 var(--f-mono);background:var(--bg);border:1px dashed var(--brass);border-radius:6px;padding:10px 12px;flex:1;min-width:0;user-select:all}
+.asks{margin:0;padding-left:1.2em;color:var(--muted)}
+.feedback{padding:10px 14px;border-radius:6px;font-weight:600}
+.feedback.ok{background:var(--ok-soft);color:var(--ok)}
+.feedback.bad{background:var(--bad-soft);color:var(--bad)}
+.q{display:flex;flex-direction:column;gap:6px}
+select,input,textarea{font:inherit;color:var(--ink);background:var(--panel);border:1.5px solid var(--line);border-radius:6px;padding:8px 10px}
+textarea{width:100%;min-height:80px;box-sizing:border-box}
+.svgbox{overflow-x:auto}
+.svgbox svg{display:block;width:100%;height:auto;max-width:720px;margin:0 auto}
+.part{cursor:pointer}
+.part:hover .hl,.part.sel .hl{stroke:var(--brass);stroke-width:3}
+.info{background:var(--brass-soft);border-radius:6px;padding:12px 14px;min-height:3em}
+.info b{font-family:var(--f-disp);font-size:1.15rem;letter-spacing:.02em}
+/* Bruch gestapelt */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .2em;line-height:1.2}
+.frac>span:first-child{border-bottom:1.5px solid currentColor;padding:0 .25em;text-align:center}
+.frac>span:last-child{padding:0 .25em;text-align:center}
+.math{font-family:var(--f-mono);font-size:1.05rem;white-space:nowrap}
+.choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.choice{display:flex;align-items:center;justify-content:center;padding:14px;border:1.5px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink);cursor:pointer;font:inherit}
+.choice.sel{border-color:var(--brass);background:var(--brass-soft)}
+canvas{width:100%;height:auto;max-width:100%;display:block;border-radius:6px;background:var(--bg)}
+.meters{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.meter{display:flex;flex-direction:column;gap:2px;font-variant-numeric:tabular-nums}
+.meter span{font-size:.85rem;color:var(--muted)}
+.meter strong{font:600 1.15rem var(--f-mono)}
+input[type=range]{width:100%;accent-color:var(--brass);padding:0;border:0}
+.consts{display:flex;flex-wrap:wrap;gap:8px 22px;font:15px var(--f-mono);background:var(--bg);border-radius:6px;padding:10px 14px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;min-width:460px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right}
+th{font:600 .95rem var(--f-disp);letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+th:first-child,td:first-child{text-align:left}
+td input{width:7.5em;text-align:right;font-family:var(--f-mono)}
+td.st{width:2em;text-align:center;font-weight:700}
+td.st.ok{color:var(--ok)} td.st.bad{color:var(--bad)}
+.note{font-size:.92rem;color:var(--muted)}
+details summary{cursor:pointer;font-weight:600;color:var(--brass)}
+.done-card{text-align:left;border:2px solid var(--ok)}
+.lead{font:700 clamp(1.7rem,5vw,2.4rem)/1.1 var(--f-disp);color:var(--brass);margin:0;text-wrap:balance}
+.hints{display:flex;flex-direction:column;gap:8px}
+.hint{background:var(--brass-soft);border-radius:6px;padding:10px 14px}
+.roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+tr.partner td{background:var(--bg)}
+tr.partner td:first-child::after{content:" · von Partner*in";color:var(--muted);font-size:.85rem}
+.recall{background:var(--bg);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:10px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (max-width:520px){h1{font-size:1.9rem}.steps{grid-template-columns:repeat(3,1fr)}}
+[hidden]{display:none!important}
+.sqrt{display:inline-flex;align-items:stretch;vertical-align:middle}
+.sqrt>.rad{border-top:1.5px solid currentColor;padding:2px .2em 0;display:inline-flex;align-items:center}
+.sqrt>.sym{font-size:1.6em;line-height:1;align-self:center}
+.formulas{display:flex;flex-direction:column;gap:12px;background:var(--bg);border-radius:6px;padding:14px}
+.formulas .math{white-space:normal}
+.scope{display:flex;flex-direction:column;align-items:center;gap:12px}
+#scope{max-width:340px;border-radius:50%}
+.watch{font:600 2rem var(--f-mono);font-variant-numeric:tabular-nums}
+.derive{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:12px}
+.derive li{padding-left:.3em}
+.derive li>span{display:block}
+.derive li>span+span{margin-top:4px}
+.units th,.units td{text-align:left!important}
+.derive li::marker{font:700 1.05rem var(--f-disp);color:var(--brass)}
+.derive .math{white-space:normal}
 </style>
-</head>
-<body>
-  <div class="box">
-    <h1>Kommt bald!</h1>
-    <p>Der Millikan-Versuch wird gerade aufgebaut. Schau bald wieder vorbei!</p>
-    <a href="../../index.html">◀ Zur Übersicht</a>
+
+<div class="wrap">
+<header>
+  <a href="../../index.html" style="align-self:flex-start;font:600 .95rem var(--f-body);color:var(--brass);text-decoration:none">◀ Zur Übersicht</a>
+  <div class="eyebrow">Physik · Elektrisches Feld · Elementarladung</div>
+  <h1>Ein Gespräch mit Millikan</h1>
+</header>
+
+<nav class="steps" id="steps" aria-label="Stufen"></nav>
+
+<section class="panel phone">
+  <div class="eyebrow">Euer Gesprächspartner</div>
+  <h3>So erreicht ihr Millikan</h3>
+  <p>Öffnet auf dem iPad in fobizz den KI-Assistenten „Robert A. Millikan“. Den Zugang bekommt ihr von eurer Lehrkraft. Sagt Millikan immer dazu, auf welcher Stufe ihr gerade seid.</p>
+</section>
+
+<!-- EINSTIEG -->
+<section class="panel" data-stage="0">
+  <div class="eyebrow">Einstieg</div>
+  <h2>Eine kurze Erinnerung</h2>
+  <div class="recall">
+    <p>Ein Kunststoffstab wurde gerieben und trägt jetzt die Ladung <span class="math">Q = −4,8 · 10<sup>−19</sup> C</span>.</p>
+    <div class="q"><label for="e0">Wie viele überschüssige Elektronen sitzen auf dem Stab?</label>
+      <input id="e0" inputmode="numeric" placeholder="Anzahl" style="max-width:10em"></div>
+    <div class="row"><button class="btn" id="check0">Prüfen</button></div>
+    <div id="fb0" role="status"></div>
   </div>
-</body>
-</html>
+  <div id="leit" hidden>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <p>Richtig. Dafür habt ihr <span class="math">n = <span class="frac"><span>Q</span><span>e</span></span></span> gerechnet und die Elementarladung <span class="math">e ≈ 1,602 · 10<sup>−19</sup> C</span> benutzt, ganz selbstverständlich, so wie schon oft im Unterricht.</p>
+      <p>Aber ein einzelnes Elektron hat noch nie jemand gesehen. Man kann es nicht wiegen, nicht festhalten und nicht einzeln abzählen.</p>
+      <p class="lead">Woher weiß man das eigentlich?</p>
+      <p>Und noch mehr: Woher weiß man, dass es keine noch kleinere Ladung gibt?</p>
+      <div class="q"><label for="v0">Eure Vermutung: Wie könnte man so eine winzige Ladung messen?</label>
+        <textarea id="v0" placeholder="Wir vermuten …"></textarea></div>
+      <div class="row"><button class="btn" id="go0">Vermutung festhalten und Millikan fragen</button></div>
+      <div id="fb0b" role="status"></div>
+    </div>
+  </div>
+</section>
+
+<!-- STUFE 1 -->
+<section class="panel" data-stage="1">
+  <div class="eyebrow">Stufe 1 von 4</div>
+  <h2>Der Aufbau</h2>
+  <p>Tippt die Bauteile an. Fragt Millikan zu allem, was euch unklar ist.</p>
+  <div class="svgbox">
+  <svg viewBox="0 0 720 380" role="img" aria-label="Schema des Millikan-Versuchs">
+    <defs>
+      <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="var(--muted)"/></marker>
+    </defs>
+    <!-- Zerstäuber -->
+    <g class="part" data-part="zer">
+      <rect class="hl" x="290" y="12" width="70" height="44" rx="8" fill="var(--panel)" stroke="var(--muted)" stroke-width="1.5"/>
+      <circle cx="380" cy="34" r="16" class="hl" fill="var(--brass-soft)" stroke="var(--muted)" stroke-width="1.5"/>
+      <path d="M325 56 L345 100" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3 4"/>
+      <text x="230" y="40" font-size="15" fill="var(--ink)" font-family="Source Sans 3, sans-serif">Zerstäuber</text>
+    </g>
+    <!-- obere Platte -->
+    <g class="part" data-part="platte">
+      <rect class="hl" x="170" y="104" width="160" height="12" fill="var(--plate)" stroke="var(--plate)"/>
+      <rect class="hl" x="360" y="104" width="160" height="12" fill="var(--plate)" stroke="var(--plate)"/>
+      <rect class="hl" x="170" y="264" width="350" height="12" fill="var(--plate)" stroke="var(--plate)"/>
+      <text x="530" y="115" font-size="22" font-weight="700" fill="var(--bad)">+</text>
+      <text x="530" y="277" font-size="22" font-weight="700" fill="var(--glow)">−</text>
+      <text x="530" y="200" font-size="14" fill="var(--muted)">d</text>
+      <line x1="548" y1="118" x2="548" y2="262" stroke="var(--muted)" marker-start="url(#arr)" marker-end="url(#arr)"/>
+    </g>
+    <!-- Loch -->
+    <g class="part" data-part="loch">
+      <rect class="hl" x="330" y="100" width="30" height="20" fill="transparent" stroke="var(--line)" stroke-dasharray="3 3"/>
+    </g>
+    <!-- Tropfen -->
+    <g class="part" data-part="tropfen">
+      <circle class="hl" cx="345" cy="190" r="9" fill="var(--glow)" stroke="var(--glow)"/>
+      <circle cx="305" cy="160" r="4" fill="var(--glow)" opacity=".5"/><circle cx="380" cy="228" r="3" fill="var(--glow)" opacity=".5"/>
+    </g>
+    <!-- Lampe -->
+    <g class="part" data-part="lampe">
+      <rect class="hl" x="30" y="168" width="70" height="44" rx="6" fill="var(--panel)" stroke="var(--muted)" stroke-width="1.5"/>
+      <path d="M100 178 L330 186 M100 202 L330 194" stroke="var(--brass)" stroke-width="1.2" opacity=".7"/>
+      <text x="38" y="236" font-size="15" fill="var(--ink)">Lampe</text>
+    </g>
+    <!-- Mikroskop -->
+    <g class="part" data-part="mikro">
+      <rect class="hl" x="420" y="300" width="36" height="66" rx="4" fill="var(--panel)" stroke="var(--muted)" stroke-width="1.5" transform="rotate(-35 438 333)"/>
+      <path d="M372 220 L420 300" stroke="var(--muted)" stroke-dasharray="4 4"/>
+      <text x="470" y="360" font-size="15" fill="var(--ink)">Mikroskop</text>
+    </g>
+    <!-- Spannungsquelle -->
+    <g class="part" data-part="quelle">
+      <path d="M520 110 H640 V170 M640 214 V270 H520" stroke="var(--muted)" stroke-width="1.5" fill="none"/>
+      <rect class="hl" x="606" y="170" width="68" height="44" rx="6" fill="var(--panel)" stroke="var(--muted)" stroke-width="1.5"/>
+      <text x="640" y="198" font-size="17" text-anchor="middle" font-weight="700" fill="var(--ink)">U</text>
+      <text x="680" y="240" font-size="14" text-anchor="end" fill="var(--muted)">regelbar</text>
+    </g>
+  </svg>
+  </div>
+  <div class="info" id="info" aria-live="polite">Tippt auf ein Bauteil in der Zeichnung.</div>
+  <h3>Fragt Millikan</h3>
+  <p>Die Antworten auf diese drei Fragen stehen nicht in der Zeichnung. Stellt sie Millikan im Chat und wählt dann aus.</p>
+  <div class="q"><label for="m1">Warum hat Millikan Öl und nicht Wasser verwendet?</label>
+    <select id="m1"><option value="">bitte wählen</option><option value="a">Öl leitet den Strom besser als Wasser.</option><option value="ok">Öl verdunstet kaum, deshalb bleibt die Masse des Tröpfchens gleich.</option><option value="b">Öltröpfchen sind schwerer und deshalb leichter zu sehen.</option></select></div>
+  <div class="q"><label for="m2">Wie bekommen die Tröpfchen ihre Ladung?</label>
+    <select id="m2"><option value="">bitte wählen</option><option value="a">Sie werden von den Kondensatorplatten aufgeladen, wenn sie diese berühren.</option><option value="b">Das Licht der Lampe lädt sie auf.</option><option value="ok">Sie laden sich beim Zerstäuben durch Reibung auf.</option></select></div>
+  <div class="q"><label for="m3">Warum muss die Spannung regelbar sein?</label>
+    <select id="m3"><option value="">bitte wählen</option><option value="ok">Jedes Tröpfchen hat eine andere Masse und Ladung. Die elektrische Kraft muss für jedes passend eingestellt werden.</option><option value="a">Damit die Platten nicht zu heiß werden.</option><option value="b">Damit man die Tröpfchen schneller nach unten drücken kann.</option></select></div>
+
+  <h3>Kontrolle: Kräfte am schwebenden Tröpfchen</h3>
+  <div class="q"><label for="k1">Die Gewichtskraft zeigt nach …</label>
+    <select id="k1"><option value="">bitte wählen</option><option>oben</option><option>unten</option></select></div>
+  <div class="q"><label for="k2">Damit das Tröpfchen schweben kann, muss die elektrische Kraft nach … zeigen.</label>
+    <select id="k2"><option value="">bitte wählen</option><option>oben</option><option>unten</option></select></div>
+  <div class="q"><label for="k3">Die obere Platte ist positiv geladen. Dann muss das Tröpfchen … geladen sein.</label>
+    <select id="k3"><option value="">bitte wählen</option><option>positiv</option><option>negativ</option></select></div>
+  <div class="q"><label for="k4">Das Feld zwischen den Platten ist …</label>
+    <select id="k4"><option value="">bitte wählen</option><option>homogen</option><option>radial</option></select></div>
+  <div class="row"><button class="btn" id="check1">Prüfen</button></div>
+  <div id="fb1" role="status"></div>
+</section>
+
+<!-- STUFE 2 -->
+<section class="panel" data-stage="2" hidden>
+  <div class="eyebrow">Stufe 2 von 4</div>
+  <h2>Der Schwebezustand</h2>
+  <p>Zwischen den Platten fliegen viele Tröpfchen, jedes mit eigener Masse und eigener Ladung. Stellt die Spannung so ein, dass das <b>markierte Tröpfchen A</b> weder steigt noch sinkt. Beobachtet dabei auch die anderen.</p>
+  <canvas id="sim" width="720" height="300" aria-label="Simulation mehrerer Tröpfchen zwischen den Platten, Tröpfchen A ist markiert"></canvas>
+  <label for="uSlider" class="row" style="justify-content:space-between"><span>Spannung U</span><strong class="math" id="uVal">0 V</strong></label>
+  <input type="range" id="uSlider" min="0" max="400" step="1" value="0">
+  <div class="meters">
+    <div class="meter"><span>Feldstärke E</span><strong id="mE">0 V/m</strong></div>
+    <div class="meter"><span>F<sub>G</sub> auf Tröpfchen A</span><strong id="mG"></strong></div>
+    <div class="meter"><span>F<sub>el</sub> auf Tröpfchen A</span><strong id="mF">0 N</strong></div>
+    <div class="meter"><span>Tröpfchen A</span><strong id="mS">sinkt</strong></div>
+  </div>
+  <div id="fbSim" role="status"></div>
+
+  <p class="note">Die Masse von Tröpfchen A ist in der Simulation vorgegeben. Wie Millikan sie herausgefunden hat, erfahrt ihr in der Extrastufe.</p>
+  <h3>Die Gleichung für die Ladung</h3>
+  <p>Im Schwebezustand gilt F<sub>el</sub> = F<sub>G</sub>, also <span class="math">q · E = m · g</span> mit <span class="math">E = <span class="frac"><span>U</span><span>d</span></span></span>. Stellt nach q um. Welche Gleichung ist richtig?</p>
+  <div class="choices" id="formChoices">
+    <button class="choice" data-v="a"><span class="math">q = <span class="frac"><span>m · g · U</span><span>d</span></span></span></button>
+    <button class="choice" data-v="b"><span class="math">q = <span class="frac"><span>m · g · d</span><span>U</span></span></span></button>
+    <button class="choice" data-v="c"><span class="math">q = <span class="frac"><span>U · d</span><span>m · g</span></span></span></button>
+    <button class="choice" data-v="d"><span class="math">q = <span class="frac"><span>m · g</span><span>U · d</span></span></span></button>
+  </div>
+  <div class="row"><button class="btn" id="check2">Prüfen</button></div>
+  <div id="fb2" role="status"></div>
+</section>
+
+<!-- STUFE 3 -->
+<section class="panel" data-stage="3" hidden>
+  <div class="eyebrow">Stufe 3 von 4</div>
+  <h2>Millikans Laborbuch</h2>
+  <p>Zehn Tröpfchen, jeweils im Schwebezustand gemessen. Ihr teilt euch die Arbeit zu zweit: Jede Person berechnet fünf Tröpfchen. Danach tauscht ihr eure Ergebnisse aus und tragt auch die Werte eurer Partnerin oder eures Partners ein.</p>
+  <div class="roles" id="roles">
+    <button class="choice" data-role="1">Ich rechne Teil 1:<br>Tröpfchen 1 bis 5</button>
+    <button class="choice" data-role="2">Ich rechne Teil 2:<br>Tröpfchen 6 bis 10</button>
+  </div>
+  <div class="consts"><span>d = 6,0 mm</span><span>g = 9,81 <span class="frac"><span>m</span><span>s²</span></span></span><span>q in 10<sup>−19</sup> C, zwei Nachkommastellen</span></div>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Tröpfchen</th><th>m in 10<sup>−15</sup> kg</th><th>U in V</th><th>q in 10<sup>−19</sup> C</th><th></th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  </div>
+  <p class="note">Kontrolliert gegenseitig mindestens einen Wert, bevor ihr ihn übernehmt.</p>
+  <details><summary id="helpSum">Rechenhilfe</summary>
+    <p class="math" id="helpCalc" style="white-space:normal;margin-top:8px"></p>
+  </details>
+  <h3>Eure Werte auf dem Zahlenstrahl</h3>
+  <div class="svgbox" id="line3"></div>
+  <div id="fb3" role="status"></div>
+</section>
+
+<!-- STUFE 4 -->
+<section class="panel" data-stage="4" hidden>
+  <div class="eyebrow">Stufe 4 von 4</div>
+  <h2>Was steckt dahinter?</h2>
+  <p>Hier sind alle zehn Ladungen aus Millikans Laborbuch. Schaut euch die Verteilung genau an, bevor ihr eine Hilfe öffnet.</p>
+  <div class="svgbox" id="line4"></div>
+  <div class="q"><label for="a1">Beschreibt in eigenen Worten, was euch an den Werten auffällt.</label>
+    <textarea id="a1" placeholder="Uns fällt auf, dass …"></textarea></div>
+  <div class="hints" id="hints"></div>
+  <div class="row"><button class="btn ghost" id="hintBtn">Hilfe 1 öffnen</button></div>
+
+  <div class="q"><label for="a2">Welches ist die kleinste Ladung, die ihr findet (in 10<sup>−19</sup> C)?</label>
+    <input id="a2" inputmode="decimal" placeholder="z. B. 1,23" style="max-width:10em"></div>
+  <div class="q"><label for="a3">Teilt die Ladung von Tröpfchen 6 durch diese kleinste Ladung. Ergebnis:</label>
+    <input id="a3" inputmode="decimal" placeholder="Ergebnis" style="max-width:10em"></div>
+  <div class="q"><label for="a3b">Rechnet das auch für andere Tröpfchen. Was stellt ihr fest?</label>
+    <textarea id="a3b" placeholder="Wir stellen fest …"></textarea></div>
+  <div class="q"><label for="a5">Denkfrage: Könnte die kleinste Ladung auch 0,8 · 10<sup>−19</sup> C sein? Begründet mit euren Messwerten.</label>
+    <textarea id="a5" placeholder="Nein / Ja, weil …"></textarea></div>
+  <p class="note">Bei der Denkfrage hilft euch Millikan mit einer Gegenfrage, wenn ihr nicht weiterkommt.</p>
+  <div class="q"><label for="a4">Formuliert euren Merksatz zur Ladung:</label>
+    <textarea id="a4" placeholder="Jede Ladung …"></textarea></div>
+  <div class="row"><button class="btn" id="check4">Prüfen</button></div>
+  <div id="fb4" role="status"></div>
+  <div class="panel done-card" id="doneCard" hidden>
+    <div class="eyebrow" style="color:var(--ok)">Geschafft</div>
+    <h3>Zurück zur Leitfrage: Woher weiß man das?</h3>
+    <p>Eure Vermutung vom Anfang: <i id="vBack">–</i></p>
+    <p>Millikan hat einzelne Öltröpfchen im elektrischen Feld schweben lassen und aus dem Kräftegleichgewicht ihre Ladung berechnet. Die Ladungen liegen nie beliebig, sondern immer bei ganzzahligen Vielfachen einer kleinsten Ladung, der Elementarladung <span class="math">e ≈ 1,6 · 10<sup>−19</sup> C</span>. Für jede Ladung gilt <span class="math">q = n · e</span> mit n = 1, 2, 3, … Man sagt: Ladung ist <b>gequantelt</b>.</p>
+    <p><b>Zur Denkfrage:</b> Wäre 0,8 · 10<sup>−19</sup> C die kleinste Ladung, müssten auch Tröpfchen mit 0,8 oder 2,4 oder 4,0 · 10<sup>−19</sup> C vorkommen. Millikan hat sehr viele Tröpfchen gemessen und nie einen solchen Wert gefunden. Deshalb ist 1,6 · 10<sup>−19</sup> C die kleinste Ladung.</p>
+    <p>Vergleicht das mit eurem Merksatz. Fragt Millikan zum Abschluss, ob er wirklich alle seine Tröpfchen veröffentlicht hat.</p>
+  </div>
+</section>
+
+<!-- EXTRASTUFE -->
+<section class="panel" data-stage="5" hidden>
+  <div class="eyebrow">Extrastufe</div>
+  <h2>Wie schwer ist ein Tröpfchen?</h2>
+  <p>Bisher war die Masse der Tröpfchen immer vorgegeben. Millikan hatte diesen Luxus nicht. Ein Tröpfchen wiegt etwa 10<sup>−15</sup> kg, das zeigt keine Waage der Welt an. Fragt Millikan, wie er trotzdem an die Masse gekommen ist.</p>
+
+  <h3>1. Messen: Das Tröpfchen sinkt ohne Feld</h3>
+  <p>Die Spannung ist ausgeschaltet. Ihr seht Tröpfchen A durch das Mikroskop. Die beiden roten Striche der Okularskala liegen <b>0,40 mm</b> auseinander. Startet die Stoppuhr, wenn das Tröpfchen den oberen Strich passiert, und stoppt sie am unteren Strich.</p>
+  <div class="scope">
+    <canvas id="scope" width="340" height="340" aria-label="Blick durch das Mikroskop auf ein sinkendes Tröpfchen"></canvas>
+    <div class="watch" id="watch" role="timer">0,00 s</div>
+    <div class="row" style="justify-content:center">
+      <button class="btn ghost" id="dropBtn">Tröpfchen neu starten</button>
+      <button class="btn" id="watchBtn">Start</button>
+    </div>
+  </div>
+  <div class="q"><label for="x1">Eure gemessene Zeit t in s (ihr könnt mehrmals messen und mitteln):</label>
+    <input id="x1" inputmode="decimal" placeholder="z. B. 8,5" style="max-width:10em"></div>
+
+  <h3>2. Verstehen: Warum sinkt es gleichmäßig?</h3>
+  <p>Das Tröpfchen wird nicht immer schneller, sondern sinkt nach einem winzigen Moment mit konstanter Geschwindigkeit.</p>
+  <div class="q"><label for="x2">Was bedeutet das für die Kräfte?</label>
+    <select id="x2"><option value="">bitte wählen</option>
+      <option value="a">Auf das Tröpfchen wirkt gar keine Kraft mehr.</option>
+      <option value="ok">Die Gewichtskraft und die Reibungskraft der Luft sind gleich groß.</option>
+      <option value="b">Die Gewichtskraft wird beim Sinken immer kleiner.</option></select></div>
+
+  <h3>3. Rechnen: Vom Sinken zur Masse</h3>
+  <p>Wie beim Schweben brauchen wir wieder ein <b>Kräftegleichgewicht</b>. Diesmal hält nicht die elektrische Kraft die Gewichtskraft im Gleichgewicht, sondern die Reibungskraft der Luft:</p>
+  <p class="lead" style="text-align:center">F<sub>G</sub> = F<sub>R</sub></p>
+  <div class="formulas">
+    <p class="math">Gewichtskraft: F<sub>G</sub> = m · g</p>
+    <p class="math">Reibungskraft nach Stokes: F<sub>R</sub> = 6 · π · η · r · v</p>
+    <p class="math">Masse einer Kugel: m = ρ · <span class="frac"><span>4</span><span>3</span></span> · π · r³</p>
+  </div>
+
+  <h3>Übersicht über die Größen und Einheiten</h3>
+  <div class="tablewrap">
+  <table class="units">
+    <thead><tr><th>Größe</th><th>Bedeutung</th><th>Wert</th><th>Einheit</th></tr></thead>
+    <tbody>
+      <tr><td>s</td><td>Strecke zwischen den Strichen</td><td>0,40 mm = 0,40 · 10<sup>−3</sup> m</td><td>m</td></tr>
+      <tr><td>t</td><td>gemessene Sinkzeit</td><td>eure Messung</td><td>s</td></tr>
+      <tr><td>v</td><td>Sinkgeschwindigkeit, v = <span class="frac"><span>s</span><span>t</span></span></td><td>berechnen</td><td><span class="frac"><span>m</span><span>s</span></span></td></tr>
+      <tr><td>η</td><td>Viskosität (Zähigkeit) der Luft</td><td>1,81 · 10<sup>−5</sup></td><td>Pa · s = <span class="frac"><span>kg</span><span>m · s</span></span></td></tr>
+      <tr><td>ρ</td><td>Dichte des Öls</td><td>875</td><td><span class="frac"><span>kg</span><span>m³</span></span></td></tr>
+      <tr><td>g</td><td>Fallbeschleunigung</td><td>9,81</td><td><span class="frac"><span>m</span><span>s²</span></span></td></tr>
+      <tr><td>r</td><td>Radius des Tröpfchens</td><td>berechnen</td><td>m (Ergebnis in µm = 10<sup>−6</sup> m)</td></tr>
+      <tr><td>m</td><td>Masse des Tröpfchens</td><td>berechnen</td><td>kg</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="note">Rechnet immer in Grundeinheiten: Millimeter in Meter umrechnen, bevor ihr einsetzt.</p>
+
+  <div class="q"><label for="x3">Berechnet zuerst die Sinkgeschwindigkeit v = <span class="frac"><span>s</span><span>t</span></span> in 10<sup>−5</sup> <span class="frac"><span>m</span><span>s</span></span>:</label>
+    <input id="x3" inputmode="decimal" placeholder="v" style="max-width:10em"></div>
+
+  <h3>Herleitung der Formel für den Radius</h3>
+  <ol class="derive">
+    <li><span>Kräftegleichgewicht aufschreiben:</span><span class="math">F<sub>G</sub> = F<sub>R</sub></span></li>
+    <li><span>Beide Kräfte einsetzen:</span><span class="math">m · g = 6 · π · η · r · v</span></li>
+    <li><span>Die Masse kennen wir nicht. Wir ersetzen sie durch Dichte und Volumen der Kugel:</span><span class="math">ρ · <span class="frac"><span>4</span><span>3</span></span> · π · r³ · g = 6 · π · η · r · v</span></li>
+    <li><span>π steht auf beiden Seiten. Wir teilen durch π:</span><span class="math">ρ · <span class="frac"><span>4</span><span>3</span></span> · r³ · g = 6 · η · r · v</span></li>
+    <li><span>Wir teilen durch r. Aus r³ wird r²:</span><span class="math">ρ · <span class="frac"><span>4</span><span>3</span></span> · r² · g = 6 · η · v</span></li>
+    <li><span>Wir teilen durch ρ · <span class="frac"><span>4</span><span>3</span></span> · g, damit r² allein steht:</span><span class="math">r² = <span class="frac"><span>6 · η · v</span><span><span class="frac"><span>4</span><span>3</span></span> · ρ · g</span></span></span></li>
+    <li><span>Den Doppelbruch vereinfachen: Durch <span class="frac"><span>4</span><span>3</span></span> teilen heißt mit <span class="frac"><span>3</span><span>4</span></span> malnehmen, also 6 · <span class="frac"><span>3</span><span>4</span></span> = <span class="frac"><span>18</span><span>4</span></span> = <span class="frac"><span>9</span><span>2</span></span>:</span><span class="math">r² = <span class="frac"><span>9 · η · v</span><span>2 · ρ · g</span></span></span></li>
+    <li><span>Auf beiden Seiten die Wurzel ziehen:</span><span class="math">r = <span class="sqrt"><span class="sym">√</span><span class="rad"><span class="frac"><span>9 · η · v</span><span>2 · ρ · g</span></span></span></span></span></li>
+  </ol>
+  <details><summary>Einheitenprobe: Kommt wirklich Meter heraus?</summary>
+    <p class="math" style="white-space:normal;margin-top:8px">[r] = <span class="sqrt"><span class="sym">√</span><span class="rad"><span class="frac"><span><span class="frac"><span>kg</span><span>m · s</span></span> · <span class="frac"><span>m</span><span>s</span></span></span><span><span class="frac"><span>kg</span><span>m³</span></span> · <span class="frac"><span>m</span><span>s²</span></span></span></span></span></span> = <span class="sqrt"><span class="sym">√</span><span class="rad"><span class="frac"><span><span class="frac"><span>kg</span><span>s²</span></span></span><span><span class="frac"><span>kg</span><span>m² · s²</span></span></span></span></span></span> = <span class="sqrt"><span class="sym">√</span><span class="rad">m²</span></span> = m</p>
+  </details>
+  <p>Mit dem Radius berechnet ihr danach die Masse: <span class="math">m = ρ · <span class="frac"><span>4</span><span>3</span></span> · π · r³</span></p>
+  <div class="q"><label for="x4">Radius r in 10<sup>−6</sup> m (also in µm):</label>
+    <input id="x4" inputmode="decimal" placeholder="r" style="max-width:10em"></div>
+  <div class="q"><label for="x5">Masse m in 10<sup>−15</sup> kg:</label>
+    <input id="x5" inputmode="decimal" placeholder="m" style="max-width:10em"></div>
+
+  <h3>4. Nachdenken</h3>
+  <div class="q"><label for="x6">Vergleicht eure Masse mit dem vorgegebenen Wert von Tröpfchen A (0,874 · 10<sup>−15</sup> kg). Welche Ungenauigkeiten stecken in dieser Methode? Fragt auch Millikan.</label>
+    <textarea id="x6" placeholder="Ungenau ist …"></textarea></div>
+  <div class="row"><button class="btn" id="check5">Prüfen</button></div>
+  <div id="fb5" role="status"></div>
+  <div class="panel done-card" id="doneCard5" hidden>
+    <div class="eyebrow" style="color:var(--ok)">Extrastufe geschafft</div>
+    <h3>So kam Millikan an die Masse</h3>
+    <p>Er ließ jedes Tröpfchen zuerst ohne Feld sinken und maß die Sinkgeschwindigkeit. Weil Gewichtskraft und Luftreibung dann gleich groß sind, folgt daraus der Radius und damit die Masse. Erst danach schaltete er das Feld ein und brachte dasselbe Tröpfchen zum Schweben.</p>
+    <p><b>Ungenauigkeiten:</b> eure Reaktionszeit beim Stoppen, das Zittern der Tröpfchen durch Stöße der Luftteilchen (Brownsche Bewegung) und der Auftrieb in Luft, der hier vernachlässigt wird. Außerdem gilt das Gesetz von Stokes für so winzige Tröpfchen nur näherungsweise, Millikan musste es korrigieren. Ein kleiner Fehler bei der Zeit wirkt sich stärker auf die Masse aus, weil der Radius in der dritten Potenz eingeht.</p>
+  </div>
+</section>
+</div>
+
+<script>
+const E_CHG = 1.602e-19, G = 9.81, D = 0.006;
+const DATA = [[0.874,159],[1.312,161],[0.610,223],[1.877,173],[1.054,194],[1.485,108],[0.753,273],[1.204,149],[1.739,211],[0.916,84]];
+const qOf = ([m,U]) => m*1e-15*G*D/U/1e-19;
+const fmt = (x,n=2) => x.toFixed(n).replace(".",",");
+const parse = s => parseFloat(String(s).replace(",",".").trim());
+
+let state = {unlocked:0, current:0, answers:{}, hints:0, role:0};
+try{ const s = JSON.parse(localStorage.getItem("millikan-v3")||"null"); if(s) state = Object.assign(state,s); }catch(e){}
+const save = () => { try{ localStorage.setItem("millikan-v3", JSON.stringify(state)); }catch(e){} };
+
+/* Stufen-Navigation */
+const names = ["Leitfrage","Aufbau","Schweben","Laborbuch","Erkenntnis","Masse"];
+const stepsEl = document.getElementById("steps");
+function renderSteps(){
+  stepsEl.innerHTML = "";
+  names.forEach((n,i)=>{
+    const s=i, b=document.createElement("button");
+    b.innerHTML = s===0 ? `Start<small>${n}</small>` : s===5 ? `Extra<small>${n}</small>` : `Stufe ${s}<small>${n}</small>`;
+    b.disabled = s>state.unlocked;
+    if(s<state.unlocked) b.classList.add("done");
+    if(s===state.current) b.classList.add("active");
+    b.onclick = ()=>{ state.current=s; save(); show(); };
+    stepsEl.appendChild(b);
+  });
+}
+function show(){
+  document.querySelectorAll("[data-stage]").forEach(el=>el.hidden = +el.dataset.stage!==state.current);
+  renderSteps();
+  if(state.current===3) drawLine("line3", userVals(), false);
+  if(state.current===4) drawLine("line4", DATA.map(qOf), state.hints>=3);
+}
+function unlock(s){ if(state.unlocked<s) state.unlocked=s; save(); renderSteps(); }
+function fb(id, ok, msg, btnStage){
+  const el=document.getElementById(id), key=(ok?"1":"0")+msg+(btnStage||"");
+  if(el.dataset.key===key) return;
+  el.dataset.key=key;
+  el.className = "feedback " + (ok?"ok":"bad");
+  el.innerHTML = msg;
+  if(ok && btnStage){
+    const b=document.createElement("button"); b.className="btn"; b.style.marginTop="10px"; b.style.display="block";
+    b.textContent = btnStage===5 ? "Weiter zur Extrastufe" : `Weiter zu Stufe ${btnStage}`;
+    b.onclick=()=>{state.current=btnStage; save(); show(); window.scrollTo({top:0,behavior:"smooth"});};
+    el.appendChild(b);
+  }
+}
+
+/* Einstieg */
+document.getElementById("check0").onclick=()=>{
+  const v=parse(document.getElementById("e0").value);
+  if(v===3){ fb("fb0",true,"Stimmt: 3 Elektronen."); document.getElementById("leit").hidden=false; state.answers.e0=true; save(); }
+  else fb("fb0",false,"Noch nicht. Teilt den Betrag der Ladung durch die Ladung eines Elektrons.");
+};
+const v0=document.getElementById("v0");
+v0.value=state.answers.v0||"";
+v0.addEventListener("input",()=>{ state.answers.v0=v0.value; save(); });
+if(state.answers.e0){ document.getElementById("e0").value="3"; document.getElementById("leit").hidden=false; }
+document.getElementById("go0").onclick=()=>{
+  if(v0.value.trim().length<10) return fb("fb0b",false,"Schreibt zuerst eure Vermutung auf, auch wenn ihr unsicher seid.");
+  unlock(1); fb("fb0b",true,"Vermutung gespeichert. Am Ende vergleicht ihr sie mit Millikans Antwort. Öffnet jetzt den Millikan-Assistenten in fobizz und startet mit Stufe 1.",1);
+};
+
+/* Stufe 1 */
+const INFO = {
+  zer:["Zerstäuber","Er sprüht feinste Öltröpfchen in den Raum über den Platten. Dabei sind die Tröpfchen elektrisch geladen. Wie das passiert, weiß Millikan."],
+  platte:["Kondensatorplatten","Zwei waagerechte Metallplatten im Abstand d. Liegt eine Spannung an, entsteht dazwischen ein homogenes elektrisches Feld."],
+  loch:["Loch in der oberen Platte","Durch dieses kleine Loch fallen einzelne Tröpfchen in den Raum zwischen den Platten."],
+  tropfen:["Öltröpfchen","Nur etwa ein tausendstel Millimeter groß. Man sieht es im Mikroskop als hellen Lichtpunkt vor dunklem Hintergrund."],
+  lampe:["Lampe","Sie beleuchtet die Tröpfchen von der Seite. Das gestreute Licht macht sie im Mikroskop sichtbar."],
+  mikro:["Mikroskop","Damit wird ein einzelnes Tröpfchen beobachtet. Eine Skala im Okular zeigt, ob es steigt, sinkt oder schwebt."],
+  quelle:["Spannungsquelle","Sie erzeugt die Spannung U zwischen den Platten. Die Spannung lässt sich fein regeln."]
+};
+document.querySelectorAll(".part").forEach(p=>p.addEventListener("click",()=>{
+  document.querySelectorAll(".part").forEach(x=>x.classList.remove("sel")); p.classList.add("sel");
+  const [t,d]=INFO[p.dataset.part]; document.getElementById("info").innerHTML=`<b>${t}</b><br>${d}`;
+}));
+document.getElementById("check1").onclick=()=>{
+  const v=["k1","k2","k3","k4"].map(id=>document.getElementById(id).value);
+  const right=["unten","oben","negativ","homogen"];
+  const wrongK=v.map((x,i)=>x!==right[i]).filter(Boolean).length;
+  const wrongM=["m1","m2","m3"].filter(id=>document.getElementById(id).value!=="ok").length;
+  const msgs=[];
+  if(wrongM) msgs.push(`Bei den Millikan-Fragen ${wrongM>1?"sind "+wrongM+" Antworten":"ist 1 Antwort"} noch nicht richtig. Fragt ihn noch einmal genauer.`);
+  if(wrongK) msgs.push(`Bei den Kräften ${wrongK>1?"sind "+wrongK+" Antworten":"ist 1 Antwort"} noch nicht richtig. Überlegt, in welche Richtung die Kräfte wirken müssen.`);
+  if(!msgs.length){ unlock(2); fb("fb1",true,"Alles richtig. Stufe 2 ist freigeschaltet.",2); }
+  else fb("fb1",false,msgs.join("<br>"));
+};
+
+/* Stufe 2: Simulation mit mehreren Tröpfchen */
+const RHO=875, mOf=r=>RHO*4/3*Math.PI*Math.pow(r*1e-6,3);
+const DROPS=[
+  {r:0.62,n:2,x:360,y:70,A:true},
+  {r:0.55,n:1,x:150,y:110},{r:0.70,n:2,x:215,y:200},{r:0.62,n:3,x:270,y:150},
+  {r:0.85,n:4,x:470,y:90},{r:0.58,n:1,x:520,y:220},{r:0.75,n:5,x:575,y:130},
+  {r:0.66,n:4,x:420,y:180},{r:0.54,n:2,x:120,y:230},{r:0.72,n:1,x:620,y:60}
+].map(d=>Object.assign(d,{m:mOf(d.r),q:d.n*E_CHG}));
+const A=DROPS[0], FG=A.m*G;
+const K=0.8/(FG/A.r); // A sinkt ohne Feld mit 0,8 px pro Bild
+function expo(x){ const [a,b]=x.toExponential(2).split("e"); return a.replace(".",",")+" · 10<sup>"+(+b<0?"−"+Math.abs(+b):b)+"</sup>"; }
+document.getElementById("mG").innerHTML = expo(FG)+" N";
+const cv=document.getElementById("sim"), cx=cv.getContext("2d");
+const slider=document.getElementById("uSlider");
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let found=!!state.answers.float;
+function updateMeters(){
+  const U=+slider.value, E=U/D, Fel=A.q*E;
+  document.getElementById("uVal").textContent=U+" V";
+  document.getElementById("mE").textContent=Math.round(E).toLocaleString("de-DE")+" V/m";
+  document.getElementById("mF").innerHTML=U>0?expo(Fel)+" N":"0 N";
+  const r=(Fel-FG)/FG, S=document.getElementById("mS");
+  S.textContent = Math.abs(r)<0.02 ? "schwebt" : (r>0?"steigt":"sinkt");
+  S.style.color = Math.abs(r)<0.02 ? css("--ok") : css("--ink");
+  return r;
+}
+function frame(){
+  const r=updateMeters(), U=+slider.value;
+  DROPS.forEach(d=>{
+    const Fel=d.q*U/D, fg=d.m*G;
+    let v = (d.A && Math.abs(r)<0.02) ? 0 : K*(fg-Fel)/d.r;
+    v=Math.max(-3.5,Math.min(3.5,v));
+    d.y += v + (reduce?0:(Math.random()-0.5)*0.35);
+    if(d.y>244){ d.y=46; } if(d.y<46){ d.y=244; }
+  });
+  if(Math.abs(r)<0.02 && !found){ found=true; state.answers.float=true; save(); fb("fbSim",true,`Tröpfchen A schwebt bei etwa ${U} V. Die anderen Tröpfchen steigen oder sinken weiter. Überlegt, warum. Dann stellt die Gleichung auf.`); }
+  const W=cv.width,H=cv.height;
+  cx.fillStyle=css("--bg"); cx.fillRect(0,0,W,H);
+  cx.fillStyle=css("--plate"); cx.fillRect(80,26,560,12); cx.fillRect(80,252,560,12);
+  cx.font="700 22px sans-serif"; cx.fillStyle=css("--bad"); cx.fillText("+",650,40); cx.fillStyle=css("--glow"); cx.fillText("−",650,266);
+  DROPS.forEach(d=>{
+    if(d.A) return;
+    cx.globalAlpha=.55; cx.fillStyle=css("--glow"); cx.beginPath(); cx.arc(d.x,d.y,3+d.r*5,0,7); cx.fill(); cx.globalAlpha=1;
+  });
+  cx.fillStyle=css("--glow"); cx.beginPath(); cx.arc(A.x,A.y,7,0,7); cx.fill();
+  cx.strokeStyle=css("--brass"); cx.lineWidth=2.5; cx.beginPath(); cx.arc(A.x,A.y,14,0,7); cx.stroke();
+  cx.font="700 16px 'Barlow Condensed',sans-serif"; cx.fillStyle=css("--brass"); cx.fillText("A",A.x-27,A.y-12);
+  const Fel=A.q*U/D, s=46/FG;
+  arrow(A.x-30,A.y,A.x-30,A.y+46,css("--brass"),"F_G");
+  if(U>0) arrow(A.x+30,A.y,A.x+30,A.y-Math.min(120,Fel*s),css("--glow"),"F_el");
+  requestAnimationFrame(frame);
+}
+function arrow(x1,y1,x2,y2,c,l){
+  cx.strokeStyle=c; cx.fillStyle=c; cx.lineWidth=3; cx.beginPath(); cx.moveTo(x1,y1); cx.lineTo(x2,y2); cx.stroke();
+  const a=Math.atan2(y2-y1,x2-x1); cx.beginPath(); cx.moveTo(x2,y2); cx.lineTo(x2-10*Math.cos(a-0.4),y2-10*Math.sin(a-0.4)); cx.lineTo(x2-10*Math.cos(a+0.4),y2-10*Math.sin(a+0.4)); cx.fill();
+  cx.font="600 15px 'JetBrains Mono',monospace"; cx.fillText(l, x1<A.x?x1-48:x1+8, (y1+y2)/2+5);
+}
+requestAnimationFrame(frame);
+let formSel=null;
+document.querySelectorAll("#formChoices .choice").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("#formChoices .choice").forEach(x=>x.classList.remove("sel")); b.classList.add("sel"); formSel=b.dataset.v;
+});
+document.getElementById("check2").onclick=()=>{
+  if(!found) return fb("fb2",false,"Bringt Tröpfchen A zuerst mit dem Regler zum Schweben.");
+  if(formSel==="b"){ unlock(3); fb("fb2",true,"Richtig umgestellt. Stufe 3 ist freigeschaltet.",3); }
+  else if(!formSel) fb("fb2",false,"Wählt eine Gleichung aus.");
+  else fb("fb2",false,"Noch nicht. Setzt E = U durch d ein und teilt dann durch den Faktor, der bei q steht. Fragt Millikan nach einem Tipp.");
+};
+
+/* Stufe 3: arbeitsteilig */
+const tb=document.getElementById("tbody");
+state.answers.q = state.answers.q || {};
+DATA.forEach((row,i)=>{
+  const tr=document.createElement("tr"); tr.id="row"+i;
+  tr.innerHTML=`<td>${i+1}</td><td>${fmt(row[0],3)}</td><td>${row[1]}</td><td><input id="q${i}" inputmode="decimal" aria-label="Ladung Tröpfchen ${i+1}" value="${state.answers.q[i]||""}" disabled></td><td class="st" id="st${i}"></td>`;
+  tb.appendChild(tr);
+});
+const ownIdx = ()=> state.role===1?[0,1,2,3,4]:state.role===2?[5,6,7,8,9]:[];
+function applyRole(){
+  document.querySelectorAll("#roles .choice").forEach(b=>b.classList.toggle("sel", +b.dataset.role===state.role));
+  const own=ownIdx();
+  DATA.forEach((_,i)=>{
+    const inp=document.getElementById("q"+i);
+    inp.disabled=!state.role;
+    inp.placeholder = !state.role ? "" : own.includes(i) ? "selbst rechnen" : "übernehmen";
+    document.getElementById("row"+i).classList.toggle("partner", !!state.role && !own.includes(i));
+  });
+  if(state.role){
+    const k=own[0], [m,U]=DATA[k];
+    document.getElementById("helpSum").textContent=`Rechenhilfe für Tröpfchen ${k+1}`;
+    document.getElementById("helpCalc").innerHTML=`q = <span class="frac"><span>${fmt(m,3)} · 10<sup>−15</sup> kg · 9,81 <span class="frac"><span>m</span><span>s²</span></span> · 0,006 m</span><span>${U} V</span></span> ≈ ${fmt(qOf(DATA[k]))} · 10<sup>−19</sup> C`;
+  } else {
+    document.getElementById("helpSum").textContent="Rechenhilfe (erst Teil wählen)";
+    document.getElementById("helpCalc").textContent="";
+  }
+}
+document.querySelectorAll("#roles .choice").forEach(b=>b.onclick=()=>{ state.role=+b.dataset.role; save(); applyRole(); });
+applyRole();
+function checkRow(i){
+  const inp=document.getElementById("q"+i), st=document.getElementById("st"+i), v=parse(inp.value);
+  state.answers.q[i]=inp.value; save();
+  if(isNaN(v)){ st.textContent=""; st.className="st"; return false; }
+  const ok=Math.abs(v-qOf(DATA[i]))/qOf(DATA[i])<0.03;
+  st.textContent=ok?"✓":"✗"; st.className="st "+(ok?"ok":"bad");
+  return ok;
+}
+function userVals(){ return DATA.map((_,i)=>{ const v=parse(document.getElementById("q"+i).value); return checkRow(i)?v:null; }).filter(v=>v!==null); }
+function evalTable(){
+  const own=ownIdx(), okList=DATA.map((_,i)=>checkRow(i));
+  const ownOk=own.filter(i=>okList[i]).length, partner=DATA.map((_,i)=>i).filter(i=>!own.includes(i));
+  const filledP=partner.filter(i=>!isNaN(parse(document.getElementById("q"+i).value))).length;
+  const pOk=partner.filter(i=>okList[i]).length, total=okList.filter(Boolean).length;
+  drawLine("line3",userVals(),false);
+  if(total>=8){ unlock(4); fb("fb3",true,`${total} von 10 Ladungen stimmen. Stufe 4 ist freigeschaltet.`,4); }
+  else if(ownOk<5) fb("fb3",ownOk>0,`Eure eigenen Tröpfchen: ${ownOk} von 5 richtig.`);
+  else if(filledP<5) fb("fb3",true,`Eure fünf Tröpfchen stimmen. Tauscht jetzt die Ergebnisse aus und tragt die Werte eurer Partnerin oder eures Partners ein (${filledP} von 5 eingetragen).`);
+  else fb("fb3",false,`Von den übernommenen Werten stimmen ${pOk} von 5. Kontrolliert die markierten Werte gemeinsam.`);
+}
+DATA.forEach((_,i)=>document.getElementById("q"+i).addEventListener("change",evalTable));
+
+function drawLine(id, vals, grid){
+  const W=700,H=150,x0=40,x1=670,max=9;
+  const X=v=>x0+(v/max)*(x1-x0);
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Zahlenstrahl der Ladungen">`;
+  if(grid) for(let n=1;n<=5;n++){ const x=X(n*1.602); s+=`<line x1="${x}" y1="20" x2="${x}" y2="100" stroke="var(--brass)" stroke-dasharray="4 4"/>`; }
+  s+=`<line x1="${x0}" y1="100" x2="${x1+10}" y2="100" stroke="var(--muted)" stroke-width="1.5"/>`;
+  for(let t=0;t<=max;t++){ const x=X(t); s+=`<line x1="${x}" y1="96" x2="${x}" y2="104" stroke="var(--muted)"/><text x="${x}" y="122" font-size="13" text-anchor="middle" fill="var(--muted)" font-family="JetBrains Mono,monospace">${t}</text>`; }
+  s+=`<text x="${x1+10}" y="142" font-size="12" text-anchor="end" fill="var(--muted)">q in 10⁻¹⁹ C</text>`;
+  const sorted=[...vals].sort((a,b)=>a-b), stack={};
+  sorted.forEach(v=>{ const k=Math.round(v/0.4); stack[k]=(stack[k]||0)+1; const yy=100-stack[k]*16; s+=`<circle cx="${X(v)}" cy="${yy}" r="6.5" fill="var(--glow)" stroke="var(--panel)" stroke-width="1.5"/>`; });
+  if(!vals.length) s+=`<text x="${(x0+x1)/2}" y="70" font-size="14" text-anchor="middle" fill="var(--muted)">Richtig berechnete Ladungen erscheinen hier.</text>`;
+  s+="</svg>";
+  document.getElementById(id).innerHTML=s;
+}
+
+/* Stufe 4: offen mit gestuften Hilfen */
+const HINTS=[
+  "Hilfe 1: Gibt es Bereiche auf dem Zahlenstrahl, in denen kein einziger Wert liegt?",
+  "Hilfe 2: Vergleicht, wo die Häufungen liegen. Wie groß sind die Abstände zwischen ihnen?",
+  "Hilfe 3: Die gestrichelten Linien liegen in gleichen Abständen. Wo liegen eure Werte im Vergleich dazu?"
+];
+function renderHints(){
+  document.getElementById("hints").innerHTML = HINTS.slice(0,state.hints).map(h=>`<div class="hint">${h}</div>`).join("");
+  const b=document.getElementById("hintBtn");
+  b.hidden = state.hints>=HINTS.length; b.textContent=`Hilfe ${state.hints+1} öffnen`;
+  if(state.current===4) drawLine("line4",DATA.map(qOf),state.hints>=3);
+}
+document.getElementById("hintBtn").onclick=()=>{ state.hints++; save(); renderHints(); };
+renderHints();
+["a1","a2","a3","a3b","a5","a4"].forEach(id=>{ const el=document.getElementById(id); el.value=(state.answers[id]||""); el.addEventListener("input",()=>{ state.answers[id]=el.value; save(); }); });
+document.getElementById("check4").onclick=()=>{
+  const g=id=>document.getElementById(id).value.trim();
+  const a2=parse(g("a2")), a3=parse(g("a3")), errs=[];
+  if(g("a1").length<20) errs.push("Beschreibt genauer, was euch an den Werten auffällt.");
+  if(isNaN(a2)||Math.abs(a2-1.6)>0.08) errs.push("Die kleinste Ladung stimmt noch nicht. Welche Tröpfchen liegen ganz links auf dem Zahlenstrahl?");
+  else if(isNaN(a3)||Math.abs(a3-qOf(DATA[5])/a2)>0.15) errs.push("Die Division für Tröpfchen 6 stimmt noch nicht. Rechnet sie noch einmal nach.");
+  if(g("a3b").length<10) errs.push("Schreibt auf, was ihr bei den anderen Tröpfchen feststellt.");
+  if(g("a5").length<20) errs.push("Begründet eure Antwort auf die Denkfrage mit den Messwerten.");
+  if(g("a4").length<15) errs.push("Schreibt einen vollständigen Merksatz.");
+  if(errs.length){ fb("fb4",false,errs.join("<br>")); return; }
+  unlock(5); fb("fb4",true,"Stark gearbeitet. Lest jetzt die Auflösung unten und vergleicht sie mit euren Antworten. Wer noch Zeit hat, macht die Extrastufe.",5);
+  state.answers.done=true; save(); showDone();
+};
+function showDone(){ document.getElementById("vBack").textContent = state.answers.v0 || "–"; document.getElementById("doneCard").hidden=false; }
+if(state.answers.done){ showDone(); unlock(5); }
+/* Extrastufe: Masse über Sinkgeschwindigkeit */
+const ETA=1.81e-5, S_MM=0.40;
+const rTrue=Math.cbrt(3*A.m/(4*Math.PI*RHO));
+const vTrue=2*RHO*G*rTrue*rTrue/(9*ETA);           // m/s
+const tTrue=S_MM*1e-3/vTrue;                        // s
+const sc=document.getElementById("scope"), sx=sc.getContext("2d");
+const TOP=100, BOT=260, PXS=(BOT-TOP)/tTrue;       // px pro s
+let dy=40, dx=170, last=null, running=false, t0=0, tNow=0;
+function scopeFrame(ts){
+  if(last!==null){ const dt=(ts-last)/1000; if(state.current===5){ dy+=PXS*dt; if(!reduce) dx+= (Math.random()-0.5)*0.6; } }
+  last=ts;
+  if(dy>330){ dy=330; }
+  sx.fillStyle="#0b0f12"; sx.fillRect(0,0,340,340);
+  sx.strokeStyle="rgba(255,255,255,.25)"; sx.lineWidth=1;
+  for(let y=TOP-80;y<=BOT+60;y+=20){ sx.beginPath(); sx.moveTo(120,y); sx.lineTo(220,y); sx.stroke(); }
+  sx.strokeStyle="#e0604f"; sx.lineWidth=2;
+  [TOP,BOT].forEach(y=>{ sx.beginPath(); sx.moveTo(100,y); sx.lineTo(240,y); sx.stroke(); });
+  sx.fillStyle="#e0604f"; sx.font="600 13px 'JetBrains Mono',monospace"; sx.fillText("0,40 mm",250,(TOP+BOT)/2+4);
+  const gr=sx.createRadialGradient(dx,dy,0,dx,dy,9); gr.addColorStop(0,"#fff8d6"); gr.addColorStop(.4,"#ffd76a"); gr.addColorStop(1,"rgba(255,215,106,0)");
+  sx.fillStyle=gr; sx.beginPath(); sx.arc(dx,dy,9,0,7); sx.fill();
+  if(running){ tNow=(performance.now()-t0)/1000; }
+  document.getElementById("watch").textContent=fmt(tNow)+" s";
+  requestAnimationFrame(scopeFrame);
+}
+requestAnimationFrame(scopeFrame);
+document.getElementById("dropBtn").onclick=()=>{ dy=30; dx=170; running=false; tNow=0; document.getElementById("watchBtn").textContent="Start"; };
+document.getElementById("watchBtn").onclick=e=>{
+  if(!running){ running=true; t0=performance.now(); tNow=0; e.target.textContent="Stopp"; }
+  else { running=false; e.target.textContent="Start"; document.getElementById("x1").value=fmt(tNow); state.answers.x1=fmt(tNow); save(); }
+};
+let rSel=null;
+document.querySelectorAll("#rChoices .choice").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("#rChoices .choice").forEach(x=>x.classList.remove("sel")); b.classList.add("sel"); rSel=b.dataset.v;
+});
+["x1","x2","x3","x4","x5","x6"].forEach(id=>{ const el=document.getElementById(id); if(state.answers[id]) el.value=state.answers[id]; el.addEventListener("input",()=>{ state.answers[id]=el.value; save(); }); el.addEventListener("change",()=>{ state.answers[id]=el.value; save(); }); });
+document.getElementById("check5").onclick=()=>{
+  const g=id=>document.getElementById(id).value.trim();
+  const t=parse(g("x1")), v=parse(g("x3")), r=parse(g("x4")), m=parse(g("x5")), errs=[];
+  const near=(a,b,tol)=>!isNaN(a)&&Math.abs(a-b)/b<tol;
+  if(isNaN(t)) errs.push("Messt zuerst die Sinkzeit mit der Stoppuhr.");
+  else if(!near(t,tTrue,0.25)) errs.push("Eure Zeit weicht stark ab. Messt noch einmal und startet genau am oberen roten Strich.");
+  if(g("x2")!=="ok") errs.push("Überlegt noch einmal, was gleichförmiges Sinken für die Kräfte bedeutet.");
+  if(!isNaN(t)){
+    const vU=S_MM*1e-3/t/1e-5;
+    if(!near(v,vU,0.03)) errs.push("Die Geschwindigkeit stimmt noch nicht. Teilt die Strecke in m durch eure Zeit.");
+    else {
+      const rU=Math.sqrt(9*ETA*v*1e-5/(2*RHO*G))/1e-6;
+      if(!near(r,rU,0.03)) errs.push("Der Radius stimmt noch nicht. Rechnet mit v in m/s und zieht am Ende die Wurzel.");
+      else { const mU=RHO*4/3*Math.PI*Math.pow(r*1e-6,3)/1e-15; if(!near(m,mU,0.05)) errs.push("Die Masse stimmt noch nicht. Achtet darauf, r in m einzusetzen und hoch drei zu nehmen."); }
+    }
+  }
+  if(g("x6").length<20) errs.push("Schreibt eure Überlegungen zu den Ungenauigkeiten auf.");
+  if(errs.length){ fb("fb5",false,errs.join("<br>")); return; }
+  const dev=Math.round(Math.abs(m-0.874)/0.874*100);
+  fb("fb5",true,`Geschafft. Eure Masse weicht um etwa ${dev} % vom vorgegebenen Wert ab. Lest unten, woran das liegen kann.`);
+  state.answers.done5=true; save(); document.getElementById("doneCard5").hidden=false;
+};
+if(state.answers.done5) document.getElementById("doneCard5").hidden=false;
+
+if(state.current>state.unlocked) state.current=0;
+show();
+
+</script>
+
+</body></html>
