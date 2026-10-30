@@ -66,7 +66,7 @@ function doPost(e) {
     const sh = SpreadsheetApp.getActive().getSheetByName(BLATT_PROTOKOLL);
     const werte = [
       z.name,
-      zahl(d.level, 8),
+      zahl(d.level, 20),
       String(d.levelName || '').slice(0, 60),
       zahl(d.aufgaben, 5000),
       zahl(d.richtig, 5000),

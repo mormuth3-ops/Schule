@@ -35,7 +35,7 @@ const APPS = [
     fach: "Mathematik",
     thema: "Brüche",
     klasse: "5",
-    beschreibung: "Erkenne, male, kürze und vergleiche Brüche in 8 Leveln – mit Übungsmodus und Streak-Challenge. Anmeldung mit deinem Zugangsnamen.",
+    beschreibung: "Erkenne, male, kürze und vergleiche Brüche in 9 Leveln – mit Übungsmodus und Streak-Challenge. Anmeldung mit deinem Zugangsnamen.",
     datei: "apps/mathe/bruch-blitz.html",
     neu: true
   },
