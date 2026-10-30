@@ -35,7 +35,7 @@ const APPS = [
     fach: "Mathematik",
     thema: "Brüche",
     klasse: "5",
-    beschreibung: "Erkenne, male, kürze und vergleiche Brüche in 8 Leveln. Wie lang wird deine Serie richtiger Antworten?",
+    beschreibung: "Erkenne, male, kürze und vergleiche Brüche in 8 Leveln – mit Übungsmodus und Streak-Challenge. Anmeldung mit deinem Zugangsnamen.",
     datei: "apps/mathe/bruch-blitz.html",
     neu: true
   },

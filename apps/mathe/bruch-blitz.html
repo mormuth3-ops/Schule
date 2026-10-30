@@ -303,6 +303,22 @@
   .frei { font-weight: 700; color: #137a3c; font-size: 19px; margin: 6px 0; }
   .ergebnis .mitte { margin-top: 18px; }
 
+  /* ---------- Anmeldung ---------- */
+  .login { max-width: 560px; margin: 34px auto 0; text-align: center; }
+  .login label { display: block; font-family: Bangers, Impact, sans-serif; font-size: 30px; letter-spacing: .04em; margin-bottom: 10px; }
+  .loginzeile { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .loginzeile input {
+    flex: 1 1 220px; max-width: 300px; font: 700 26px "Comic Neue", sans-serif; text-align: center; padding: 8px 12px;
+    border: 3px solid var(--ink); border-radius: 12px; box-shadow: 4px 4px 0 var(--ink); background: #fff; color: var(--ink);
+  }
+  .loginzeile input:focus { outline: none; box-shadow: 4px 4px 0 var(--blue); }
+  .loginfehler { min-height: 28px; margin-top: 14px; font-weight: 700; color: var(--red); }
+  .loginfehler.info { color: var(--muted); }
+  .loginhilfe { margin: 6px 0 0; color: var(--muted); font-size: 16px; }
+  .tierparade { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 30px auto 0; max-width: 620px; font-size: 32px; }
+  .tierparade span:nth-child(odd) { transform: rotate(-8deg); } .tierparade span:nth-child(even) { transform: rotate(8deg); }
+  .lehrerhinweis { margin: 14px 0 0; font-weight: 700; }
+
   @media (max-width: 560px) {
     .hud { grid-template-columns: auto 1fr; }
     .hud .lvname { grid-column: 2; }
@@ -334,12 +350,17 @@ const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzaHT1QoJUjCkYpcMkw9S
 const FREI_AB = 5;                       // Streak, die das nächste Level freischaltet
 const MEILENSTEINE = [5, 10, 15, 20, 25, 30, 40, 50, 75, 100];
 
+/* 25 Tiere × Klassen 1–3 ergeben die Zugangsnamen „1 Adler“ … „3 Zebra“, dazu „Lehrer“.
+   Welche Namen sich anmelden dürfen, steht im Blatt „Zugänge“ der Google-Tabelle. */
 const TIERE = [
-  ['Flinker Fuchs', '🦊'], ['Eifrige Eule', '🦉'], ['Pfiffiger Pinguin', '🐧'], ['Patenter Panda', '🐼'],
-  ['Tapferer Tiger', '🐯'], ['Kluger Koala', '🐨'], ['Fröhlicher Frosch', '🐸'], ['Dynamischer Delfin', '🐬'],
-  ['Lässiger Löwe', '🦁'], ['Emsiger Elefant', '🐘'], ['Ideenreicher Igel', '🦔'], ['Oberschlauer Oktopus', '🐙'],
-  ['Schnelle Schildkröte', '🐢'], ['Gewitzte Giraffe', '🦒'], ['Zackiges Zebra', '🦓'], ['Fleißiges Faultier', '🦥']
+  ['Adler', '🦅'], ['Affe', '🐒'], ['Bär', '🐻'], ['Biene', '🐝'], ['Delfin', '🐬'],
+  ['Elefant', '🐘'], ['Eule', '🦉'], ['Faultier', '🦥'], ['Flamingo', '🦩'], ['Frosch', '🐸'],
+  ['Fuchs', '🦊'], ['Giraffe', '🦒'], ['Hai', '🦈'], ['Hase', '🐰'], ['Igel', '🦔'],
+  ['Kamel', '🐫'], ['Koala', '🐨'], ['Löwe', '🦁'], ['Otter', '🦦'], ['Panda', '🐼'],
+  ['Papagei', '🦜'], ['Pinguin', '🐧'], ['Tiger', '🐯'], ['Wal', '🐳'], ['Zebra', '🦓']
 ];
+const KLASSEN = ['1', '2', '3'];
+const norm = t => String(t).toLowerCase().replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss').replace(/[^a-z0-9]/g, '');
 
 /* ---------- Hilfen ---------- */
 const ri = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
@@ -352,7 +373,20 @@ const G = (g, z, n) => `<span class="gem"><span class="ganz">${g}</span>${F(z, n
 const L = '<span class="luecke">?</span>';
 const SYM = { lt: '&lt;', eq: '=', gt: '&gt;' };
 const vgl = (a, b, c, d) => a * d < c * b ? 'lt' : a * d > c * b ? 'gt' : 'eq';
-const emojiVon = name => (TIERE.find(t => t[0] === name) || ['', '🐾'])[1];
+const emojiVon = name => {
+  const k = norm(name);
+  if (k.startsWith('lehr')) return '🎓';
+  const t = TIERE.find(t => norm(t[0]) === k.replace(/^\d+/, ''));
+  return t ? t[1] : '🐾';
+};
+/* Prüft das Format ohne Internet (Rückfall, falls die Tabelle nicht erreichbar ist) */
+function lokalerName(k) {
+  if (k === 'lehrer') return { name: 'Lehrer', lehrer: true };
+  const m = k.match(/^(\d)(.+)$/);
+  if (!m || !KLASSEN.includes(m[1])) return null;
+  const t = TIERE.find(t => norm(t[0]) === m[2]);
+  return t ? { name: `${m[1]} ${t[0]}`, lehrer: false } : null;
+}
 
 /* Antwortmöglichkeiten aus Brüchen. Kandidaten mit gleichem Wert wie die Lösung fliegen raus. */
 function bruchOptionen(z, n, kandidaten) {
@@ -773,10 +807,10 @@ const sichern = () => { try { localStorage.setItem(SPEICHER, JSON.stringify(spei
 const profil = t => { const p = (speicher.tiere[t] ??= { best: {}, aufgaben: 0 }); p.uebung ??= {}; return p; };
 const bestVon = nr => profil(S.tier).best[nr] || 0;
 const uebVon = nr => profil(S.tier).uebung[nr] || 0;
-const frei = nr => ALLE_FREI || nr === 1 || bestVon(nr - 1) >= FREI_AB || uebVon(nr - 1) >= UEBUNG_FREI_AB;
+const frei = nr => ALLE_FREI || S.lehrer || nr === 1 || bestVon(nr - 1) >= FREI_AB || uebVon(nr - 1) >= UEBUNG_FREI_AB;
 const stufe = () => S.streak < 5 ? 0 : S.streak < 12 ? 1 : 2;
 
-const S = { tier: null, lv: null, modus: 'streak', streak: 0, runde: null, a: null, wartet: false, timer: null, auswahl: null };
+const S = { tier: null, lehrer: false, lv: null, modus: 'streak', streak: 0, runde: null, a: null, wartet: false, timer: null, auswahl: null };
 const app = document.getElementById('app');
 const ueb = () => S.modus === 'uebung';
 
@@ -784,20 +818,61 @@ const ueb = () => S.modus === 'uebung';
    BILDSCHIRME
    ========================================================= */
 function zeigeStart() {
-  S.lv = null;
+  S.lv = null; S.tier = null; S.lehrer = false;
   app.innerHTML = `
     <header class="titel">
       <h1>Bruch-<span class="blitz">Blitz</span></h1>
-      <div class="bubble">Übe Brüche in 8 Leveln – mit Tipps im Übungsmodus oder als Challenge im Streak-Modus. Wähle zuerst dein Tier!</div>
+      <div class="bubble">Übe Brüche in 8 Leveln – mit Tipps im Übungsmodus oder als Challenge im Streak-Modus. Melde dich zuerst an!</div>
     </header>
-    <div class="tiergitter">${TIERE.map(([n, e], i) =>
-      `<button class="tier${speicher.letztes === n ? ' zuletzt' : ''}" data-i="${i}"><span class="emo">${e}</span><span class="nm">${n}</span></button>`).join('')}
-    </div>
-    <p class="hinweis"><span>Nimm immer das Tier, das du von deiner Lehrkraft bekommen hast.</span></p>`;
-  app.querySelectorAll('.tier').forEach(b => b.onclick = () => {
-    S.tier = TIERE[+b.dataset.i][0]; speicher.letztes = S.tier; sichern(); zeigeKarte();
-  });
+    <form class="login aufgabe" id="login" novalidate>
+      <label for="nm">Dein Zugangsname</label>
+      <div class="loginzeile">
+        <input id="nm" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="z. B. 2 Fuchs" maxlength="30">
+        <button class="btn gruen" id="los">Los geht’s ▶</button>
+      </div>
+      <div class="loginfehler" id="lf" role="alert"></div>
+      <p class="loginhilfe">Deinen Zugangsnamen bekommst du von deiner Lehrkraft: eine Zahl und ein Tier.</p>
+    </form>
+    <div class="tierparade" aria-hidden="true">${TIERE.map(t => `<span>${t[1]}</span>`).join('')}</div>`;
+  const nm = document.getElementById('nm');
+  document.getElementById('login').onsubmit = e => { e.preventDefault(); anmelden(nm.value); };
+  if (matchMedia('(pointer: fine)').matches) nm.focus();
   scrollTo(0, 0);
+}
+
+async function anmelden(roh) {
+  const nm = document.getElementById('nm'), lf = document.getElementById('lf'), los = document.getElementById('los');
+  const k = norm(roh);
+  if (!k) { wackel(nm); return; }
+  los.disabled = true; lf.className = 'loginfehler info'; lf.textContent = 'Ich schaue in der Liste nach …';
+  let erg = null;
+  if (SHEET_URL) {
+    try {
+      const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 8000);
+      const r = await fetch(`${SHEET_URL}?name=${encodeURIComponent(roh.trim())}`, { signal: ctl.signal });
+      clearTimeout(t);
+      erg = JSON.parse(await r.text());
+    } catch (e) { erg = null; }
+  }
+  los.disabled = false;
+  if (erg && erg.ok) return einloggen(erg.name, !!erg.lehrer);
+  if (erg && erg.ok === false) {
+    lf.className = 'loginfehler';
+    lf.innerHTML = erg.inaktiv
+      ? 'Dieser Zugang ist gerade nicht freigeschaltet. Sprich mit deiner Lehrkraft.'
+      : 'Diesen Namen kenne ich nicht. 🤔 Schau genau hin: Zahl und Tier, z. B. <b>2 Fuchs</b>.';
+    wackel(nm); return;
+  }
+  // Tabelle nicht erreichbar: Format selbst prüfen
+  const lokal = lokalerName(k);
+  if (lokal) return einloggen(lokal.name, lokal.lehrer);
+  lf.className = 'loginfehler';
+  lf.innerHTML = 'Diesen Namen kenne ich nicht. 🤔 Schau genau hin: Zahl und Tier, z. B. <b>2 Fuchs</b>.';
+  wackel(nm);
+}
+
+function einloggen(name, lehrer) {
+  S.tier = name; S.lehrer = lehrer; speicher.letztes = name; sichern(); zeigeKarte();
 }
 
 function sterne(n) {
@@ -811,8 +886,9 @@ function zeigeKarte() {
   app.innerHTML = `
     <div class="spielerzeile">
       <div class="spieler"><span class="emo">${emojiVon(S.tier)}</span><b>${S.tier}</b></div>
-      <button class="btn klein" id="wechsel">Tier wechseln</button>
+      <button class="btn klein" id="wechsel">Abmelden</button>
     </div>
+    ${S.lehrer ? '<p class="lehrerhinweis">🎓 Lehrer-Zugang: Alle Level sind offen.</p>' : ''}
     <div class="bubble" style="display:block;margin-top:28px">In jedem Level kannst du wählen: <b>📝 Üben</b> – 10 Aufgaben mit Tipps – oder <b>🔥 Streak</b> – so viele richtige Antworten hintereinander wie möglich.
       Das nächste Level öffnet sich mit <b>${UEBUNG_FREI_AB} von 10</b> beim Üben oder einer <b>${FREI_AB}er-Streak</b>.</div>
     <div class="lvgitter">${LEVELS.map(lv => {
