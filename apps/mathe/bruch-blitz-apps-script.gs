@@ -1,5 +1,5 @@
 /**
- * Bruch-Blitz – Empfänger für das Übungsprotokoll (Version 2: Anmeldung über Zugänge)
+ * Bruch-Blitz – Empfänger für das Übungsprotokoll (Version 3: Zugänge, Klassenziele, Bestenliste)
  *
  * Einrichten bzw. aktualisieren:
  *   Erweiterungen → Apps Script → gesamten Code durch diesen ersetzen → speichern.
@@ -38,16 +38,54 @@ function finde(eingabe) {
   return null;
 }
 
-/** Anmeldung prüfen:  …/exec?name=2 Fuchs */
+/** Klassenziel und Wochen-Bestenliste für einen Zugang (Lehrkraft: alle Klassen) */
+function klassenInfo(z) {
+  const ss = SpreadsheetApp.getActive();
+  const zielSh = ss.getSheetByName('Klassenziele');
+  if (!zielSh || zielSh.getLastRow() < 2) return [];
+  const ziele = zielSh.getRange(2, 1, zielSh.getLastRow() - 1, 5).getValues();   // Klasse · Ziel · zählt ab · Belohnung · Bestenliste zeigen
+  const prot = ss.getSheetByName(BLATT_PROTOKOLL);
+  const n = prot.getLastRow() - 1;
+  const zeilen = n > 0 ? prot.getRange(2, 1, n, 10).getValues() : [];
+  const montag = new Date(); montag.setHours(0, 0, 0, 0); montag.setDate(montag.getDate() - ((montag.getDay() + 6) % 7));
+  const top = o => Object.keys(o).filter(k => o[k] > 0).sort((a, b) => o[b] - o[a] || a.localeCompare(b)).slice(0, 5).map(k => [k, o[k]]);
+  const aus = [];
+  for (const zl of ziele) {
+    const klasse = String(zl[0] || '').trim();
+    if (!klasse || (!z.lehrer && klasse !== z.klasse)) continue;
+    const ab = zl[2] instanceof Date ? zl[2] : null;
+    let stand = 0; const richtig = {}, streak = {};
+    for (const r of zeilen) {
+      if (String(r[9]).trim() !== klasse) continue;
+      const t = r[1] instanceof Date ? r[1] : null, ri = Number(r[6]) || 0;
+      if (!ab || (t && t >= ab)) stand += ri;
+      if (t && t >= montag) {
+        const nm = String(r[2]);
+        richtig[nm] = (richtig[nm] || 0) + ri;
+        streak[nm] = Math.max(streak[nm] || 0, Number(r[7]) || 0);
+      }
+    }
+    aus.push({ klasse: klasse, ziel: Number(zl[1]) || 0, stand: stand, belohnung: String(zl[3] || ''),
+      liste: zl[4] === true ? { richtig: top(richtig), streak: top(streak) } : null });
+  }
+  return aus;
+}
+
+/** Anmeldung prüfen:  …/exec?name=2 Fuchs      Klassen-Ecke:  …/exec?info=2 Fuchs */
 function doGet(e) {
   const p = (e && e.parameter) || {};
+  if (p.info !== undefined) {
+    const z = finde(p.info);
+    if (!z || !z.aktiv) return json({ ok: false });
+    return json({ ok: true, klassen: klassenInfo(z) });
+  }
   if (p.name !== undefined) {
     const z = finde(p.name);
     if (!z) return json({ ok: false });
     if (!z.aktiv) return json({ ok: false, inaktiv: true });
     return json({ ok: true, name: z.name, klasse: z.klasse, lehrer: z.lehrer });
   }
-  return ContentService.createTextOutput('Bruch-Blitz-Empfänger läuft (Version 2).');
+  return ContentService.createTextOutput('Bruch-Blitz-Empfänger läuft (Version 3).');
 }
 
 /** Spielrunde eintragen bzw. aktualisieren */
