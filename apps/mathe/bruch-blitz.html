@@ -404,6 +404,18 @@
   .soGehts .sg-ico { font-size: 22px; line-height: 1.2; }
   .soGehts .frac { font-size: .95em; }
 
+  /* ---------- Mengen (Bonbons, Murmeln …) ---------- */
+  .menge { display: grid; grid-template-columns: repeat(var(--sp, 6), auto); gap: 6px; justify-content: center; }
+  .menge.gruppiert { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .gruppe { display: flex; gap: 6px; padding: 4px 8px; border: 2px dashed #9a8f6c; border-radius: 12px; background: #fffaf0; }
+  .ding { display: inline-grid; place-items: center; width: 46px; height: 46px; font-size: 30px; line-height: 1;
+    background: #fff; border: 2px solid #d9cfae; border-radius: 50%; padding: 0; font-family: inherit; color: inherit; }
+  button.ding { cursor: pointer; transition: transform .08s; }
+  button.ding:hover:not([disabled]) { transform: scale(1.1); }
+  .ding.an { background: #ffd9d6; border: 3px solid var(--red); box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--red); }
+  .falschbox .ding, .tippbox .ding, .blitzfalsch .ding { width: 34px; height: 34px; font-size: 22px; }
+  @media (max-width: 560px) { .ding { width: 38px; height: 38px; font-size: 24px; } .menge { gap: 4px; } }
+
   @media (max-width: 560px) {
     .hud { grid-template-columns: auto 1fr; }
     .hud .lvname { grid-column: 2; }
@@ -829,7 +841,73 @@ const KONTEXTE = [
   { e: 'g', fest: 1000, teiler: [2, 4, 5, 8, 10], t: f => `Ein Kilogramm hat 1000 g. Wie viel Gramm sind ${f} kg?` },
   { e: 'h', fest: 24, teiler: [2, 3, 4, 6, 8, 12], t: f => `Ein Tag hat 24 Stunden. Wie viele Stunden sind ${f} Tag?` }
 ];
+/* Level 6a: Anteile von Mengen (Bonbons, Murmeln …) mit Bild */
+const DINGE = [
+  ['🍬', 'Bonbons', 'Bonbon'], ['🍫', 'Schokostückchen', 'Schokostückchen'], ['🔵', 'Murmeln', 'Murmel'], ['🍓', 'Erdbeeren', 'Erdbeere'],
+  ['🍪', 'Kekse', 'Keks'], ['⚽', 'Bälle', 'Ball'], ['🖍️', 'Stifte', 'Stift'], ['🌟', 'Sticker', 'Sticker'], ['🧸', 'Gummibärchen', 'Gummibärchen']
+];
+/* Menge als Bild: gruppen > 0 ordnet die Dinge in so viele gleich große Gruppen (Reihen) */
+function mengeHTML(n, emo, an, gruppen, klick, emoAn) {
+  const ding = i => klick
+    ? `<button class="ding${an.has(i) ? ' an' : ''}" data-i="${i}" aria-label="${emo} ${i + 1}">${emo}</button>`
+    : `<span class="ding${an.has(i) && !emoAn ? ' an' : ''}">${an.has(i) && emoAn ? emoAn : emo}</span>`;
+  if (gruppen) {
+    const m = n / gruppen;
+    return `<div class="menge gruppiert">${[...Array(gruppen).keys()].map(g =>
+      `<div class="gruppe">${[...Array(m).keys()].map(k => ding(g * m + k)).join('')}</div>`).join('')}</div>`;
+  }
+  const sp = n <= 8 ? n : n <= 12 ? 6 : n <= 20 ? (n % 5 === 0 ? 5 : n % 4 === 0 ? 4 : 6) : 6;
+  return `<div class="menge" style="--sp:${sp}">${[...Array(n).keys()].map(ding).join('')}</div>`;
+}
+function L6menge(d) {
+  const [emo, plural] = pick(DINGE), A = pick(KINDER), essbar = '🍬🍫🍓🍪🧸'.includes(emo);
+  const b = pick(d === 0 ? [2, 3, 4] : d === 1 ? [2, 3, 4, 5, 6] : [3, 4, 5, 6]);
+  const m = d === 0 ? ri(2, 4) : ri(2, Math.floor(24 / b));
+  const n = b * m;
+  let a; do { a = ri(1, d === 0 ? Math.min(2, b - 1) : b - 1); } while (ggT(a, b) !== 1);
+  const k = a * m, gruppiert = d === 0;
+  const loesBild = mengeHTML(n, emo, new Set([...Array(k).keys()]), b, false);
+  const weg = `Teile die ${n} ${plural} in ${b} gleich große Gruppen: ${n} : ${b} = ${m}. Das ist ${F(1, b)}.` +
+    (a > 1 ? ` ${F(a, b)} sind ${a} Gruppen: ${a} · ${m} = ${k}.` : '');
+  const v = pick(d === 2 ? ['anteil', 'anteil', 'zahl'] : ['zahl', 'zahl', 'tippen', 'anteil']);
+  if (v === 'zahl') return {
+    art: 'eingabe', einheit: plural,
+    frage: pick([
+      `${A} hat ${n} ${plural}. ${A} verschenkt ${F(a, b)} davon. Wie viele ${plural} sind das?`,
+      `Wie viele ${plural} sind ${F(a, b)} von ${n} ${plural}?`,
+      essbar ? `In der Dose sind ${n} ${plural}. ${A} isst ${F(a, b)} davon. Wie viele ${plural} isst ${A}?`
+             : `In der Kiste sind ${n} ${plural}. ${F(a, b)} davon gehören ${A}. Wie viele ${plural} sind das?`
+    ]),
+    bild: mengeHTML(n, emo, new Set(), gruppiert ? b : 0, false),
+    loesung: k, loesungHTML: `${k} ${plural}`, loesungBild: loesBild, erklaerung: weg
+  };
+  if (v === 'tippen') return {
+    art: 'auswahl', n, ziel: k,
+    frage: `Tippe ${F(a, b)} der ${plural} an. Dann auf „Prüfen“.`,
+    bild: mengeHTML(n, emo, new Set(), gruppiert ? b : 0, true),
+    loesungHTML: `${k} von ${n} ${plural}`, loesungBild: loesBild, erklaerung: weg
+  };
+  // anteil: ein Teil der Murmeln ist rot – welcher Anteil?
+  const an = new Set(mischen([...Array(n).keys()]).slice(0, k));
+  const gekuerzt = d > 0 && m > 1;
+  const [z, nn] = gekuerzt ? [a, b] : [k, n];
+  return {
+    art: 'mc',
+    frage: `${A} hat ${n} Murmeln. Welcher Anteil der Murmeln ist <b>rot</b>?${gekuerzt && d === 1 ? ' <small class="hinw">(gekürzt)</small>' : ''}`,
+    bild: mengeHTML(n, '🔵', an, 0, false, '🔴'),
+    optionen: bruchOptionen(z, nn, gekuerzt ? [[k, b], [a, n], [b - a, b], [a + 1, b], [n - k, n]] : [[n - k, n], [k, n - k], [k + 1, n], [n, k]]),
+    loesung: `${z}/${nn}`, loesungHTML: gekuerzt ? `${F(k, n)} = ${F(a, b)}` : F(k, n),
+    erklaerung: gekuerzt
+      ? `${k} von ${n} Murmeln sind rot: ${F(k, n)}. Kürze mit ${m}: ${F(a, b)}. Ordnest du die Murmeln in ${b} Gruppen zu je ${m}, sind ${a} ${a === 1 ? 'Gruppe' : 'Gruppen'} rot.`
+      : `Alle Murmeln zusammen sind das Ganze: ${n} (Nenner). Rot sind ${k} (Zähler): ${F(k, n)}.`
+  };
+}
+
+/* Level 6: erst Mengen mit Bild, dann Größen */
 function L6(d) {
+  return Math.random() < (d === 0 ? .75 : d === 1 ? .45 : .25) ? L6menge(d) : L6groesse(d);
+}
+function L6groesse(d) {
   const kx = pick(d === 0 ? KONTEXTE.slice(0, 5) : KONTEXTE);
   let a, b, G;
   if (kx.fest) {
@@ -983,6 +1061,9 @@ const ERKLAER = {
     ['🔄', 'Alles verschieden', `Mache zuerst die Nenner gleich: ${F(2, 3)} = ${F(8, 12)}, ${F(3, 4)} = ${F(9, 12)} → ${F(2, 3)} &lt; ${F(3, 4)}.`]
   ],
   6: [
+    ['🍬', 'Anteil von einer Menge', `Teile die Menge in so viele gleich große Gruppen, wie der Nenner sagt. ${F(2, 3)} von 12 Bonbons: 12 : 3 = 4 in jeder Gruppe, 2 Gruppen sind 2 · 4 = 8 Bonbons.`],
+    ['👆', 'Antippen', 'Manchmal tippst du die richtige Anzahl Dinge selbst an und drückst dann „Prüfen“.'],
+    ['🔴', 'Welcher Anteil?', `Zähle alle Murmeln (Nenner) und die roten (Zähler). 4 von 12 rot → ${F(4, 12)} = ${F(1, 3)}.`],
     ['🧮', 'Anteil von einer Größe', `<b>Erst teilen, dann malnehmen:</b> ${F(3, 4)} von 20 kg → 20 : 4 = 5, dann 3 · 5 = 15 kg. Tippe nur die Zahl ein.`],
     ['⏰', 'Merke dir', '1 h = 60 min · 1 m = 100 cm · 1 kg = 1000 g · 1 Tag = 24 h']
   ],
@@ -1009,7 +1090,7 @@ const LEVELS = [
   { nr: 3, name: 'Kürzen & Erweitern', info: 'Gleicher Anteil – andere Zahlen', farbe: '--purple', ico: '🔁', gen: L3 },
   { nr: 4, name: 'Zahlenstrahl-Sprung', info: 'Wo liegt der Bruch?', farbe: '--orange', ico: '📏', gen: L4 },
   { nr: 5, name: 'Größer oder kleiner?', info: 'Vergleiche zwei Brüche', farbe: '--red', ico: '⚖️', gen: L5 },
-  { nr: 6, name: 'Anteile von Größen', info: 'Brüche von kg, €, km und Co.', farbe: '--blue', ico: '🧮', gen: L6 },
+  { nr: 6, name: 'Anteile von Mengen & Größen', info: 'Bonbons, Murmeln, kg, € und Co.', farbe: '--blue', ico: '🧮', gen: L6 },
   { nr: 7, name: 'Mehr als ein Ganzes', info: 'Unechte Brüche & gemischte Zahlen', farbe: '--green', ico: '🍕', gen: L7 },
   { nr: 8, name: 'Bruch-Alltag', info: 'Textaufgaben: Pizza, Taschengeld, Schulweg …', farbe: '--orange', ico: '🛒', gen: L8 },
   { nr: 9, name: 'Boss: Bruch-Blitz', info: 'Alles gemischt – wie weit kommst du?', farbe: '--purple', ico: '⚡', gen: boss }
@@ -1051,7 +1132,8 @@ const TIPPS = {
      <div class="zeile">${F(2, 3)} = ${F(8, 12)} &nbsp; und &nbsp; ${F(3, 4)} = ${F(9, 12)} &nbsp; → &nbsp; ${F(2, 3)} &lt; ${F(3, 4)}</div>`
   ],
   6: [
-    `<b>Erst teilen, dann malnehmen:</b> Teile die Größe durch den Nenner. Das Ergebnis nimmst du mal den Zähler.`,
+    `<b>Erst teilen, dann malnehmen:</b> Teile die Menge oder Größe durch den Nenner – so viel ist in einer Gruppe. Das nimmst du mal den Zähler.
+     <div class="bild">${mengeHTML(12, '🍬', new Set([0, 1, 2, 3, 4, 5, 6, 7]), 3, false)}</div>${F(2, 3)} von 12: 12 : 3 = 4, dann 2 · 4 = 8`,
     `Beispiel ${F(3, 4)} von 20 kg: 20 : 4 = 5 kg (das ist ${F(1, 4)}), dann 3 · 5 = 15 kg.<br>
      Merke dir: 1 h = 60 min · 1 m = 100 cm · 1 kg = 1000 g · 1 Tag = 24 h`
   ],
@@ -1408,6 +1490,7 @@ function neueAufgabe() {
     ${a.einheit ? `<span class="einheit">${a.einheit}</span>` : ''}<button class="btn gruen">Prüfen</button></form>`;
   if (a.art === 'mal') h += `<div class="malinfo">Ausgemalt: <span id="anz">0</span> von ${a.m} Teilen</div><div class="mitte"><button class="btn gruen" id="pruefen">Prüfen</button></div>`;
   if (a.art === 'strahl') h += `<div class="mitte"><button class="btn gruen" id="pruefen">Prüfen</button></div>`;
+  if (a.art === 'auswahl') h += `<div class="malinfo">Angetippt: <span id="anz">0</span></div><div class="mitte"><button class="btn gruen" id="pruefen">Prüfen</button></div>`;
   if (a.art === 'ziehen') h += `<div class="ziehfeld" id="zf"><div class="strahlbox" id="sb">${strahlSVG(a.strahl, null, true)}<div id="abgelegt" class="ablageebene"></div></div>
     <div class="ablage" id="ablage"></div></div><div class="mitte"><button class="btn gruen" id="pruefen">Prüfen</button></div>`;
   h += '<div id="rueck"></div>';
@@ -1446,6 +1529,14 @@ function neueAufgabe() {
     };
   }
   if (a.art === 'ziehen') starteZiehen(a);
+  if (a.art === 'auswahl') {
+    box.querySelectorAll('#bild .ding').forEach(d => d.onclick = () => {
+      if (S.wartet) return;
+      d.classList.toggle('an');
+      document.getElementById('anz').textContent = box.querySelectorAll('#bild .ding.an').length;
+    });
+    document.getElementById('pruefen').onclick = () => pruefe(box.querySelectorAll('#bild .ding.an').length);
+  }
 }
 
 /* ---------- Brüche auf den Zahlenstrahl ziehen ---------- */
@@ -1518,7 +1609,7 @@ function wackel(el) { el.classList.remove('wackel'); void el.offsetWidth; el.cla
 function pruefe(antwort, knopf) {
   if (S.wartet || !S.runde) return;
   const a = S.a;
-  const ok = (a.art === 'mal' || a.art === 'strahl') ? antwort === a.ziel : antwort === a.loesung;
+  const ok = (a.art === 'mal' || a.art === 'strahl' || a.art === 'auswahl') ? antwort === a.ziel : antwort === a.loesung;
   S.wartet = true;
   const box = document.getElementById('aufgabe');
   box.querySelectorAll('.opt, button, input').forEach(b => { if (!b.closest('#rueck')) b.disabled = true; });
@@ -1570,8 +1661,8 @@ function auswerten(ok) {
     if (S.modus === 'blitz') {
       knall('Hoppla!', 'schlecht klein');
       document.getElementById('rueck').innerHTML = `<div class="blitzfalsch">Richtig wäre: <span class="loes">${a.loesungHTML}</span>
-        ${a.art === 'ziehen' || a.art === 'mal' || a.art === 'strahl' ? `<div class="bild">${a.loesungBild}</div>` : ''}<small>🔧 Kommt in deine Fehlerwerkstatt.</small></div>`;
-      S.timer = setTimeout(neueAufgabe, a.art === 'ziehen' || a.art === 'mal' || a.art === 'strahl' ? 2200 : 1500);
+        ${a.loesungBild && a.art !== 'mc' && a.art !== 'eingabe' ? `<div class="bild">${a.loesungBild}</div>` : ''}<small>🔧 Kommt in deine Fehlerwerkstatt.</small></div>`;
+      S.timer = setTimeout(neueAufgabe, a.loesungBild && a.art !== 'mc' && a.art !== 'eingabe' ? 2200 : 1500);
     } else {
       let kopf, tipp = '';
       if (ueb()) {
