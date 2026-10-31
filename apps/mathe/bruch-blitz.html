@@ -395,6 +395,15 @@
   .werkhinweis { font-weight: 700; color: #137a3c; margin: 6px 0 12px; }
   .stufe.werk { background: #d6f2e1; margin-left: 6px; }
 
+  .modal .aufgabe { max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); overflow-y: auto; }
+  .modusbox { max-width: 520px; }
+  .soGehts { text-align: left; margin: 0 0 16px; background: #fff7c7; border: 3px solid var(--ink); border-radius: 12px; box-shadow: 4px 4px 0 var(--orange); }
+  .soGehts summary { cursor: pointer; padding: 8px 12px; font-family: Bangers, Impact, sans-serif; font-size: 22px; letter-spacing: .04em; list-style-position: inside; }
+  .soGehts ul { list-style: none; margin: 0; padding: 0 12px 10px; display: grid; gap: 8px; }
+  .soGehts li { display: grid; grid-template-columns: 30px 1fr; gap: 6px; align-items: start; font-size: 16px; line-height: 1.5; }
+  .soGehts .sg-ico { font-size: 22px; line-height: 1.2; }
+  .soGehts .frac { font-size: .95em; }
+
   @media (max-width: 560px) {
     .hud { grid-template-columns: auto 1fr; }
     .hud .lvname { grid-column: 2; }
@@ -945,6 +954,54 @@ function L8(d) {
 const GENS = [L1, L2, L3, L4, L5, L6, L7, L8];
 function boss(d) { const i = ri(0, GENS.length - 1), a = GENS[i](d); a.hinweisLv = i + 1; return a; }
 
+/* Erklärungen der Aufgabentypen – erscheinen beim Antippen eines Levels */
+const ERKLAER = {
+  1: [
+    ['🔍', 'Anteil erkennen', `Zähle <b>alle</b> Teile – das ist der Nenner (unten). Zähle die <b>roten</b> Teile – das ist der Zähler (oben). 3 von 4 rot → ${F(3, 4)}`],
+    ['✂️', 'Kürzen', `Findest du deinen Bruch nicht bei den Antworten? Dann kürze: 3 von 9 Teilen sind ${F(3, 9)} = ${F(1, 3)}.`],
+    ['⬜', 'Weißer Anteil', 'Manchmal wird nach dem <b>nicht</b> ausgemalten Teil gefragt – dann zählst du die weißen Teile.']
+  ],
+  2: [
+    ['🖌️', 'Bruch ausmalen', 'Tippe auf die Teile, um sie auszumalen. Nochmal tippen macht sie wieder weiß. Dann auf „Prüfen“.'],
+    ['🧮', 'Mehr Teile als der Nenner', `Rechne zuerst: Teile : Nenner. Für ${F(3, 4)} bei 8 Teilen: 8 : 4 = 2, also 3 · 2 = 6 Teile ausmalen.`]
+  ],
+  3: [
+    ['⬆️', 'Erweitern', `Zähler <b>und</b> Nenner mit derselben Zahl malnehmen: ${F(2, 3)} = ${F(8, 12)} (beide · 4). Tippe die fehlende Zahl ein.`],
+    ['⬇️', 'Kürzen', `Zähler <b>und</b> Nenner durch dieselbe Zahl teilen: ${F(8, 12)} = ${F(2, 3)} (beide : 4).`],
+    ['🏁', 'So weit wie möglich kürzen', `Kürze, bis es nicht mehr geht. Vorsicht: ${F(6, 12)} = ${F(3, 6)} ist noch nicht fertig – richtig ist ${F(1, 2)}.`],
+    ['🖼️', 'Gekürzter Bruch im Bild', 'Fasse kleine Teile zu größeren zusammen und finde den gekürzten Bruch.']
+  ],
+  4: [
+    ['📏', 'Markierte Stelle', 'Zähle die <b>Abschnitte</b> zwischen 0 und 1 (nicht die Striche!) – das ist der Nenner. Dann zählst du von 0 bis zur Markierung.'],
+    ['👆', 'Stelle antippen', 'Tippe die Stelle an, an der der Bruch liegt, und dann auf „Prüfen“.'],
+    ['✋', 'Brüche ziehen', 'Ziehe jede Bruchkarte auf ihre Stelle. Oder: Karte antippen, dann die Stelle antippen. Ist der Strahl feiner geteilt, erweitere zuerst.']
+  ],
+  5: [
+    ['⚖️', 'Vergleichen', 'Wähle das passende Zeichen: &lt; (kleiner), = (gleich) oder &gt; (größer). Die Spitze zeigt immer zur kleineren Zahl.'],
+    ['🟰', 'Gleicher Nenner', `Der größere Zähler gewinnt: ${F(5, 7)} &gt; ${F(3, 7)}.`],
+    ['🍰', 'Gleicher Zähler', `Der kleinere Nenner gewinnt, weil die Stücke größer sind: ${F(1, 3)} &gt; ${F(1, 5)}.`],
+    ['🔄', 'Alles verschieden', `Mache zuerst die Nenner gleich: ${F(2, 3)} = ${F(8, 12)}, ${F(3, 4)} = ${F(9, 12)} → ${F(2, 3)} &lt; ${F(3, 4)}.`]
+  ],
+  6: [
+    ['🧮', 'Anteil von einer Größe', `<b>Erst teilen, dann malnehmen:</b> ${F(3, 4)} von 20 kg → 20 : 4 = 5, dann 3 · 5 = 15 kg. Tippe nur die Zahl ein.`],
+    ['⏰', 'Merke dir', '1 h = 60 min · 1 m = 100 cm · 1 kg = 1000 g · 1 Tag = 24 h']
+  ],
+  7: [
+    ['🍕', 'Unechte Brüche', `Der Zähler ist größer als der Nenner – es ist mehr als ein Ganzes. 7 Viertel = ${F(7, 4)}.`],
+    ['➡️', 'In gemischte Zahl umwandeln', `Teile mit Rest: ${F(11, 4)} → 11 : 4 = 2 Rest 3 → ${G(2, 3, 4)}`],
+    ['⬅️', 'In unechten Bruch umwandeln', `Ganze mal Nenner plus Zähler: ${G(2, 3, 4)} → 2 · 4 + 3 = 11 → ${F(11, 4)}`]
+  ],
+  8: [
+    ['📖', 'Textaufgaben aus dem Alltag', 'Lies genau: <b>Was ist das Ganze?</b> (die Pizza, alle Kinder, das ganze Geld …) Und: Wird nach einem <b>Anteil</b> (Bruch) oder einer <b>Anzahl</b> (Zahl eintippen) gefragt?'],
+    ['🔎', 'Signalwörter', '„übrig“, „noch“, „danach“ → erst den Anteil ausrechnen, dann vom Ganzen abziehen.'],
+    ['↩️', 'Rückwärts rechnen', `${F(1, 4)} der Klasse sind 6 Kinder → die ganze Klasse sind 4 · 6 = 24 Kinder.`]
+  ],
+  9: [
+    ['⚡', 'Alles gemischt', 'Hier kommen Aufgaben aus <b>allen</b> Leveln durcheinander – schon ab „mittel“. Zeig, was du kannst!'],
+    ['💡', 'Tipps', 'Im Übungsmodus bekommst du nach Fehlern den passenden Tipp zum jeweiligen Aufgabentyp.']
+  ]
+};
+
 const BOSS = 9;
 const LEVELS = [
   { nr: 1, name: 'Bruch-Detektiv', info: 'Welcher Anteil ist ausgemalt?', farbe: '--blue', ico: '🔍', gen: L1 },
@@ -1234,6 +1291,8 @@ function waehleModus(nr) {
   const lv = LEVELS[nr - 1];
   const m = document.createElement('div'); m.className = 'modal';
   m.innerHTML = `<div class="aufgabe modusbox"><h2>${lv.ico} ${lv.name}</h2>
+    <details class="soGehts" open><summary>💡 So geht’s – die Aufgaben in diesem Level</summary>
+      <ul>${ERKLAER[nr].map(([i, t, x]) => `<li><span class="sg-ico">${i}</span><span><b>${t}:</b> ${x}</span></li>`).join('')}</ul></details>
     <p style="margin:0 0 14px">Wie möchtest du spielen?</p>
     <button class="modus uebung" data-m="uebung"><span class="mk">📝 Übungsmodus</span><span>10 Aufgaben · Tipps, wenn es mal hakt · Ergebnis am Ende</span><small>Bestes Ergebnis: ${uebVon(nr)}/10</small></button>
     <button class="modus streak" data-m="streak"><span class="mk">🔥 Streak-Modus</span><span>Wie viele schaffst du ohne Fehler? Es wird immer kniffliger!</span><small>Rekord: ${bestVon(nr)}</small></button>
