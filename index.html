@@ -346,7 +346,7 @@
         const grid = el('div', 'grid');
         faecher[f][t].forEach(a => {
           const card = el('a', 'card');
-          card.href = a.datei;
+          card.href = a.datei + (a.datei.includes('?') ? '&' : '?') + 'v=' + Date.now();  // immer die neueste Version laden
           if (a.neu) {
             card.appendChild(el('span', 'neu-rand'));
             card.appendChild(el('span', 'neu', 'NEU!'));
