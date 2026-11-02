@@ -1173,7 +1173,9 @@ const profil = t => {
 const bestVon = nr => profil(S.tier).best[nr] || 0;
 const uebVon = nr => profil(S.tier).uebung[nr] || 0;
 const blitzVon = nr => profil(S.tier).blitz[nr] || 0;
-const frei = nr => ALLE_FREI || S.lehrer || nr === 1 || bestVon(nr - 1) >= FREI_AB || uebVon(nr - 1) >= UEBUNG_FREI_AB;
+/* true = alle Level sind von Anfang an offen. false = jedes Level muss erst freigespielt werden. */
+const ALLE_LEVEL_OFFEN = true;
+const frei = nr => ALLE_LEVEL_OFFEN || ALLE_FREI || S.lehrer || nr === 1 || bestVon(nr - 1) >= FREI_AB || uebVon(nr - 1) >= UEBUNG_FREI_AB;
 const stufe = () => S.streak < 5 ? 0 : S.streak < 12 ? 1 : 2;
 
 const S = { tier: null, lehrer: false, lv: null, modus: 'streak', streak: 0, runde: null, a: null, wartet: false, timer: null, uhr: null, auswahl: null, info: null };
@@ -1304,8 +1306,8 @@ function zeigeKarte() {
           : '<span>Hier sammeln sich Aufgaben, bei denen du Fehler gemacht hast. Gerade ist alles repariert! ✨</span>'}</span>
       ${w ? `<span class="wk-zahl">${w}</span>` : ''}
     </button>
-    <div class="bubble" style="display:block;margin-top:24px">Wähle ein Level und dann: <b>📝 Üben</b> – 10 Aufgaben mit Tipps, <b>🔥 Streak</b> – ohne Fehler so weit wie möglich, oder <b>⚡ Blitz</b> – so viele wie möglich in 60 Sekunden.
-      Das nächste Level öffnet sich mit <b>${UEBUNG_FREI_AB} von 10</b> beim Üben oder einer <b>${FREI_AB}er-Streak</b>.</div>
+    <div class="bubble" style="display:block;margin-top:24px">Wähle ein Level und dann: <b>📝 Üben</b> – 10 Aufgaben mit Tipps, <b>🔥 Streak</b> – ohne Fehler so weit wie möglich, oder <b>⚡ Blitz</b> – so viele wie möglich in 60 Sekunden.${ALLE_LEVEL_OFFEN ? '' : `
+      Das nächste Level öffnet sich mit <b>${UEBUNG_FREI_AB} von 10</b> beim Üben oder einer <b>${FREI_AB}er-Streak</b>.`}</div>
     <div class="lvgitter">${LEVELS.map(lv => {
       const offen = frei(lv.nr), b = bestVon(lv.nr), u = uebVon(lv.nr), z = blitzVon(lv.nr);
       return `<button class="lv" data-nr="${lv.nr}" style="--farbe:var(${lv.farbe})" ${offen ? '' : 'disabled'}>
