@@ -27,8 +27,7 @@ const APPS = [
     thema: "Elektrizitätslehre",
     klasse: "11/12",
     beschreibung: "Ein Gespräch mit Millikan: Bringe Öltröpfchen im elektrischen Feld zum Schweben und finde heraus, dass Ladung gequantelt ist.",
-    datei: "apps/physik/millikan.html",
-    neu: true
+    datei: "apps/physik/millikan.html"
   },
   {
     titel: "Bruch-Blitz",
@@ -36,7 +35,16 @@ const APPS = [
     thema: "Brüche",
     klasse: "5",
     beschreibung: "Erkenne, male, kürze und vergleiche Brüche in 9 Leveln – mit Übungsmodus, Streak-Challenge, Blitzrunde und Fehlerwerkstatt. Anmeldung mit deinem Zugangsnamen.",
-    datei: "apps/mathe/bruch-blitz.html",
+    datei: "apps/mathe/bruch-blitz.html"
+  },
+
+  {
+    titel: "Geheimnisvolle Zahlen",
+    fach: "Mathematik",
+    thema: "Teilbarkeit & Potenzen",
+    klasse: "6",
+    beschreibung: "Teiler, Vielfache, Teilbarkeitsregeln und Potenzen in 9 Leveln – mit Wer-bin-ich-Rätseln, Übungsmodus, Streak, Blitzrunde und Fehlerwerkstatt. Anmeldung mit deinem Zugangsnamen.",
+    datei: "apps/mathe/geheimnisvolle-zahlen.html",
     neu: true
   },
 

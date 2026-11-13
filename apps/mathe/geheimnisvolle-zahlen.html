@@ -1,0 +1,1782 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Geheimnisvolle Zahlen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #111;
+    --paper: #fffdf6;
+    --sun: #ffd23f;
+    --red: #ef3e36;
+    --blue: #2e86de;
+    --green: #2ecc71;
+    --purple: #8e44ad;
+    --orange: #ff8c1a;
+    --muted: #3b3b3b;
+    --fill: #ef3e36;
+    --stern: polygon(50% 0%,61% 18%,82% 8%,78% 30%,100% 35%,84% 52%,98% 70%,76% 72%,78% 95%,58% 82%,45% 100%,38% 80%,15% 92%,20% 68%,0% 60%,18% 46%,4% 26%,26% 26%,24% 4%,42% 18%);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    font: 18px/1.45 "Comic Neue", "Comic Sans MS", system-ui, sans-serif;
+    background-color: var(--sun);
+    background-image: radial-gradient(rgba(0,0,0,.13) 1.6px, transparent 1.7px);
+    background-size: 14px 14px;
+    min-height: 100vh;
+    overflow-x: clip;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 16px 40px; }
+  .heim {
+    display: inline-block; margin: 14px 0 0;
+    font-weight: 700; color: var(--ink); text-decoration: none;
+    background: var(--paper); border: 3px solid var(--ink); border-radius: 10px;
+    padding: 4px 12px; box-shadow: 3px 3px 0 var(--ink);
+  }
+  .bang { font-family: Bangers, Impact, sans-serif; font-weight: 400; letter-spacing: .05em; }
+
+  /* ---------- Titel ---------- */
+  .titel { text-align: center; padding: 22px 0 6px; }
+  h1 {
+    font-family: Bangers, Impact, sans-serif; font-weight: 400;
+    font-size: clamp(3rem, 13vw, 6.5rem);
+    letter-spacing: .04em; line-height: .95; margin: 0;
+    color: #fff; -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill;
+    text-shadow: 6px 6px 0 var(--red), 9px 9px 0 var(--ink);
+    transform: rotate(-2deg);
+  }
+  h1 .blitz { color: var(--sun); }
+  .bubble {
+    position: relative; display: inline-block; max-width: 600px;
+    margin: 26px auto 0; padding: 12px 20px;
+    background: var(--paper); border: 3px solid var(--ink); border-radius: 22px;
+    font-weight: 700; box-shadow: 5px 5px 0 var(--ink);
+  }
+  .bubble::after { content: ""; position: absolute; left: 40px; top: -21px; border: 10px solid transparent; border-bottom: 12px solid var(--ink); }
+  .bubble::before { content: ""; position: absolute; left: 43px; top: -13px; border: 7px solid transparent; border-bottom: 9px solid var(--paper); z-index: 1; }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    font-family: Bangers, Impact, sans-serif; font-size: 22px; letter-spacing: .06em;
+    padding: 7px 18px 4px; border: 3px solid var(--ink); border-radius: 10px;
+    background: var(--paper); color: var(--ink); cursor: pointer;
+    box-shadow: 4px 4px 0 var(--ink); transition: transform .08s, box-shadow .08s;
+  }
+  .btn:hover { transform: translate(-1px,-1px); box-shadow: 5px 5px 0 var(--ink); }
+  .btn:active { transform: translate(4px,4px); box-shadow: 0 0 0 var(--ink); }
+  .btn.gruen, .btn.blau, .btn.rot { color: #fff; -webkit-text-stroke: 1px var(--ink); paint-order: stroke fill; }
+  .btn.gruen { background: var(--green); }
+  .btn.blau { background: var(--blue); }
+  .btn.rot { background: var(--red); }
+  .btn.klein { font-size: 18px; padding: 4px 12px 2px; }
+
+  /* ---------- Tierauswahl ---------- */
+  .tiergitter {
+    display: grid; gap: 16px; margin-top: 34px;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+  .tier {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 14px 8px 10px; cursor: pointer;
+    background: var(--paper); border: 3px solid var(--ink); border-radius: 12px;
+    box-shadow: 5px 5px 0 var(--ink); font: inherit; color: var(--ink);
+    transition: transform .1s, box-shadow .1s;
+  }
+  .tier:nth-child(odd) { transform: rotate(-1deg); }
+  .tier:nth-child(even) { transform: rotate(1deg); }
+  .tier:hover, .tier:focus-visible { transform: translate(-2px,-2px) rotate(0); box-shadow: 8px 8px 0 var(--ink); outline: none; }
+  .tier .emo { font-size: 46px; line-height: 1.1; }
+  .tier .nm { font-family: Bangers, Impact, sans-serif; font-size: 20px; letter-spacing: .04em; text-align: center; line-height: 1.05; }
+  .tier.zuletzt { background: #e8f6ff; outline: 3px dashed var(--blue); outline-offset: 3px; }
+
+  /* ---------- Levelkarte ---------- */
+  .spielerzeile { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-top: 22px; }
+  .spieler {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--paper); border: 3px solid var(--ink); border-radius: 12px;
+    padding: 6px 14px; box-shadow: 4px 4px 0 var(--ink);
+  }
+  .spieler .emo { font-size: 34px; }
+  .spieler b { font-family: Bangers, Impact, sans-serif; font-weight: 400; font-size: 26px; letter-spacing: .04em; }
+  .lvgitter { display: grid; gap: 22px; margin-top: 28px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+  .lv {
+    position: relative; display: flex; flex-direction: column; text-align: left;
+    background: var(--paper); border: 3px solid var(--ink); border-radius: 6px;
+    box-shadow: 7px 7px 0 var(--ink); cursor: pointer; padding: 0; font: inherit; color: inherit;
+    transition: transform .12s, box-shadow .12s;
+  }
+  .lv:nth-child(odd) { transform: rotate(-.6deg); }
+  .lv:nth-child(even) { transform: rotate(.6deg); }
+  .lv:not([disabled]):hover, .lv:not([disabled]):focus-visible { transform: translate(-3px,-3px) rotate(0); box-shadow: 10px 10px 0 var(--ink); outline: none; }
+  .lv .kopf {
+    height: 70px; background-color: var(--farbe);
+    background-image: radial-gradient(rgba(255,255,255,.35) 2px, transparent 2.2px), repeating-linear-gradient(115deg, transparent 0 18px, rgba(0,0,0,.08) 18px 22px);
+    background-size: 10px 10px, auto; border-bottom: 3px solid var(--ink);
+    display: flex; align-items: flex-end; justify-content: space-between; padding: 0 12px 8px;
+  }
+  .lv .kopf .ico { font-size: 38px; line-height: 1; filter: drop-shadow(2px 2px 0 var(--ink)); }
+  .lv .nr { font-family: Bangers, Impact, sans-serif; font-size: 18px; letter-spacing: .05em; background: var(--paper); border: 2px solid var(--ink); border-radius: 6px; padding: 1px 8px 0; }
+  .lv .inhalt { padding: 12px 16px 14px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+  .lv strong { font-family: Bangers, Impact, sans-serif; font-weight: 400; font-size: 28px; letter-spacing: .04em; line-height: 1; }
+  .lv p { margin: 0; color: var(--muted); font-size: 16px; }
+  .lv .rek { margin-top: auto; padding-top: 6px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; }
+  .lv .sterne { font-size: 22px; letter-spacing: 2px; color: #c9c1a5; }
+  .lv .sterne .an { color: var(--orange); -webkit-text-stroke: 1px var(--ink); }
+  .lv[disabled] { cursor: not-allowed; }
+  .lv[disabled] > *:not(.schloss) { filter: grayscale(1) opacity(.45); }
+  .schloss {
+    position: absolute; inset: 70px 0 0 0; display: grid; place-items: center; text-align: center;
+    padding: 10px 16px; font-weight: 700; font-size: 16px;
+  }
+  .schloss span { background: var(--paper); border: 3px solid var(--ink); border-radius: 10px; padding: 6px 10px; box-shadow: 3px 3px 0 var(--ink); transform: rotate(-2deg); }
+
+  /* ---------- Spiel ---------- */
+  .hud { display: grid; grid-template-columns: auto 1fr auto auto; gap: 12px; align-items: center; margin-top: 18px; }
+  .lvname { font-family: Bangers, Impact, sans-serif; font-size: clamp(22px, 5vw, 32px); letter-spacing: .04em; line-height: 1; }
+  .lvname small { display: block; font-size: .55em; color: var(--muted); }
+  .streakbox, .rekordbox {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-width: 84px; padding: 4px 10px 2px; border: 3px solid var(--ink); border-radius: 12px;
+    box-shadow: 4px 4px 0 var(--ink); background: var(--paper);
+  }
+  .streakbox { background: var(--red); color: #fff; }
+  .streakbox .zahl { font-family: Bangers, Impact, sans-serif; font-size: 40px; line-height: 1; -webkit-text-stroke: 1.5px var(--ink); paint-order: stroke fill; }
+  .rekordbox .zahl { font-family: Bangers, Impact, sans-serif; font-size: 30px; line-height: 1; }
+  .streakbox small, .rekordbox small { font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; }
+  .pop { animation: pop .35s ease-out; }
+  @keyframes pop { 0% { transform: scale(1); } 40% { transform: scale(1.35) rotate(-6deg); } 100% { transform: scale(1); } }
+
+  .aufgabe {
+    position: relative; margin-top: 22px; padding: 20px 20px 24px;
+    background: var(--paper); border: 3px solid var(--ink); border-radius: 8px; box-shadow: 8px 8px 0 var(--ink);
+  }
+  .stufe {
+    display: inline-block; font-family: Bangers, Impact, sans-serif; letter-spacing: .06em; font-size: 16px;
+    padding: 1px 10px 0; border: 2px solid var(--ink); border-radius: 6px; margin-bottom: 8px;
+  }
+  .stufe.s0 { background: #c8f5d9; } .stufe.s1 { background: #ffe4b3; } .stufe.s2 { background: #ffc4c1; }
+  .frage { font-size: 22px; font-weight: 700; margin: 0 0 10px; }
+  .bild { display: flex; justify-content: center; margin: 12px 0 16px; }
+  .zeile { display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 34px; font-weight: 700; margin: 12px 0 18px; flex-wrap: wrap; }
+
+  svg.fig { width: min(260px, 70vw); height: auto; overflow: visible; }
+  svg.fig.breit { width: min(440px, 100%); }
+  svg.fig.strahl { width: min(560px, 100%); }
+  .teil { fill: var(--paper); stroke: var(--ink); stroke-width: 3; stroke-linejoin: round; transition: fill .12s; }
+  .teil.an { fill: var(--fill); }
+  .klickbar .teil { cursor: pointer; }
+  .klickbar .teil:hover { fill: #ffe9a8; }
+  .klickbar .teil.an:hover { fill: #c92c25; }
+  .sl, .sg, .sk { stroke: var(--ink); stroke-linecap: round; }
+  .sl { stroke-width: 3; } .sg { stroke-width: 3.5; } .sk { stroke-width: 2.5; }
+  .spitze { fill: var(--ink); }
+  .sz { font: 700 18px "Comic Neue", sans-serif; text-anchor: middle; fill: var(--ink); }
+  .marker { fill: var(--fill); stroke: var(--ink); stroke-width: 2; pointer-events: none; }
+  .hit { fill: transparent; cursor: pointer; }
+  .hit:hover { fill: rgba(46,134,222,.18); }
+
+  /* Brüche: gestapelt, zentriert */
+  .frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; line-height: 1.05; margin: 0 .1em; font-weight: 700; }
+  .frac > span { display: block; text-align: center; padding: 0 .18em; min-width: 1.15em; }
+  .frac > span:last-child { border-top: .09em solid currentColor; }
+  .gem { display: inline-flex; align-items: center; gap: .08em; vertical-align: middle; }
+  .gem .ganz { font-size: 1.45em; font-weight: 700; }
+  .luecke { display: inline-block; min-width: 1.2em; color: var(--blue); }
+
+  .optionen { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); max-width: 640px; margin: 0 auto; }
+  .opt {
+    font: 700 28px "Comic Neue", sans-serif; color: var(--ink);
+    min-height: 92px; display: grid; place-items: center; cursor: pointer;
+    background: #fff; border: 3px solid var(--ink); border-radius: 12px; box-shadow: 4px 4px 0 var(--ink);
+    transition: transform .08s, box-shadow .08s, background .1s;
+  }
+  .opt:hover:not([disabled]) { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--ink); background: #fff7d6; }
+  .opt:active:not([disabled]) { transform: translate(4px,4px); box-shadow: 0 0 0 var(--ink); }
+  .opt[disabled] { cursor: default; }
+  .opt.richtig { background: var(--green); }
+  .opt.falsch { background: var(--red); color: #fff; }
+  .opt.sym { font-family: Bangers, Impact, sans-serif; font-size: 52px; min-height: 84px; }
+  .vbox { display: inline-grid; place-items: center; width: 64px; height: 64px; border: 3px dashed var(--ink); border-radius: 12px; font-family: Bangers, Impact, sans-serif; font-size: 44px; background: #fff; }
+
+  .eingabe { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .eingabe input {
+    width: 140px; font: 700 30px "Comic Neue", sans-serif; text-align: center; padding: 8px;
+    border: 3px solid var(--ink); border-radius: 12px; box-shadow: 4px 4px 0 var(--ink); background: #fff;
+  }
+  .eingabe input:focus { outline: none; box-shadow: 4px 4px 0 var(--blue); }
+  .einheit { font-weight: 700; font-size: 24px; }
+  .malinfo { text-align: center; font-weight: 700; margin-bottom: 12px; }
+  .mitte { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  .wackel { animation: wackel .35s; }
+  @keyframes wackel { 25% { transform: translateX(-8px); } 50% { transform: translateX(8px); } 75% { transform: translateX(-4px); } }
+
+  .falschbox {
+    margin-top: 20px; padding: 14px 16px; background: #fff0ef; border: 3px solid var(--ink); border-radius: 12px;
+    box-shadow: 4px 4px 0 var(--red);
+  }
+  .falschbox .autsch { font-family: Bangers, Impact, sans-serif; font-size: 26px; letter-spacing: .04em; color: var(--red); -webkit-text-stroke: 1px var(--ink); paint-order: stroke fill; }
+  .falschbox .loes { font-size: 26px; font-weight: 700; }
+  .falschbox p { margin: 8px 0 12px; }
+  .falschbox svg.fig { width: min(180px, 50vw); }
+  .falschbox svg.fig.breit { width: min(340px, 100%); }
+  .falschbox svg.fig.strahl { width: min(460px, 100%); }
+
+  /* Knall-Sterne */
+  .knallhalter { position: absolute; top: -42px; right: -18px; z-index: 5; pointer-events: none; filter: drop-shadow(4px 4px 0 var(--ink)); }
+  .knall {
+    width: 170px; height: 170px; display: grid; place-items: center; text-align: center;
+    clip-path: var(--stern); background: var(--sun); padding: 34px;
+    font-family: Bangers, Impact, sans-serif; font-size: 28px; line-height: 1; letter-spacing: .04em;
+    animation: knall 1s ease-out forwards;
+  }
+  .knall.schlecht { background: var(--red); color: #fff; }
+  .knall.gross { width: 210px; height: 210px; font-size: 32px; background: var(--orange); color: #fff; -webkit-text-stroke: 1px var(--ink); paint-order: stroke fill; animation-duration: 1.5s; }
+  @keyframes knall { 0% { transform: scale(.2) rotate(-30deg); opacity: 0; } 20% { transform: scale(1.1) rotate(8deg); opacity: 1; } 80% { transform: scale(1) rotate(6deg); opacity: 1; } 100% { transform: scale(.9) rotate(6deg); opacity: 0; } }
+
+  #toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) rotate(-2deg);
+    background: var(--green); color: #fff; font-family: Bangers, Impact, sans-serif; font-size: 26px; letter-spacing: .05em;
+    -webkit-text-stroke: 1px var(--ink); paint-order: stroke fill;
+    border: 3px solid var(--ink); border-radius: 12px; padding: 8px 20px 5px; box-shadow: 5px 5px 0 var(--ink);
+    display: none; z-index: 20; text-align: center; max-width: 92vw;
+  }
+  #toast.zeigen { display: block; animation: pop .4s; }
+
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: grid; place-items: center; z-index: 30; padding: 16px; }
+  .modal .aufgabe { max-width: 440px; width: 100%; text-align: center; margin: 0; }
+  .modal h2 { font-family: Bangers, Impact, sans-serif; font-weight: 400; font-size: 40px; letter-spacing: .04em; margin: 0 0 10px; }
+  .bilanz { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 10px 0 18px; }
+  .bilanz div { border: 3px solid var(--ink); border-radius: 10px; padding: 6px 4px; background: #fff; }
+  .bilanz b { display: block; font-family: Bangers, Impact, sans-serif; font-weight: 400; font-size: 34px; line-height: 1; }
+  .bilanz small { font-weight: 700; font-size: 13px; }
+
+  .hinweis { text-align: center; margin-top: 34px; font-weight: 700; }
+  .hinweis span { display: inline-block; background: var(--paper); border: 3px solid var(--ink); padding: 6px 14px; box-shadow: 4px 4px 0 var(--ink); transform: rotate(1deg); }
+
+
+  /* ---------- Modi, Tipps, Ergebnis ---------- */
+  .lv .rek2 { display: flex; justify-content: space-between; align-items: center; font-weight: 700; }
+  .lv .rek { margin-top: auto; }
+  .modusbox { text-align: center; }
+  .modus {
+    display: flex; flex-direction: column; gap: 2px; width: 100%; text-align: left; margin-bottom: 14px;
+    padding: 12px 16px; border: 3px solid var(--ink); border-radius: 12px; box-shadow: 5px 5px 0 var(--ink);
+    font: inherit; font-size: 16px; color: var(--ink); cursor: pointer; transition: transform .08s, box-shadow .08s;
+  }
+  .modus:hover, .modus:focus-visible { transform: translate(-2px,-2px); box-shadow: 7px 7px 0 var(--ink); outline: none; }
+  .modus.uebung { background: #dff1ff; } .modus.streak { background: #ffe1df; }
+  .modus .mk { font-family: Bangers, Impact, sans-serif; font-size: 28px; letter-spacing: .04em; }
+  .modus small { font-weight: 700; color: var(--muted); }
+  .streakbox.blau { background: var(--blue); }
+  .tippknopf { cursor: pointer; font: inherit; color: var(--ink); }
+  .tippknopf[disabled] { opacity: .4; cursor: default; }
+  .tippknopf:not([disabled]) { background: #fff3b0; animation: pop .5s; }
+  .punkte { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
+  .punkte span {
+    width: 30px; height: 30px; display: grid; place-items: center; border: 3px solid var(--ink); border-radius: 50%;
+    background: var(--paper); font-weight: 700; font-size: 16px; color: #fff;
+  }
+  .punkte span.ok { background: var(--green); } .punkte span.nein { background: var(--red); }
+  .punkte span.jetzt { background: #fff3b0; box-shadow: 0 0 0 3px var(--blue); }
+  .punkte.gross span { width: 36px; height: 36px; font-size: 20px; }
+  .tippbox {
+    margin: 14px 0; padding: 12px 16px; background: #fff7c7; border: 3px solid var(--ink); border-radius: 12px;
+    box-shadow: 4px 4px 0 var(--orange); font-size: 18px;
+  }
+  .tippbox .tk { font-family: Bangers, Impact, sans-serif; font-size: 24px; letter-spacing: .04em; margin-bottom: 4px; }
+  .tippbox .bild { margin: 8px 0; } .tippbox svg.fig { width: min(150px, 40vw); } .tippbox svg.fig.breit { width: min(300px, 80vw); } .tippbox svg.fig.strahl { width: min(380px, 100%); }
+  .tippbox .zeile { font-size: 26px; margin: 8px 0; }
+  .trost { font-weight: 700; margin: 4px 0 8px; }
+  .ergebnis { text-align: center; }
+  .ergebnis h2 { font-family: Bangers, Impact, sans-serif; font-weight: 400; font-size: 44px; letter-spacing: .04em; margin: 0; }
+  .ergzahl { font-family: Bangers, Impact, sans-serif; font-size: 72px; line-height: 1; margin: 6px 0; }
+  .ergzahl small { font-size: 26px; }
+  .ergebnis .sterne { font-size: 40px; color: #c9c1a5; letter-spacing: 4px; }
+  .ergebnis .sterne .an { color: var(--orange); -webkit-text-stroke: 1.5px var(--ink); }
+  .ergtext { font-size: 20px; font-weight: 700; margin: 16px auto; max-width: 520px; }
+  .frei { font-weight: 700; color: #137a3c; font-size: 19px; margin: 6px 0; }
+  .ergebnis .mitte { margin-top: 18px; }
+
+  /* ---------- Anmeldung ---------- */
+  .login { max-width: 560px; margin: 34px auto 0; text-align: center; }
+  .login label { display: block; font-family: Bangers, Impact, sans-serif; font-size: 30px; letter-spacing: .04em; margin-bottom: 10px; }
+  .loginzeile { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .loginzeile input {
+    flex: 1 1 220px; max-width: 300px; font: 700 26px "Comic Neue", sans-serif; text-align: center; padding: 8px 12px;
+    border: 3px solid var(--ink); border-radius: 12px; box-shadow: 4px 4px 0 var(--ink); background: #fff; color: var(--ink);
+  }
+  .loginzeile input:focus { outline: none; box-shadow: 4px 4px 0 var(--blue); }
+  .loginfehler { min-height: 28px; margin-top: 14px; font-weight: 700; color: var(--red); }
+  .loginfehler.info { color: var(--muted); }
+  .loginhilfe { margin: 6px 0 0; color: var(--muted); font-size: 16px; }
+  .tierparade { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 30px auto 0; max-width: 620px; font-size: 32px; }
+  .tierparade span:nth-child(odd) { transform: rotate(-8deg); } .tierparade span:nth-child(even) { transform: rotate(8deg); }
+  .lehrerhinweis { margin: 14px 0 0; font-weight: 700; }
+
+  .hinw { font-weight: 400; color: var(--muted); font-size: .8em; }
+  .sachkopf { display: inline-block; font-family: Bangers, Impact, sans-serif; font-weight: 400; font-size: 22px; letter-spacing: .05em;
+    background: var(--sun); border: 2px solid var(--ink); border-radius: 8px; padding: 0 10px; margin: 0 8px 6px 0; transform: rotate(-1.5deg); }
+  .frage { line-height: 1.55; }
+
+  /* ---------- Zahlenstrahl: Ziehen ---------- */
+  .ziehfeld { max-width: 600px; margin: 6px auto 14px; }
+  .strahlbox { position: relative; padding-top: 62px; }
+  .strahlbox svg.fig.strahl { width: 100%; display: block; }
+  .ablageebene { position: absolute; left: 0; right: 0; top: 62px; bottom: 0; pointer-events: none; }
+  .abgelegt { position: absolute; bottom: 61%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; pointer-events: auto; }
+  .abgelegt::after { content: ""; border: 8px solid transparent; border-top: 10px solid var(--ink); margin-top: -1px; }
+  .ablage { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; min-height: 76px; margin-top: 14px; padding: 10px;
+    border: 3px dashed #b9ae8a; border-radius: 12px; background: #fffaf0; }
+  .ablage-leer { align-self: center; color: var(--muted); font-weight: 700; font-size: 15px; }
+  .karte { font: 700 22px "Comic Neue", sans-serif; color: var(--ink); background: #fff; min-width: 54px; padding: 4px 8px;
+    border: 3px solid var(--ink); border-radius: 10px; box-shadow: 3px 3px 0 var(--ink); cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .abgelegt .karte { font-size: 18px; min-width: 42px; padding: 2px 6px; box-shadow: 2px 2px 0 var(--ink); }
+  .karte.gewaehlt { background: #fff3b0; box-shadow: 0 0 0 4px var(--blue), 3px 3px 0 var(--ink); }
+  .karte.zieht { position: relative; z-index: 20; cursor: grabbing; box-shadow: 6px 6px 0 rgba(0,0,0,.35); }
+  .karte.ok { background: var(--green); } .karte.nein { background: var(--red); color: #fff; }
+  .karte[disabled] { cursor: default; }
+  .hit.bereit { fill: rgba(46,134,222,.10); }
+  .hit.ziel, .hit.bereit:hover { fill: rgba(46,134,222,.28); }
+  .szb { font: 700 17px "Comic Neue", sans-serif; text-anchor: middle; fill: var(--ink); }
+  .sbar { stroke: var(--ink); stroke-width: 2; }
+
+  /* ---------- Werkstatt, Blitz, Klassen-Ecke ---------- */
+  .werkstattkarte {
+    display: flex; align-items: center; gap: 14px; width: 100%; margin-top: 22px; padding: 12px 16px; text-align: left;
+    font: inherit; color: var(--ink); cursor: pointer; background: #e9f7ef; border: 3px solid var(--ink); border-radius: 12px;
+    box-shadow: 5px 5px 0 var(--ink); transition: transform .08s, box-shadow .08s;
+  }
+  .werkstattkarte:not([disabled]):hover { transform: translate(-2px,-2px); box-shadow: 7px 7px 0 var(--ink); }
+  .werkstattkarte[disabled] { cursor: default; background: var(--paper); }
+  .wk-ico { font-size: 40px; }
+  .wk-text { display: flex; flex-direction: column; flex: 1; font-size: 16px; }
+  .wk-text b { font-family: Bangers, Impact, sans-serif; font-weight: 400; font-size: 28px; letter-spacing: .04em; line-height: 1.1; }
+  .wk-zahl { font-family: Bangers, Impact, sans-serif; font-size: 30px; min-width: 50px; height: 50px; display: grid; place-items: center;
+    background: var(--red); color: #fff; border: 3px solid var(--ink); border-radius: 50%; -webkit-text-stroke: 1px var(--ink); paint-order: stroke fill; }
+  .klassenecke:empty { display: none; }
+  .klassenecke { display: grid; gap: 14px; margin-top: 22px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .zielkarte { background: var(--paper); border: 3px solid var(--ink); border-radius: 12px; box-shadow: 5px 5px 0 var(--ink); padding: 12px 16px; }
+  .zielkarte.geschafft { background: #e3f9ea; }
+  .zk-kopf { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .zk-kopf b { font-family: Bangers, Impact, sans-serif; font-weight: 400; font-size: 24px; letter-spacing: .04em; }
+  .zielkarte p { margin: 8px 0 0; font-size: 16px; }
+  .balken { position: relative; height: 30px; margin-top: 8px; background: #fff; border: 3px solid var(--ink); border-radius: 16px; overflow: hidden; }
+  .balken span { position: absolute; inset: 0 auto 0 0; background: repeating-linear-gradient(115deg, var(--green) 0 14px, #27b863 14px 22px); border-right: 3px solid var(--ink); transition: width .6s; }
+  .balken em { position: relative; display: block; text-align: center; font-style: normal; font-weight: 700; font-size: 15px; line-height: 24px; }
+  .btn.gelb { background: var(--sun); }
+  .bestenbox { max-width: 480px; }
+  .unterzeile { margin: -6px 0 12px; color: var(--muted); font-weight: 700; }
+  .tabs { display: flex; gap: 8px; justify-content: center; margin-bottom: 12px; flex-wrap: wrap; }
+  .tab { font: 700 15px "Comic Neue", sans-serif; padding: 6px 12px; border: 3px solid var(--ink); border-radius: 10px; background: #fff; cursor: pointer; color: var(--ink); }
+  .tab.an { background: var(--blue); color: #fff; }
+  .rangliste { list-style: none; margin: 0 0 16px; padding: 0; text-align: left; }
+  .rangliste li { display: grid; grid-template-columns: 44px 1fr auto auto; gap: 8px; align-items: center; padding: 8px 10px; margin-bottom: 6px;
+    background: #fff; border: 2px solid var(--ink); border-radius: 10px; }
+  .rangliste li.ich { background: #fff3b0; box-shadow: 0 0 0 3px var(--orange); }
+  .rangliste .platz { font-size: 24px; text-align: center; font-weight: 700; }
+  .rangliste b { font-family: Bangers, Impact, sans-serif; font-weight: 400; font-size: 26px; }
+  .rangliste small { color: var(--muted); font-weight: 700; }
+  .leerliste { color: var(--muted); font-weight: 700; margin: 10px 0 18px; }
+  .modus.blitz { background: #efe3ff; }
+  .streakbox.lila { background: var(--purple); }
+  .uhrbalken { height: 14px; margin-top: 14px; background: var(--paper); border: 3px solid var(--ink); border-radius: 8px; overflow: hidden; }
+  .uhrbalken span { display: block; height: 100%; width: 100%; background: var(--purple); transition: width .1s linear; }
+  .uhrbalken span.knapp { background: var(--red); }
+  .knall.klein { width: 120px; height: 120px; font-size: 22px; padding: 26px; animation-duration: .7s; }
+  .blitzfalsch { margin-top: 16px; padding: 10px 14px; background: #fff0ef; border: 3px solid var(--ink); border-radius: 12px; font-weight: 700; text-align: center; }
+  .blitzfalsch small { display: block; color: var(--muted); margin-top: 4px; }
+  .blitzfalsch .bild { margin: 6px 0 0; }
+  .werkhinweis { font-weight: 700; color: #137a3c; margin: 6px 0 12px; }
+  .stufe.werk { background: #d6f2e1; margin-left: 6px; }
+
+  .modal .aufgabe { max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); overflow-y: auto; }
+  .modusbox { max-width: 520px; }
+  .soGehts { text-align: left; margin: 0 0 16px; background: #fff7c7; border: 3px solid var(--ink); border-radius: 12px; box-shadow: 4px 4px 0 var(--orange); }
+  .soGehts summary { cursor: pointer; padding: 8px 12px; font-family: Bangers, Impact, sans-serif; font-size: 22px; letter-spacing: .04em; list-style-position: inside; }
+  .soGehts ul { list-style: none; margin: 0; padding: 0 12px 10px; display: grid; gap: 8px; }
+  .soGehts li { display: grid; grid-template-columns: 30px 1fr; gap: 6px; align-items: start; font-size: 16px; line-height: 1.5; }
+  .soGehts .sg-ico { font-size: 22px; line-height: 1.2; }
+  .soGehts .frac { font-size: .95em; }
+
+  /* ---------- Mengen (Bonbons, Murmeln …) ---------- */
+  .menge { display: grid; grid-template-columns: repeat(var(--sp, 6), auto); gap: 6px; justify-content: center; }
+  .menge.gruppiert { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .gruppe { display: flex; gap: 6px; padding: 4px 8px; border: 2px dashed #9a8f6c; border-radius: 12px; background: #fffaf0; }
+  .ding { display: inline-grid; place-items: center; width: 46px; height: 46px; font-size: 30px; line-height: 1;
+    background: #fff; border: 2px solid #d9cfae; border-radius: 50%; padding: 0; font-family: inherit; color: inherit; }
+  button.ding { cursor: pointer; transition: transform .08s; }
+  button.ding:hover:not([disabled]) { transform: scale(1.1); }
+  .ding.an { background: #ffd9d6; border: 3px solid var(--red); box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--red); }
+  .falschbox .ding, .tippbox .ding, .blitzfalsch .ding { width: 34px; height: 34px; font-size: 22px; }
+  @media (max-width: 560px) { .ding { width: 38px; height: 38px; font-size: 24px; } .menge { gap: 4px; } }
+
+  @media (max-width: 560px) {
+    .hud { grid-template-columns: auto 1fr; }
+    .hud .lvname { grid-column: 2; }
+    .streakbox, .rekordbox { min-width: 0; }
+    .opt { min-height: 80px; font-size: 26px; }
+    .knallhalter { right: -8px; top: -50px; }
+    .knall { width: 140px; height: 140px; font-size: 24px; padding: 28px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+  /* ---------- Geheimnisvolle Zahlen ---------- */
+  .pot { white-space: nowrap; font-weight: 700; }
+  .pot sup { font-size: .62em; vertical-align: .75em; line-height: 0; margin-left: .04em; }
+  .lupe { background: #fff3b0; border: 2px solid var(--ink); border-radius: 6px; padding: 0 3px; box-shadow: 2px 2px 0 var(--ink); }
+  .aussage { display: inline-block; font-size: 1.25em; margin-left: 6px; white-space: nowrap; }
+  .opt small { display: block; font-size: 15px; font-weight: 700; color: var(--muted); }
+  .opt.richtig small, .opt.falsch small { color: inherit; }
+  .opt .klein { font-size: 20px; line-height: 1.25; padding: 0 6px; }
+  .raetsel { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; }
+  .raetsel li { background: #fff7c7; border: 2px solid var(--ink); border-radius: 10px; padding: 6px 12px; font-size: 20px; }
+  .raetsel li::before { content: "🔎 "; }
+  .zahlchips { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; max-width: 680px; margin: 6px auto 14px; }
+  .zchip {
+    font: 700 23px "Comic Neue", sans-serif; color: var(--ink); min-width: 66px; padding: 9px 12px; cursor: pointer;
+    background: #fff; border: 3px solid var(--ink); border-radius: 12px; box-shadow: 3px 3px 0 var(--ink);
+    transition: transform .08s, box-shadow .08s, background .1s;
+  }
+  .zchip:hover:not([disabled]) { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--ink); }
+  .zchip.an { background: #fff3b0; box-shadow: 0 0 0 4px var(--blue), 3px 3px 0 var(--ink); }
+  .zchip.ok { background: var(--green); color: #fff; }
+  .zchip.nein { background: var(--red); color: #fff; }
+  .zchip.fehlt { background: #c8f5d9; outline: 3px dashed #137a3c; outline-offset: 3px; }
+  .zchip.x { opacity: .55; }
+  .zchip[disabled] { cursor: default; }
+  .steine { padding: 14px 8px; border-radius: 18px; background: repeating-linear-gradient(170deg, #9fd3f5 0 18px, #b9e2fa 18px 32px); border: 3px solid var(--ink); }
+  .steine .zchip { background: #ddd6c6; border-radius: 46% 54% 42% 58% / 55% 45% 55% 45%; min-width: 70px; }
+  .steine .zchip.an { background: #fff3b0; }
+  .steine .zchip.ok { background: var(--green); } .steine .zchip.nein { background: var(--red); } .steine .zchip.fehlt { background: #c8f5d9; }
+  .gruppen { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; max-width: 640px; }
+  .gruppen .ding { width: 36px; height: 36px; font-size: 22px; }
+  .gruppe.rest { border-color: var(--red); background: #fff0ef; }
+  svg.fig.wuerfel { width: min(220px, 60vw); }
+  .tippbox .gruppen .ding, .falschbox .gruppen .ding { width: 28px; height: 28px; font-size: 17px; }
+  h1 .blitz { color: var(--sun); }
+  .pflanzenparade { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 30px auto 0; max-width: 620px; font-size: 32px; }
+  .pflanzenparade span:nth-child(odd) { transform: rotate(-8deg); } .pflanzenparade span:nth-child(even) { transform: rotate(8deg); }
+  @media (max-width: 560px) { .zchip { font-size: 20px; min-width: 56px; padding: 7px 9px; } .raetsel li { font-size: 18px; } h1.lang { font-size: clamp(2.3rem, 11.5vw, 6.5rem); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="heim" href="../../index.html">◀ Alle Anwendungen</a>
+  <main id="app"></main>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* =========================================================
+   EINSTELLUNGEN
+   SHEET_URL: Web-App-URL aus Google Apps Script (endet auf /exec).
+   Leer lassen = es wird nichts gesendet (Anmeldung prüft dann nur das Format).
+   Mit ?alle im Link sind alle Level sofort offen (für die Lehrkraft).
+   ========================================================= */
+const SHEET_URL = '';
+const FREI_AB = 5;                       // Streak, die das nächste Level freischaltet
+const MEILENSTEINE = [5, 10, 15, 20, 25, 30, 40, 50, 75, 100];
+
+/* Zugangsnamen bestehen aus Pflanze und Zahl, z. B. „Kaktus 27“, dazu „Lehrer“.
+   Welche Namen sich anmelden dürfen, steht im Blatt „Zugänge“ der Google-Tabelle. */
+const PFLANZEN = [
+  ['Sonnenblume', '🌻'], ['Rose', '🌹'], ['Tulpe', '🌷'], ['Kaktus', '🌵'], ['Palme', '🌴'],
+  ['Tanne', '🌲'], ['Eiche', '🌳'], ['Kleeblatt', '🍀'], ['Kirschbaum', '🌸'], ['Margerite', '🌼'],
+  ['Hibiskus', '🌺'], ['Weizen', '🌾'], ['Minze', '🌿'], ['Ahorn', '🍁'], ['Bambus', '🎋'],
+  ['Erdbeere', '🍓'], ['Mais', '🌽'], ['Karotte', '🥕'], ['Tomate', '🍅'], ['Gurke', '🥒'],
+  ['Melone', '🍉'], ['Kartoffel', '🥔'], ['Chili', '🌶️'], ['Brokkoli', '🥦'], ['Zitrone', '🍋'],
+  ['Apfel', '🍎'], ['Kirsche', '🍒'], ['Kastanie', '🌰'], ['Knoblauch', '🧄'], ['Zwiebel', '🧅'],
+  ['Salat', '🥬'], ['Keimling', '🌱']
+];
+const norm = t => String(t).toLowerCase().replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss').replace(/[^a-z0-9]/g, '');
+
+/* ---------- Hilfen ---------- */
+const ri = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const mischen = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const ggT = (a, b) => b ? ggT(b, a % b) : a;
+const kgV = (a, b) => a / ggT(a, b) * b;
+const teiler = n => { const t = []; for (let i = 1; i <= n; i++) if (n % i === 0) t.push(i); return t; };
+const qs = n => String(n).split('').reduce((s, c) => s + +c, 0);
+const Z = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');            // 4446 → 4 446
+const P = (b, e) => `<span class="pot">${b}<sup>${e}</sup></span>`;
+const L = '<span class="luecke">?</span>';
+const SYM = { lt: '&lt;', eq: '=', gt: '&gt;' };
+const MAL = ' · ';
+const stellenZahl = st => ri(10 ** (st - 1), 10 ** st - 1);
+const bereich = (a, b) => { const r = []; for (let i = a; i <= b; i++) r.push(i); return r; };
+/* letzte k Ziffern mit der Lupe hervorheben */
+function markEnde(x, k) {
+  const s = Z(x); let i = s.length, n = 0;
+  while (i > 0 && n < k) { i--; if (/\d/.test(s[i])) n++; }
+  return `${s.slice(0, i)}<span class="lupe">${s.slice(i)}</span>`;
+}
+/* Zahl mit st Stellen, die eine Bedingung erfüllt */
+function zahlMit(st, bed) {
+  for (let t = 0; t < 5000; t++) { const x = stellenZahl(st); if (bed(x)) return x; }
+  return null;
+}
+const emojiVon = name => {
+  const k = norm(name);
+  if (k.startsWith('lehr')) return '🎓';
+  const p = PFLANZEN.find(p => norm(p[0]) === k.replace(/\d+$/, ''));
+  return p ? p[1] : '🌱';
+};
+/* Prüft das Format ohne Internet (Rückfall, falls die Tabelle nicht erreichbar ist) */
+function lokalerName(k) {
+  if (k === 'lehrer') return { name: 'Lehrer', lehrer: true };
+  const m = k.match(/^([a-z]+?)(\d{1,3})$/);
+  if (!m) return null;
+  const p = PFLANZEN.find(p => norm(p[0]) === m[1]);
+  return p ? { name: `${p[0]} ${+m[2]}`, lehrer: false } : null;
+}
+
+/* Antwortmöglichkeiten aus Zahlen (richtige + Ablenker, ohne Doppelte) */
+function zOpts(richtig, kand, fmt = Z, anzahl = 4) {
+  const aus = [{ key: String(richtig), html: fmt(richtig) }], ges = new Set([String(richtig)]);
+  const nimm = k => { if (aus.length >= anzahl || k == null || !Number.isFinite(k) || k < 0 || ges.has(String(k))) return; ges.add(String(k)); aus.push({ key: String(k), html: fmt(k) }); };
+  mischen(kand).forEach(nimm);
+  for (let t = 0; aus.length < anzahl && t < 200; t++) nimm(richtig + ri(-6, 6));
+  return mischen(aus);
+}
+const JN = (ja, nein) => [{ key: 'ja', html: ja }, { key: 'nein', html: nein }];
+const TEILT = (k, n, t) => `${k} ${t ? '∣' : '∤'} ${Z(n)}`;
+
+/* ---------- Bilder ---------- */
+function gruppenHTML(n, k, emo) {
+  const g = Math.floor(n / k), r = n % k, d = `<span class="ding">${emo}</span>`;
+  return `<div class="gruppen">${Array(g).fill(`<span class="gruppe">${d.repeat(k)}</span>`).join('')}${r ? `<span class="gruppe rest">${d.repeat(r)}</span>` : ''}</div>`;
+}
+function wuerfelSVG(n) {
+  const S = 120, a = S / n, cx = 114, cy = 130;
+  const p = (x, y, z) => `${(cx + (x - y) * a * 0.866).toFixed(1)},${(cy + (x + y) * a * 0.5 - z * a).toFixed(1)}`;
+  const flaeche = (pts, farbe) => `<polygon points="${pts.map(q => p(...q)).join(' ')}" fill="${farbe}" stroke="#111" stroke-width="3" stroke-linejoin="round"/>`;
+  const linie = (q1, q2) => { const [x1, y1] = p(...q1).split(','), [x2, y2] = p(...q2).split(','); return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#111" stroke-width="1.6"/>`; };
+  let s = flaeche([[0, 0, n], [n, 0, n], [n, n, n], [0, n, n]], '#ffe58a') + flaeche([[n, 0, 0], [n, n, 0], [n, n, n], [n, 0, n]], '#8ec5f2') + flaeche([[0, n, 0], [n, n, 0], [n, n, n], [0, n, n]], '#f7a9a4');
+  for (let i = 1; i < n; i++) {
+    s += linie([i, 0, n], [i, n, n]) + linie([0, i, n], [n, i, n]);
+    s += linie([n, i, 0], [n, i, n]) + linie([n, 0, i], [n, n, i]);
+    s += linie([i, n, 0], [i, n, n]) + linie([0, n, i], [n, n, i]);
+  }
+  return `<svg class="fig wuerfel" viewBox="0 0 228 262" role="img" aria-label="Großer Würfel aus ${n} mal ${n} mal ${n} kleinen Würfeln">${s}</svg>`;
+}
+
+/* =========================================================
+   AUFGABEN-GENERATOREN  (d = Schwierigkeit 0 leicht, 1 mittel, 2 schwer)
+   ========================================================= */
+
+/* Level 1: Teiler */
+function L1(d) {
+  const v = pick(d === 0 ? ['gruppen', 'gruppen', 'teilt', 'partner'] : d === 1 ? ['teilt', 'teilt', 'rest', 'tippen', 'partner', 'kein'] : ['teilt', 'rest', 'tippen', 'tippen', 'anzahl', 'kein', 'prim']);
+  if (v === 'gruppen') {
+    const k = ri(2, 5), t = Math.random() < .5, q = ri(2, Math.floor(18 / k)), n = k * q + (t ? 0 : ri(1, k - 1));
+    return {
+      art: 'mc', frage: `Bilde ${k}er-Gruppen. Bleibt ein Rest? Ist ${k} ein Teiler von ${n}?`,
+      bild: gruppenHTML(n, k, pick(['🌰', '🍓', '🍒', '🌻', '🍀'])),
+      optionen: [{ key: 'ja', html: `${TEILT(k, n, true)}<small>Teiler</small>` }, { key: 'nein', html: `${TEILT(k, n, false)}<small>kein Teiler</small>` }],
+      loesung: t ? 'ja' : 'nein', loesungHTML: TEILT(k, n, t),
+      erklaerung: t ? `Es gehen genau ${q} ${k}er-Gruppen auf und es bleibt <b>kein Rest</b>. Also ist ${k} ein Teiler von ${n}.`
+        : `Es entstehen ${q} ${k}er-Gruppen und es bleibt ein <b>Rest von ${n % k}</b>. Also ist ${k} <b>kein</b> Teiler von ${n}.`
+    };
+  }
+  if (v === 'teilt') {
+    const k = d === 0 ? ri(2, 6) : d === 1 ? ri(2, 9) : ri(3, 12), t = Math.random() < .5;
+    const max = d === 0 ? 60 : d === 1 ? 100 : 150;
+    let n; do { n = k * ri(2, Math.floor(max / k)) + (t ? 0 : ri(1, k - 1)); } while (n > max + k);
+    const q = Math.floor(n / k), r = n % k;
+    return {
+      art: 'mc', frage: `Ist ${k} ein Teiler von ${Z(n)}? Wähle <b>∣</b> oder <b>∤</b>.`,
+      optionen: [{ key: 'ja', html: `${TEILT(k, n, true)}<small>Teiler</small>` }, { key: 'nein', html: `${TEILT(k, n, false)}<small>kein Teiler</small>` }],
+      loesung: t ? 'ja' : 'nein', loesungHTML: TEILT(k, n, t),
+      erklaerung: t ? `${Z(n)} : ${k} = ${q} – das geht <b>ohne Rest</b>. Also ist ${k} ein Teiler von ${Z(n)}.`
+        : `${Z(n)} : ${k} = ${q} <b>Rest ${r}</b>. Es bleibt ein Rest, also ist ${k} kein Teiler von ${Z(n)}.`
+    };
+  }
+  if (v === 'rest') {
+    const k = ri(3, 9), q = ri(2, d === 1 ? 9 : 15), r = Math.random() < .15 ? 0 : ri(1, k - 1), n = k * q + r;
+    return {
+      art: 'eingabe', frage: `Rechne ${n} : ${k}. Wie groß ist der <b>Rest</b>?`, zeile: `${n} : ${k} = ${q} Rest ${L}`,
+      loesung: r, loesungHTML: `Rest ${r}`,
+      erklaerung: `${k} · ${q} = ${k * q}. Bis ${n} fehlen noch ${n} − ${k * q} = ${r}. ${r === 0 ? `Kein Rest – also ist ${k} ein Teiler von ${n}!` : `Weil ein Rest bleibt, ist ${k} kein Teiler von ${n}.`}`
+    };
+  }
+  if (v === 'partner') {
+    const n = pick(d === 0 ? [12, 16, 18, 20, 24, 30, 36] : [24, 30, 36, 40, 42, 48, 60, 72]);
+    const a = pick(teiler(n).filter(x => x > 1 && x < n));
+    return {
+      art: 'eingabe', frage: `Teiler-Regenbogen: Welche Zahl gehört zu ${a}? <small class="hinw">(Beide zusammen malgenommen ergeben ${n}.)</small>`,
+      zeile: `${n} = ${a} · ${L}`, loesung: n / a, loesungHTML: `${n} = ${a} · ${n / a}`,
+      erklaerung: `${n} : ${a} = ${n / a}. Also ist ${n} = ${a} · ${n / a}. ${a} und ${n / a} sind <b>beide</b> Teiler von ${n} – sie bilden einen Bogen im Teiler-Regenbogen.`
+    };
+  }
+  if (v === 'tippen') {
+    const n = pick(d === 1 ? [12, 15, 16, 18, 20, 24] : [24, 28, 30, 32, 36, 40, 42, 45, 48]);
+    const t = teiler(n), paare = t.filter(x => x * x <= n).map(x => `${x} · ${n / x}`);
+    return {
+      art: 'tippen', frage: `Tippe <b>alle</b> Teiler von ${n} an.${n > 20 ? ' <small class="hinw">(Zwischen der Hälfte und der Zahl selbst gibt es keine Teiler – deshalb fehlen diese Zahlen.)</small>' : ''}`,
+      chips: [...bereich(1, Math.floor(n / 2)), n], ziel: t.join(','),
+      loesungHTML: `T<sub>${n}</sub> = { ${t.join(' ; ')} }`,
+      erklaerung: `Mit dem Teiler-Regenbogen findest du alle Paare: ${paare.join(', ')}. Vergiss die 1 und die Zahl selbst nicht!`
+    };
+  }
+  if (v === 'anzahl') {
+    const n = pick([16, 18, 20, 24, 25, 28, 30, 32, 36, 40, 49]), t = teiler(n);
+    return {
+      art: 'eingabe', frage: `Wie viele Teiler hat ${n}?`, zeile: `T<sub>${n}</sub> = { … } hat ${L} Teiler`,
+      loesung: t.length, loesungHTML: `${t.length} Teiler: { ${t.join(' ; ')} }`,
+      erklaerung: `Paare im Teiler-Regenbogen: ${t.filter(x => x * x <= n).map(x => `${x} · ${n / x}`).join(', ')}.${Math.round(Math.sqrt(n)) ** 2 === n ? ` Bei ${Math.sqrt(n)} · ${Math.sqrt(n)} steht dieselbe Zahl zweimal – sie zählt nur einmal. Deshalb ist die Anzahl ungerade.` : ''}`
+    };
+  }
+  if (v === 'kein') {
+    const n = pick([24, 30, 36, 40, 42, 48, 60, 72, 84, 90]);
+    const t = teiler(n).filter(x => x > 1 && x < n), falsch = pick(bereich(2, Math.floor(n / 2)).filter(x => n % x));
+    const opt = mischen(t).slice(0, 3).concat(falsch);
+    return {
+      art: 'mc', frage: `Welche Zahl ist <b>kein</b> Teiler von ${n}?`,
+      optionen: mischen(opt.map(x => ({ key: String(x), html: String(x) }))), loesung: String(falsch), loesungHTML: String(falsch),
+      erklaerung: `${n} : ${falsch} = ${Math.floor(n / falsch)} Rest ${n % falsch}. Alle anderen gehen ohne Rest auf: T<sub>${n}</sub> = { ${teiler(n).join(' ; ')} }.`
+    };
+  }
+  /* prim */
+  const p = pick([23, 29, 31, 37, 41, 43, 47, 53, 59, 61]);
+  const zus = mischen([21, 27, 33, 35, 39, 49, 51, 57, 63, 65, 69, 77]).slice(0, 3);
+  const bsp = zus[0], f = teiler(bsp)[1];
+  return {
+    art: 'mc', frage: 'Welche Zahl hat <b>genau zwei</b> Teiler?',
+    optionen: mischen([p, ...zus].map(x => ({ key: String(x), html: String(x) }))), loesung: String(p), loesungHTML: `${p}: T<sub>${p}</sub> = { 1 ; ${p} }`,
+    erklaerung: `${p} lässt sich nur durch 1 und durch sich selbst teilen. Die anderen haben mehr Teiler, z. B. ${bsp} = ${f} · ${bsp / f}.`
+  };
+}
+
+/* Level 2: Vielfache */
+function L2(d) {
+  const v = pick(d === 0 ? ['folge', 'folge', 'spruenge'] : d === 1 ? ['folge', 'sprung', 'tippen', 'ist', 'spruenge'] : ['folge', 'sprung', 'tippen', 'gemeinsam', 'kgv', 'ist']);
+  if (v === 'folge') {
+    const n = d === 0 ? ri(2, 9) : d === 1 ? ri(3, 12) : pick([11, 12, 13, 15, 25, 55, 120]);
+    const m = d === 0 ? 1 : ri(2, d === 1 ? 8 : 5);
+    const reihe = [0, 1, 2, 3].map(i => (m + i) * n);
+    return {
+      art: 'eingabe', frage: `Wie geht die Vielfachmenge weiter?`,
+      zeile: `V<sub>${n}</sub> = { ${m > 1 ? '… ; ' : ''}${reihe.map(Z).join(' ; ')} ; ${L} ; … }`,
+      loesung: (m + 4) * n, loesungHTML: Z((m + 4) * n),
+      erklaerung: `Das Känguru springt immer ${n} weiter: ${Z(reihe[3])} + ${n} = ${Z((m + 4) * n)}.`
+    };
+  }
+  if (v === 'spruenge') {
+    const n = ri(2, 10), m = ri(3, 10);
+    return {
+      art: 'eingabe', frage: `🦘 Das Känguru startet bei 0 und springt immer <b>${n}</b> weiter. Wo landet es nach <b>${m}</b> Sprüngen?`,
+      loesung: n * m, loesungHTML: String(n * m),
+      erklaerung: `${m} Sprünge mit je ${n}: ${m} · ${n} = ${n * m}. Das ist das ${m}. Vielfache von ${n}.`
+    };
+  }
+  if (v === 'sprung') {
+    const n = d === 1 ? ri(3, 12) : pick([13, 14, 15, 16, 17, 18, 25]), m = ri(2, 8);
+    const reihe = [0, 1, 2, 3].map(i => (m + i) * n);
+    return {
+      art: 'eingabe', frage: '🕵️ Zahlen-Detektiv: Welche Vielfachmenge ist das? Wie groß ist der <b>Sprung</b>?',
+      zeile: `V<sub>${L}</sub> = { … ; ${reihe.join(' ; ')} ; … }`,
+      loesung: n, loesungHTML: `V<sub>${n}</sub> – der Sprung ist ${n}`,
+      erklaerung: `Rechne den Abstand zweier Nachbarn: ${reihe[1]} − ${reihe[0]} = ${n}.`
+    };
+  }
+  if (v === 'ist') {
+    const n = d === 1 ? ri(3, 9) : ri(6, 15), t = Math.random() < .5, q = ri(4, 12), x = n * q + (t ? 0 : pick([-1, 1, 2, -2].filter(z => Math.abs(z) < n)));
+    return {
+      art: 'mc', frage: `Ist ${x} ein Vielfaches von ${n}?`, optionen: JN('✓ ja', '✗ nein'), loesung: t ? 'ja' : 'nein', loesungHTML: t ? `Ja, ${x} = ${q} · ${n}` : 'Nein',
+      erklaerung: t ? `${x} : ${n} = ${q} ohne Rest. Also liegt ${x} in V<sub>${n}</sub>.`
+        : `${q} · ${n} = ${n * q} – daneben liegt ${x}. ${x} : ${n} geht nicht ohne Rest, also ist ${x} kein Vielfaches von ${n}.`
+    };
+  }
+  if (v === 'tippen') {
+    const n = d === 1 ? pick([3, 4, 6, 7, 8, 9]) : pick([7, 12, 13, 15, 25]);
+    const viel = mischen(bereich(1, 10)).slice(0, ri(4, 5)).map(i => i * n);
+    const fallen = new Set();
+    const kand = [...bereich(1, 9).map(i => i * 10 + (n % 10)), ...viel.map(x => x + pick([-2, -1, 1, 2, 5, 10])), ...bereich(2, 10).map(i => i * (n + 1)), ...bereich(2, 10).map(i => i * (n - 1))];
+    for (const k of mischen(kand)) { if (fallen.size >= 9 - viel.length) break; if (k > 1 && k % n && !viel.includes(k)) fallen.add(k); }
+    const chips = mischen([...viel, ...fallen]);
+    return {
+      art: 'tippen', stein: true, frage: `🪨 Über den Fluss! Springe nur auf Steine mit <b>Vielfachen von ${n}</b>. Tippe sie alle an.`,
+      chips, ziel: [...viel].sort((a, b) => a - b).join(','), loesungHTML: [...viel].sort((a, b) => a - b).join(' ; '),
+      erklaerung: `Die Vielfachen von ${n}: ${bereich(1, 10).map(i => i * n).join(', ')} … Vorsicht vor Fallen wie ${[...fallen][0]} – ${[...fallen][0]} : ${n} geht nicht ohne Rest.`
+    };
+  }
+  const [a, b] = pick([[4, 6], [3, 4], [6, 8], [4, 10], [6, 9], [20, 25], [10, 15], [12, 18], [6, 10], [8, 12]]), k = kgV(a, b);
+  if (v === 'kgv') return {
+    art: 'eingabe', frage: `Welche ist die <b>kleinste</b> Zahl, die ein Vielfaches von ${a} <b>und</b> von ${b} ist?`,
+    loesung: k, loesungHTML: String(k),
+    erklaerung: `V<sub>${a}</sub> = { ${bereich(1, k / a + 1).map(i => i * a).join(' ; ')} ; … } und V<sub>${b}</sub> = { ${bereich(1, k / b + 1).map(i => i * b).join(' ; ')} ; … }. Die erste Zahl in beiden ist ${k}.`
+  };
+  /* gemeinsam */
+  const richtig = k * pick([1, 1, 2]);
+  const kand = [...bereich(1, 12).map(i => i * a).filter(x => x % b), ...bereich(1, 12).map(i => i * b).filter(x => x % a), a * b + a, k + a + b];
+  return {
+    art: 'mc', frage: `Welche Zahl ist ein Vielfaches von ${a} <b>und</b> von ${b}?`,
+    optionen: zOpts(richtig, kand.filter(x => x % a || x % b)), loesung: String(richtig), loesungHTML: String(richtig),
+    erklaerung: `${richtig} : ${a} = ${richtig / a} und ${richtig} : ${b} = ${richtig / b} – beides ohne Rest. Bei den anderen Zahlen geht mindestens eine Rechnung nicht auf.`
+  };
+}
+
+/* Level 3: Teilbarkeit durch 2, 5, 10 – die letzte Ziffer */
+const REGEL = {
+  2: 'Durch 2 teilbar sind Zahlen mit der letzten Ziffer <b>0, 2, 4, 6 oder 8</b> (gerade Zahlen).',
+  5: 'Durch 5 teilbar sind Zahlen mit der letzten Ziffer <b>0 oder 5</b>.',
+  10: 'Durch 10 teilbar sind Zahlen mit der letzten Ziffer <b>0</b>.',
+  4: 'Durch 4 teilbar ist eine Zahl, wenn die Zahl aus ihren <b>letzten zwei Ziffern</b> durch 4 teilbar ist.',
+  8: 'Durch 8 teilbar ist eine Zahl, wenn die Zahl aus ihren <b>letzten drei Ziffern</b> durch 8 teilbar ist.',
+  25: 'Durch 25 teilbar sind Zahlen, deren letzte zwei Ziffern <b>00, 25, 50 oder 75</b> sind.',
+  3: 'Durch 3 teilbar ist eine Zahl, wenn ihre <b>Quersumme</b> durch 3 teilbar ist.',
+  9: 'Durch 9 teilbar ist eine Zahl, wenn ihre <b>Quersumme</b> durch 9 teilbar ist.',
+  6: 'Durch 6 teilbar ist eine Zahl, wenn sie durch <b>2 und durch 3</b> teilbar ist.'
+};
+function L3(d) {
+  const v = pick(d === 0 ? ['jn', 'jn', 'ziffer'] : d === 1 ? ['jn', 'tippen', 'ziffer', 'mehr'] : ['jn', 'tippen', 'tippen', 'mehr', 'ziffer']);
+  const st = () => d === 0 ? ri(2, 3) : d === 1 ? ri(3, 4) : ri(4, 6);
+  if (v === 'jn') {
+    const t = pick([2, 5, 10]), soll = Math.random() < .5, x = zahlMit(st(), y => (y % t === 0) === soll);
+    return {
+      art: 'mc', frage: `Ist ${d === 0 ? markEnde(x, 1) : Z(x)} durch ${t} teilbar?`,
+      optionen: JN('✓ teilbar', '✗ nicht teilbar'), loesung: soll ? 'ja' : 'nein', loesungHTML: TEILT(t, x, soll),
+      erklaerung: `Schau mit der Lupe auf die letzte Ziffer: <b>${x % 10}</b>. ${REGEL[t]}`
+    };
+  }
+  if (v === 'tippen') {
+    const t = pick([2, 5, 10]), s = st(), n = 8, k = ri(3, 5);
+    const zs = new Set();
+    while (zs.size < k) zs.add(zahlMit(s, y => y % t === 0));
+    while (zs.size < n) zs.add(zahlMit(s, y => y % t !== 0 && (t !== 10 || Math.random() < .4 || y % 5 === 0 || y % 2 === 0)));
+    const chips = mischen([...zs]), ziel = chips.filter(y => y % t === 0).sort((a, b) => a - b);
+    return {
+      art: 'tippen', frage: `Tippe alle Zahlen an, die <b>durch ${t}</b> teilbar sind.`, chips, ziel: ziel.join(','),
+      loesungHTML: ziel.map(Z).join(' ; '), erklaerung: REGEL[t]
+    };
+  }
+  if (v === 'ziffer') {
+    const t = pick([2, 5, 10]), x = stellenZahl(st() - 1);
+    const gute = t === 2 ? [0, 2, 4, 6, 8] : t === 5 ? [0, 5] : [0], r = pick(gute);
+    const falsche = mischen(bereich(0, 9).filter(z => !gute.includes(z))).slice(0, 3);
+    return {
+      art: 'mc', frage: `Welche letzte Ziffer passt, damit die Zahl <b>durch ${t}</b> teilbar ist?`, zeile: `${Z(x)}${L}`,
+      optionen: mischen([r, ...falsche].map(z => ({ key: String(z), html: String(z) }))), loesung: String(r), loesungHTML: Z(x * 10 + r),
+      erklaerung: `${REGEL[t]}${gute.length > 1 ? ` Hier hätte auch ${gute.filter(z => z !== r).join(' oder ')} gepasst.` : ''}`
+    };
+  }
+  /* mehr: durch welche von 2, 5, 10? */
+  const x = zahlMit(st(), y => y % 2 === 0 || y % 5 === 0), ziel = [2, 5, 10].filter(t => x % t === 0);
+  return {
+    art: 'tippen', frage: `Durch welche Zahlen ist ${Z(x)} teilbar? Tippe <b>alle</b> passenden an.`,
+    chips: [2, 5, 10], chipText: c => `durch ${c}`, ziel: ziel.join(','), loesungHTML: `durch ${ziel.join(', ')}`,
+    erklaerung: `Die letzte Ziffer ist <b>${x % 10}</b>. ${x % 10 === 0 ? 'Bei einer 0 am Ende ist die Zahl durch 2, durch 5 und durch 10 teilbar!' : x % 10 === 5 ? 'Eine 5 am Ende: durch 5 teilbar, aber nicht durch 2 und nicht durch 10.' : 'Eine gerade Ziffer (aber keine 0): durch 2 teilbar, aber nicht durch 5 und nicht durch 10.'}`
+  };
+}
+
+/* Level 4: Teilbarkeit durch 4, 8, 25 – die letzten Ziffern */
+function endeMit(st, k, bed) {
+  for (let t = 0; t < 500; t++) {
+    const x = stellenZahl(st), e = x % 10 ** k;
+    if (bed(x, e)) return x;
+  }
+  return null;
+}
+function L4(d) {
+  const v = pick(d === 0 ? ['pruefzahl', 'jn', 'jn'] : d === 1 ? ['jn', 'tippen', 'rechnen8', 'pruefzahl'] : ['jn', 'tippen', 'jn25', 'tippen', 'rechnen8']);
+  const st = () => d === 0 ? ri(3, 4) : d === 1 ? ri(4, 5) : 5;
+  const stellen = t => t === 8 ? 3 : 2;
+  if (v === 'pruefzahl') {
+    const t = d === 0 ? 4 : pick([4, 8]), k = stellen(t), x = endeMit(st() + (t === 8 ? 1 : 0), k, (y, e) => e >= 10 ** (k - 1));
+    const e = x % 10 ** k;
+    return {
+      art: 'eingabe', frage: `Welche Zahl musst du prüfen, um zu sehen, ob ${Z(x)} durch ${t} teilbar ist?`,
+      loesung: e, loesungHTML: `${markEnde(x, k)} → ${e}`,
+      erklaerung: `${REGEL[t]} Bei ${Z(x)} ist das die ${e}. ${e % t === 0 ? `${e} : ${t} = ${e / t}, also ist ${Z(x)} durch ${t} teilbar.` : `${e} ist nicht durch ${t} teilbar, also ${Z(x)} auch nicht.`}`
+    };
+  }
+  if (v === 'jn' || v === 'jn25') {
+    const t = v === 'jn25' ? 25 : d === 0 ? 4 : pick([4, 8]), k = stellen(t), soll = Math.random() < .5;
+    const x = endeMit(st() + (t === 8 && d === 0 ? 1 : 0), k, (y, e) => (e % t === 0) === soll && (soll || t !== 4 || Math.random() < .4 || e % 2 === 0));
+    const e = x % 10 ** k;
+    return {
+      art: 'mc', frage: `Stimmt das? <span class="aussage">${t} ∣ ${d === 0 ? markEnde(x, k) : Z(x)}</span>`,
+      optionen: JN('✓ wahr', '✗ falsch'), loesung: soll ? 'ja' : 'nein', loesungHTML: soll ? `wahr: ${TEILT(t, x, true)}` : `falsch: ${TEILT(t, x, false)}`,
+      erklaerung: `${REGEL[t]} Prüfe ${e}: ${t === 25 ? (soll ? `${String(e).padStart(2, '0')} passt.` : `${String(e).padStart(2, '0')} gehört nicht dazu.`) : `${e} : ${t} = ${Math.floor(e / t)}${e % t ? ` Rest ${e % t}` : ''}.`}`
+    };
+  }
+  if (v === 'rechnen8') {
+    let x, e; do { x = stellenZahl(d === 1 ? 4 : 5); e = x % 1000; } while (e % 8 || e < 100);
+    return {
+      art: 'eingabe', frage: `Ist 8 ein Teiler von ${Z(x)}? Teile die <b>letzten drei Ziffern</b> durch 8.`,
+      zeile: `${e} : 8 = ${L}`, loesung: e / 8, loesungHTML: `${e} : 8 = ${e / 8}`,
+      erklaerung: `${e} : 8 = ${e / 8} – ohne Rest. Also gilt 8 ∣ ${Z(x)}. Tipp: ${e} = ${Math.floor(e / 80) * 80} + ${e % 80} → ${Math.floor(e / 80) * 10} + ${(e % 80) / 8} = ${e / 8}.`
+    };
+  }
+  /* tippen */
+  const t = d === 1 ? pick([4, 4, 8]) : pick([4, 8, 25]), k = stellen(t), n = 7, anz = ri(2, 4), zs = new Set();
+  while (zs.size < anz) zs.add(endeMit(st(), k, (y, e) => e % t === 0));
+  while (zs.size < n) zs.add(endeMit(st(), k, (y, e) => e % t !== 0 && (t === 25 ? e % 5 === 0 : e % 2 === 0)));
+  const chips = mischen([...zs]), ziel = chips.filter(y => y % t === 0).sort((a, b) => a - b);
+  return {
+    art: 'tippen', frage: `Tippe alle Zahlen an, die <b>durch ${t}</b> teilbar sind.`, chips, ziel: ziel.join(','),
+    loesungHTML: ziel.map(Z).join(' ; '), erklaerung: REGEL[t]
+  };
+}
+
+/* Level 5: Quersumme – Teilbarkeit durch 3 und 9 */
+function L5(d) {
+  const v = pick(d === 0 ? ['qs', 'qs', 'jn'] : d === 1 ? ['qs', 'teil39', 'tippen', 'jn'] : ['qs', 'teil39', 'tippen', 'ziffer9', 'ziffer3']);
+  const st = () => d === 0 ? ri(2, 3) : d === 1 ? ri(4, 5) : ri(5, 6);
+  const qsText = x => `${String(x).split('').join(' + ')} = ${qs(x)}`;
+  if (v === 'qs') {
+    const x = stellenZahl(st());
+    return { art: 'eingabe', frage: `Berechne die <b>Quersumme</b> von ${Z(x)}.`, loesung: qs(x), loesungHTML: qsText(x), erklaerung: `Addiere alle Ziffern: ${qsText(x)}.` };
+  }
+  if (v === 'jn') {
+    const t = d === 0 ? pick([3, 3, 9]) : pick([3, 9]), soll = Math.random() < .5, x = zahlMit(st(), y => (y % t === 0) === soll);
+    return {
+      art: 'mc', frage: `Ist ${Z(x)} durch ${t} teilbar?`, optionen: JN('✓ teilbar', '✗ nicht teilbar'), loesung: soll ? 'ja' : 'nein',
+      loesungHTML: TEILT(t, x, soll), erklaerung: `Quersumme: ${qsText(x)}. ${qs(x)} ist ${soll ? '' : '<b>nicht</b> '}durch ${t} teilbar. ${REGEL[t]}`
+    };
+  }
+  if (v === 'teil39') {
+    const ziel = pick(['39', '3', '0']), x = zahlMit(st(), y => (y % 9 === 0 ? '39' : y % 3 === 0 ? '3' : '0') === ziel);
+    const TXT = { '39': 'durch 3 <b>und</b> durch 9', '3': 'nur durch 3', '0': 'weder durch 3 noch durch 9' };
+    return {
+      art: 'mc', frage: `Wodurch ist ${Z(x)} teilbar?`, optionen: ['39', '3', '0'].map(k => ({ key: k, html: `<span class="klein">${TXT[k]}</span>` })),
+      loesung: ziel, loesungHTML: TXT[ziel],
+      erklaerung: `Quersumme: ${qsText(x)}. ${qs(x)} ist ${qs(x) % 3 ? 'nicht durch 3 teilbar – dann auch nicht durch 9' : qs(x) % 9 ? 'durch 3, aber nicht durch 9 teilbar' : 'durch 9 teilbar – und damit auch durch 3'}.`
+    };
+  }
+  if (v === 'tippen') {
+    const t = pick([3, 9]), s = st(), anz = ri(2, 4), zs = new Set();
+    while (zs.size < anz) zs.add(zahlMit(s, y => y % t === 0));
+    while (zs.size < 7) zs.add(zahlMit(s, y => y % t !== 0 && (t === 9 ? Math.random() < .5 || y % 3 === 0 : true)));
+    const chips = mischen([...zs]), ziel = chips.filter(y => y % t === 0).sort((a, b) => a - b);
+    return {
+      art: 'tippen', frage: `Tippe alle Zahlen an, die <b>durch ${t}</b> teilbar sind. Rechne die Quersummen!`, chips, ziel: ziel.join(','),
+      loesungHTML: ziel.map(Z).join(' ; '), erklaerung: `${REGEL[t]} ${ziel.length ? `Zum Beispiel ${Z(ziel[0])}: ${qsText(ziel[0])}.` : ''}`
+    };
+  }
+  /* fehlende Ziffer */
+  const t = v === 'ziffer9' ? 9 : 3;
+  for (let tr = 0; tr < 200; tr++) {
+    const x = stellenZahl(ri(3, 4)), s = String(x).split(''), i = ri(1, s.length - 1);
+    const rest = qs(x) - +s[i], gute = bereich(0, 9).filter(z => (rest + z) % t === 0);
+    if (t === 9 && gute.length !== 1) continue;
+    const r = pick(gute), zahl = s.map((c, j) => j === i ? L : c).join('');
+    const loes = +s.map((c, j) => j === i ? r : c).join('');
+    if (t === 9) return {
+      art: 'eingabe', frage: 'Welche Ziffer fehlt, damit die Zahl <b>durch 9</b> teilbar ist?', zeile: zahl,
+      loesung: r, loesungHTML: `${r} → ${Z(loes)}`,
+      erklaerung: `Die anderen Ziffern ergeben zusammen ${rest}. Bis zur nächsten Zahl, die durch 9 teilbar ist (${rest + r}), fehlen ${r}.`
+    };
+    const falsche = mischen(bereich(0, 9).filter(z => !gute.includes(z))).slice(0, 3);
+    return {
+      art: 'mc', frage: 'Welche Ziffer passt, damit die Zahl <b>durch 3</b> teilbar ist?', zeile: zahl,
+      optionen: mischen([r, ...falsche].map(z => ({ key: String(z), html: String(z) }))), loesung: String(r), loesungHTML: `${r} → ${Z(loes)}`,
+      erklaerung: `Die anderen Ziffern ergeben zusammen ${rest}. Mit ${r} wird die Quersumme ${rest + r} – das ist durch 3 teilbar. (Es hätten auch ${gute.filter(z => z !== r).join(', ')} gepasst.)`
+    };
+  }
+  return L5(1);
+}
+
+/* Level 6: Teilbarkeits-Detektiv – alle Regeln, Rätsel */
+const KANDIDATEN = [2, 3, 4, 5, 6, 8, 9, 10];
+function raetsel(d) {
+  const [lo, hi] = d === 0 ? [1, 30] : d === 1 ? [1, 60] : [20, 100];
+  const alle = bereich(lo, hi);
+  for (let t = 0; t < 300; t++) {
+    const x = ri(Math.max(lo, 6), hi), pos = [], neg = [];
+    for (const k of KANDIDATEN) (x % k === 0 ? pos : neg).push(x % k === 0
+      ? { txt: `Ich bin durch ${k} teilbar.`, f: y => y % k === 0 }
+      : { txt: `Ich bin <b>nicht</b> durch ${k} teilbar.`, f: y => y % k !== 0 });
+    pos.push({ txt: `Meine Quersumme ist ${qs(x)}.`, f: y => qs(y) === qs(x) });
+    if (x > 9) pos.push({ txt: `Meine letzte Ziffer ist eine ${x % 10}.`, f: y => y % 10 === x % 10 });
+    if (Math.round(Math.sqrt(x)) ** 2 === x) pos.push({ txt: 'Ich bin eine Quadratzahl.', f: y => Math.round(Math.sqrt(y)) ** 2 === y });
+    if (d > 0) pos.push({ txt: `Ich habe genau ${teiler(x).length} Teiler.`, f: y => teiler(y).length === teiler(x).length });
+    let kand = alle; const hinw = [];
+    for (const c of [...mischen(pos), ...mischen(neg)]) {
+      const neu = kand.filter(c.f);
+      if (neu.length < kand.length) { hinw.push(c); kand = neu; }
+      if (kand.length === 1) break;
+    }
+    if (kand.length === 1 && hinw.length >= 2 && hinw.length <= (d === 0 ? 3 : 4)) return {
+      art: 'eingabe', frage: `🕵️ <b>Wer bin ich?</b><ul class="raetsel"><li>Ich liege zwischen ${lo} und ${hi}.</li>${hinw.map(h => `<li>${h.txt}</li>`).join('')}</ul>`,
+      loesung: x, loesungHTML: String(x),
+      erklaerung: `Prüfe ${x}: ${hinw.map(h => h.txt.replace(/<\/?b>/g, '').replace(/^Ich bin |^Meine |^Ich habe /, '').replace(/\.$/, '')).join(' ✓ · ')} ✓. Keine andere Zahl zwischen ${lo} und ${hi} passt zu allen Hinweisen.`
+    };
+  }
+  return L6(1);
+}
+function L6(d) {
+  const v = pick(d === 0 ? ['alle', 'alle', 'sechs'] : d === 1 ? ['alle', 'alle', 'sechs', 'raetsel', 'zwei'] : ['alle', 'raetsel', 'raetsel', 'sechs', 'zwei']);
+  if (v === 'raetsel') return raetsel(d);
+  if (v === 'alle') {
+    const x = zahlMit(d === 0 ? ri(2, 3) : d === 1 ? ri(3, 4) : ri(4, 5), y => KANDIDATEN.some(k => y % k === 0) || Math.random() < .1);
+    const ziel = KANDIDATEN.filter(k => x % k === 0), s = String(x);
+    const grund = { 2: `letzte Ziffer ${x % 10}`, 5: `letzte Ziffer ${x % 10}`, 10: `letzte Ziffer ${x % 10}`, 4: `${x % 100} : 4 = ${(x % 100) / 4}`, 8: `${x % 1000} : 8 = ${(x % 1000) / 8}`, 3: `Quersumme ${qs(x)}`, 9: `Quersumme ${qs(x)}`, 6: 'durch 2 und 3' };
+    return {
+      art: 'tippen', frage: `🕵️ Durch welche Zahlen ist <b>${Z(x)}</b> teilbar? Tippe <b>alle</b> an. Dein Spickzettel hilft!`,
+      chips: KANDIDATEN, chipText: c => `durch ${c}`, ziel: ziel.join(','), leerOk: true,
+      loesungHTML: ziel.length ? `durch ${ziel.join(', ')}` : 'durch keine dieser Zahlen',
+      erklaerung: ziel.length ? `${ziel.map(k => `<b>${k}</b> (${grund[k]})`).join(' · ')}. ${s.length > 1 ? `Quersumme ${qs(x)}, letzte Ziffer ${x % 10}.` : ''}`
+        : `Die letzte Ziffer ist ${x % 10} (ungerade, keine 5) und die Quersumme ${qs(x)} ist nicht durch 3 teilbar.`
+    };
+  }
+  if (v === 'sechs') {
+    const st = d === 0 ? 2 : ri(3, 4);
+    const r = zahlMit(st, y => y % 6 === 0), a = zahlMit(st, y => y % 3 === 0 && y % 2), b = zahlMit(st, y => y % 2 === 0 && y % 3), c = zahlMit(st, y => y % 2 && y % 3);
+    return {
+      art: 'mc', frage: 'Welche Zahl ist <b>durch 6</b> teilbar?', optionen: mischen([r, a, b, c].map(x => ({ key: String(x), html: Z(x) }))),
+      loesung: String(r), loesungHTML: Z(r),
+      erklaerung: `${REGEL[6]} ${Z(r)} ist gerade und hat die Quersumme ${qs(r)}. ${Z(a)} ist ungerade, bei ${Z(b)} ist die Quersumme ${qs(b)} nicht durch 3 teilbar.`
+    };
+  }
+  /* zwei Regeln zusammen */
+  const [p, q] = pick([[2, 9], [4, 3], [5, 9], [4, 9], [8, 3], [10, 3], [25, 3], [5, 3]]), st = ri(3, 4);
+  const r = zahlMit(st, y => y % p === 0 && y % q === 0), a = zahlMit(st, y => y % p === 0 && y % q), b = zahlMit(st, y => y % q === 0 && y % p), c = zahlMit(st, y => y % p && y % q);
+  return {
+    art: 'mc', frage: `Welche Zahl ist durch ${p} <b>und</b> durch ${q} teilbar?`, optionen: mischen([r, a, b, c].map(x => ({ key: String(x), html: Z(x) }))),
+    loesung: String(r), loesungHTML: Z(r),
+    erklaerung: `Prüfe beide Regeln. ${REGEL[p]} ${REGEL[q]} Nur ${Z(r)} schafft beides.`
+  };
+}
+
+/* Level 7: Potenzen */
+function L7(d) {
+  const v = pick(d === 0 ? ['schreib', 'rechnen', 'rechnen', 'falle'] : d === 1 ? ['schreib', 'rechnen', 'falle', 'keine', 'produkt'] : ['rechnen', 'knobel', 'knobel', 'keine', 'produkt', 'falle']);
+  const prod = (b, e) => Array(e).fill(b).join(MAL);
+  if (v === 'schreib') {
+    const b = d === 0 ? ri(2, 9) : ri(2, 12), e = d === 0 ? ri(2, 4) : ri(2, 6);
+    const opt = [[b, e], [e, b], [b, e + 1], [b, e - 1], [b * e, 1]].filter(([x, y], i) => y >= 1 && (i === 0 || !(x === b && y === e)));
+    const seen = new Set(), aus = [];
+    for (const [x, y] of [opt[0], ...mischen(opt.slice(1))]) { const k = `${x}^${y}`; if (!seen.has(k) && aus.length < 4) { seen.add(k); aus.push({ key: k, html: y === 1 ? String(x) : P(x, y) }); } }
+    return {
+      art: 'mc', frage: 'Schreibe als Potenz.', zeile: `${prod(b, e)} = ${L}`,
+      optionen: mischen(aus), loesung: `${b}^${e}`, loesungHTML: P(b, e),
+      erklaerung: `Die <b>Grundzahl</b> ${b} wird ${e}-mal mit sich selbst multipliziert – also ist die <b>Hochzahl</b> ${e}: ${prod(b, e)} = ${P(b, e)}.`
+    };
+  }
+  if (v === 'rechnen') {
+    let b, e; do { b = ri(2, d === 0 ? 5 : d === 1 ? 7 : 10); e = ri(2, d === 0 ? 3 : 4); } while (b ** e > (d === 0 ? 125 : d === 1 ? 1000 : 10000) || (d > 0 && b ** e < 16));
+    const zw = []; let w = b; for (let i = 1; i < e; i++) { w *= b; zw.push(w); }
+    return {
+      art: 'eingabe', frage: `Berechne ${P(b, e)}.`, zeile: `${P(b, e)} = ${prod(b, e)} = ${L}`,
+      loesung: b ** e, loesungHTML: Z(b ** e),
+      erklaerung: `${prod(b, e)}: Schritt für Schritt ${[b, ...zw].map(Z).join(' → ')}. ${b === 2 && e === 2 ? '' : `Nicht ${b} · ${e} = ${b * e}!`}`
+    };
+  }
+  if (v === 'falle') {
+    let b, e; do { b = ri(2, d === 0 ? 5 : 6); e = ri(2, 4); } while (b ** e === b * e || b ** e > 1000);
+    return {
+      art: 'mc', frage: `Achtung, Falle! Wie viel ist ${P(b, e)}?`,
+      optionen: zOpts(b ** e, [b * e, b + e, e ** b, b ** (e - 1)]), loesung: String(b ** e), loesungHTML: `${P(b, e)} = ${prod(b, e)} = ${Z(b ** e)}`,
+      erklaerung: `${P(b, e)} heißt ${prod(b, e)} = ${Z(b ** e)}. Die Falle wäre ${b} · ${e} = ${b * e} – die Hochzahl sagt aber, <b>wie oft</b> die ${b} malgenommen wird.`
+    };
+  }
+  if (v === 'keine') {
+    const echt = mischen([[3, 3], [5, 2], [2, 4], [6, 3], [7, 2], [4, 3], [9, 2], [2, 5], [10, 3]]).slice(0, 3).map(([b, e]) => prod(b, e));
+    const fake = pick(['2 · 3 · 4', '3 · 3 · 4', '5 · 5 · 5 · 6', '2 · 2 · 3', '4 · 4 · 2', '6 · 7', '3 · 4 · 3']);
+    return {
+      art: 'mc', frage: 'Welche Malaufgabe ist <b>keine</b> Potenz?',
+      optionen: mischen([...echt, fake].map((t, i) => ({ key: t === fake ? 'x' : 'e' + i, html: `<span class="klein">${t}</span>` }))), loesung: 'x', loesungHTML: fake,
+      erklaerung: `Bei einer Potenz sind <b>alle Faktoren gleich</b>. Bei ${fake} sind die Faktoren verschieden – das kann man nicht als Potenz schreiben.`
+    };
+  }
+  if (v === 'produkt') {
+    const b = ri(2, 9), e = ri(2, 5);
+    const kand = [[`${b} · ${e}`], [prod(e, b)], [prod(b, e + 1)], [prod(b, Math.max(1, e - 1))], [`${b} + ${b}${e > 2 ? ' + ' + b : ''}`]].map(x => x[0]).filter(t => t !== prod(b, e));
+    const aus = [prod(b, e), ...mischen([...new Set(kand)]).slice(0, 3)];
+    return {
+      art: 'mc', frage: `Welche Malaufgabe gehört zu ${P(b, e)}?`,
+      optionen: mischen(aus.map((t, i) => ({ key: i === 0 ? 'r' : 'f' + i, html: `<span class="klein">${t}</span>` }))), loesung: 'r', loesungHTML: prod(b, e),
+      erklaerung: `Grundzahl ${b}, Hochzahl ${e}: Schreibe die ${b} genau ${e}-mal hin und setze Malpunkte dazwischen.`
+    };
+  }
+  /* knobel: 0, 1, hoch 1, 10, 50² */
+  const fall = pick(['null', 'eins', 'hoch1', 'zehn', 'fuenfzig']);
+  const F = {
+    null: () => { const e = ri(2, 6); return [P(0, e), 0, `0 · 0 · … = 0. Egal wie oft man 0 malnimmt – es bleibt 0.`]; },
+    eins: () => { const e = ri(3, 9); return [P(1, e), 1, `1 · 1 · … = 1. Die 1 bleibt immer 1.`]; },
+    hoch1: () => { const b = ri(3, 99); return [P(b, 1), b, `„hoch 1“ heißt: Die Zahl steht nur <b>einmal</b> da, es wird nichts malgenommen. Also ${P(b, 1)} = ${b}.`]; },
+    zehn: () => { const e = ri(2, 6); return [P(10, e), 10 ** e, `Bei Zehnerpotenzen verrät die Hochzahl die Anzahl der <b>Nullen</b>: eine 1 mit ${e} Nullen.`]; },
+    fuenfzig: () => { const b = pick([20, 30, 40, 50]); return [P(b, 2), b * b, `${b} · ${b}: Rechne ${b / 10} · ${b / 10} = ${(b / 10) ** 2} und hänge die zwei Nullen an: ${Z(b * b)}.`]; }
+  }[fall]();
+  return { art: 'eingabe', frage: `Knobel-Aufgabe: Berechne ${F[0]}.`, loesung: F[1], loesungHTML: Z(F[1]), erklaerung: F[2] };
+}
+
+/* Level 8: Quadrat-, Kubik-, Zweier- und Zehnerpotenzen, Vergleiche */
+function L8(d) {
+  const v = pick(d === 0 ? ['quadrat', 'quadrat', 'wuerfel', 'zehn'] : d === 1 ? ['quadrat', 'wuerfel', 'zwei', 'zehn', 'zehnhoch', 'vergleich'] : ['vergleich', 'vergleich', 'welche', 'zwei', 'zehnhoch', 'quadratzahl']);
+  if (v === 'quadrat') {
+    const n = d === 0 ? ri(2, 10) : pick([11, 12, 13, 15, 20, 25]);
+    return { art: 'eingabe', frage: `Berechne ${P(n, 2)} <small class="hinw">(„${n} Quadrat“)</small>.`, loesung: n * n, loesungHTML: `${n} · ${n} = ${n * n}`, erklaerung: `„hoch 2“ heißt „Quadrat“: ${n} · ${n} = ${n * n}.` };
+  }
+  if (v === 'wuerfel') {
+    const n = ri(2, d === 0 ? 4 : 5);
+    return {
+      art: 'eingabe', frage: `🧊 Würfelturm: An jeder Kante liegen ${n} kleine Würfel. Wie viele kleine Würfel sind es insgesamt?`, bild: wuerfelSVG(n),
+      loesung: n ** 3, loesungHTML: `${P(n, 3)} = ${n} · ${n} · ${n} = ${n ** 3}`,
+      erklaerung: `Eine Schicht hat ${n} · ${n} = ${n * n} Würfel. Es gibt ${n} Schichten: ${n * n} · ${n} = ${n ** 3}. Das ist ${P(n, 3)} („hoch 3“ = Kubikzahl).`
+    };
+  }
+  if (v === 'zwei') {
+    const e = ri(d === 1 ? 2 : 4, d === 1 ? 7 : 10);
+    if (d === 1) return {
+      art: 'eingabe', frage: `Verdopplungs-Treppe: ${P(2, e)} = ${2 ** e}. Wie viel ist ${P(2, e + 1)}?`, loesung: 2 ** (e + 1), loesungHTML: Z(2 ** (e + 1)),
+      erklaerung: `Jede Stufe ist doppelt so hoch: ${2 ** e} · 2 = ${2 ** (e + 1)}.`
+    };
+    return {
+      art: 'eingabe', frage: `Berechne ${P(2, e)}.`, loesung: 2 ** e, loesungHTML: Z(2 ** e),
+      erklaerung: `Verdopple ${e}-mal: ${bereich(1, e).map(i => 2 ** i).map(Z).join(' → ')}.`
+    };
+  }
+  if (v === 'zehn') {
+    const e = ri(1, d === 0 ? 4 : 6);
+    return { art: 'eingabe', frage: `Berechne ${P(10, e)}.`, loesung: 10 ** e, loesungHTML: Z(10 ** e), erklaerung: `Die Hochzahl ${e} verrät die Anzahl der Nullen: eine 1 mit ${e} ${e === 1 ? 'Null' : 'Nullen'}.` };
+  }
+  if (v === 'zehnhoch') {
+    const e = ri(2, d === 1 ? 6 : 9);
+    return { art: 'eingabe', frage: `Schreibe ${Z(10 ** e)} als Zehnerpotenz.`, zeile: `${Z(10 ** e)} = 10<sup>${L}</sup>`, loesung: e, loesungHTML: P(10, e), erklaerung: `Zähle die Nullen: ${e}. Also ${Z(10 ** e)} = ${P(10, e)}.` };
+  }
+  if (v === 'vergleich') {
+    const term = () => {
+      const art = pick(['pot', 'pot', 'prod']); let b, e;
+      do { b = ri(2, d === 1 ? 6 : 9); e = ri(2, d === 1 ? 4 : 5); } while (b ** e > 1000);
+      return art === 'pot' ? { html: P(b, e), w: b ** e, t: `${P(b, e)} = ${Array(e).fill(b).join(MAL)} = ${b ** e}` } : { html: Array(e).fill(b).join(MAL), w: b ** e, t: `${Array(e).fill(b).join(MAL)} = ${b ** e}` };
+    };
+    const gleich = [[P(2, 4), 16, P(4, 2), 16], ['4 · 4', 16, P(4, 2), 16], [P(2, 6), 64, P(8, 2), 64], [P(3, 4), 81, P(9, 2), 81], [P(2, 6), 64, P(4, 3), 64], [P(2, 3), 8, '2 · 2 · 2', 8]];
+    let p, q;
+    if (Math.random() < .25) { const g = pick(gleich); p = { html: g[0], w: g[1], t: `${g[0]} = ${g[1]}` }; q = { html: g[2], w: g[3], t: `${g[2]} = ${g[3]}` }; }
+    else { let n = 0; do { p = term(); q = term(); n++; } while ((p.html === q.html || Math.abs(p.w - q.w) > Math.max(p.w, q.w) * .6) && n < 100); }
+    const k = p.w < q.w ? 'lt' : p.w > q.w ? 'gt' : 'eq';
+    return {
+      art: 'vergleich', frage: 'Wer ist größer? Rechne beide Seiten aus und wähle &lt;, = oder &gt;.', p: p.html, q: q.html,
+      loesung: k, loesungHTML: `${p.html} ${SYM[k]} ${q.html}`,
+      erklaerung: `${p.t} und ${q.t}. Also ${p.w} ${SYM[k]} ${q.w}.`
+    };
+  }
+  if (v === 'welche') {
+    const pot = [[2, 5], [3, 3], [6, 2], [7, 2], [4, 3], [5, 3], [2, 6], [3, 4], [9, 2], [10, 3], [2, 7], [8, 2], [11, 2], [12, 2]];
+    const [b, e] = pick(pot), w = b ** e;
+    const andere = mischen(pot.filter(([x, y]) => x ** y !== w)).slice(0, 2).map(([x, y]) => `${x}^${y}`);
+    const falle = (w % b === 0 && w / b !== e && w / b < 13) ? `${b}^${w / b}` : `${e}^${b}`;
+    const aus = [...new Set([`${b}^${e}`, falle, ...andere])].filter(k => k === `${b}^${e}` || (() => { const [x, y] = k.split('^').map(Number); return x ** y !== w; })()).slice(0, 4);
+    return {
+      art: 'mc', frage: `Welche Potenz ergibt ${Z(w)}?`, optionen: mischen(aus.map(k => ({ key: k, html: P(...k.split('^')) }))),
+      loesung: `${b}^${e}`, loesungHTML: `${P(b, e)} = ${Z(w)}`, erklaerung: `${P(b, e)} = ${Array(e).fill(b).join(MAL)} = ${Z(w)}.`
+    };
+  }
+  /* quadratzahl */
+  const n = ri(4, 12), w = n * n, nicht = mischen([w - 1, w + 1, w + 2, w - 2, w + n, (n + 1) * n, n * 2 * 10]).filter(x => Math.round(Math.sqrt(x)) ** 2 !== x).slice(0, 3);
+  return {
+    art: 'mc', frage: 'Welche Zahl ist eine <b>Quadratzahl</b>?', optionen: zOpts(w, nicht), loesung: String(w), loesungHTML: `${w} = ${n} · ${n} = ${P(n, 2)}`,
+    erklaerung: `${w} = ${n} · ${n}. Quadratzahlen: 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144 …`
+  };
+}
+
+const GENS = [L1, L2, L3, L4, L5, L6, L7, L8];
+function boss(d) {
+  if (Math.random() < .2) { const a = raetsel(d); a.hinweisLv = 6; return a; }
+  const i = ri(0, GENS.length - 1), a = GENS[i](d); a.hinweisLv = i + 1; return a;
+}
+
+/* Erklärungen der Aufgabentypen – erscheinen beim Antippen eines Levels */
+const ERKLAER = {
+  1: [
+    ['∣', 'Teiler', 'Geht die Geteilt-Aufgabe <b>ohne Rest</b> auf, ist die Zahl ein Teiler: 6 ∣ 18 („6 ist ein Teiler von 18“). Bleibt ein Rest: 5 ∤ 18.'],
+    ['🌈', 'Alle Teiler finden', 'Schreibe alle Mal-Aufgaben auf: 12 = 1 · 12 = 2 · 6 = 3 · 4. Fertig bist du, wenn sich die Bögen in der Mitte treffen: T<sub>12</sub> = { 1 ; 2 ; 3 ; 4 ; 6 ; 12 }.'],
+    ['👆', 'Antippen', 'Manchmal tippst du <b>alle</b> passenden Zahlen an und drückst dann „Prüfen“.']
+  ],
+  2: [
+    ['🦘', 'Vielfache', 'Das Känguru springt immer gleich weit: V<sub>3</sub> = { 3 ; 6 ; 9 ; 12 ; 15 ; … } – das sind die Zahlen der 3er-Reihe.'],
+    ['🕵️', 'Detektiv', 'Welche Vielfachmenge ist es? Rechne den Abstand zweier Nachbarn aus – das ist der Sprung.'],
+    ['🪨', 'Fluss-Steine', 'Tippe nur Vielfache an. Vorsicht vor Fallen wie 27 bei den Vielfachen von 7!']
+  ],
+  3: [
+    ['🔎', 'Die letzte Ziffer verrät es', 'Durch <b>2</b>: letzte Ziffer 0, 2, 4, 6, 8 · durch <b>5</b>: 0 oder 5 · durch <b>10</b>: 0.'],
+    ['✅', 'Teilbar oder nicht?', 'Du musst nicht rechnen – schau nur auf die letzte Ziffer!']
+  ],
+  4: [
+    ['🔢', 'Durch 4', 'Prüfe die Zahl aus den <b>letzten zwei Ziffern</b>: 4 ∣ 936, denn 36 : 4 = 9.'],
+    ['🔢', 'Durch 8', 'Prüfe die Zahl aus den <b>letzten drei Ziffern</b>: 8 ∣ 7 104, denn 104 : 8 = 13.'],
+    ['⭐', 'Profi: durch 25', 'Die letzten zwei Ziffern sind 00, 25, 50 oder 75.']
+  ],
+  5: [
+    ['✨', 'Quersumme', 'Addiere alle Ziffern: Die Quersumme von 531 ist 5 + 3 + 1 = 9.'],
+    ['3️⃣', 'Durch 3 und durch 9', 'Ist die Quersumme durch 3 teilbar, ist es die Zahl auch. Genauso bei 9. Jede Zahl, die durch 9 teilbar ist, ist auch durch 3 teilbar.']
+  ],
+  6: [
+    ['🕵️', 'Alle Regeln', '2, 5, 10: letzte Ziffer · 4: letzte zwei · 8: letzte drei · 3, 9: Quersumme · 6: durch 2 <b>und</b> 3.'],
+    ['❓', 'Wer bin ich?', 'Lies alle Hinweise und streiche gedanklich alle Zahlen, die nicht passen. Es bleibt genau eine geheimnisvolle Zahl übrig!']
+  ],
+  7: [
+    ['💪', 'Potenz', `Eine Zahl wird mehrmals mit sich selbst malgenommen: ${P(4, 3)} = 4 · 4 · 4 = 64. Die <b>Grundzahl</b> (4) sagt, welche Zahl, die <b>Hochzahl</b> (3) sagt, wie oft.`],
+    ['⚠️', 'Achtung, Falle!', `${P(2, 3)} = 2 · 2 · 2 = 8 – nicht 2 · 3 = 6!`],
+    ['🧩', 'Knobeln', `${P(0, 5)} = 0 · ${P(1, 7)} = 1 · ${P(10, 1)} = 10 (hoch 1: die Zahl steht nur einmal da).`]
+  ],
+  8: [
+    ['⬛', 'Quadratzahlen', `„hoch 2“ heißt „Quadrat“: ${P(3, 2)} = 9. Quadratzahlen: 1, 4, 9, 16, 25, 36 …`],
+    ['🧊', 'Kubikzahlen', `„hoch 3“ heißt „Kubik“ (Würfel): ${P(2, 3)} = 8 kleine Würfel bilden einen großen.`],
+    ['🔟', 'Zehnerpotenzen', `Die Hochzahl verrät die Anzahl der Nullen: ${P(10, 4)} = 10 000.`],
+    ['⚖️', 'Vergleichen', 'Rechne beide Seiten aus, dann wähle &lt; (kleiner), = oder &gt; (größer).']
+  ],
+  9: [
+    ['🔮', 'Alles gemischt', 'Teiler, Vielfache, Teilbarkeitsregeln, Potenzen und Wer-bin-ich-Rätsel – schon ab „mittel“. Knackst du jeden Code?'],
+    ['💡', 'Tipps', 'Im Übungsmodus bekommst du nach Fehlern den passenden Tipp zum jeweiligen Aufgabentyp.']
+  ]
+};
+
+const BOSS = 9;
+const LEVELS = [
+  { nr: 1, name: 'Teiler-Detektiv', info: 'Ist das ein Teiler? Finde alle Teiler!', farbe: '--blue', ico: '🔍', gen: L1 },
+  { nr: 2, name: 'Vielfachen-Känguru', info: 'Springe durch die Vielfachen', farbe: '--green', ico: '🦘', gen: L2 },
+  { nr: 3, name: 'Lupe auf die letzte Ziffer', info: 'Teilbar durch 2, 5 und 10', farbe: '--orange', ico: '🔎', gen: L3 },
+  { nr: 4, name: 'Die letzten Ziffern', info: 'Teilbar durch 4, 8 und 25', farbe: '--purple', ico: '🔢', gen: L4 },
+  { nr: 5, name: 'Quersummen-Zauber', info: 'Teilbar durch 3 und 9', farbe: '--red', ico: '✨', gen: L5 },
+  { nr: 6, name: 'Teilbarkeits-Detektiv', info: 'Alle Regeln und Wer-bin-ich-Rätsel', farbe: '--blue', ico: '🕵️', gen: L6 },
+  { nr: 7, name: 'Potenz-Power', info: 'Grundzahl, Hochzahl, ausrechnen', farbe: '--green', ico: '💪', gen: L7 },
+  { nr: 8, name: 'Quadrat, Würfel & Zehner', info: 'Besondere Potenzen und Vergleiche', farbe: '--orange', ico: '🧊', gen: L8 },
+  { nr: 9, name: 'Boss: Die geheimnisvolle Zahl', info: 'Alles gemischt – knackst du jeden Code?', farbe: '--purple', ico: '🔮', gen: boss }
+];
+
+/* =========================================================
+   TIPPS FÜR DEN ÜBUNGSMODUS  (Tipp 1 nach 3 Fehlern, Tipp 2 nach 7 Fehlern)
+   ========================================================= */
+const TIPPS = {
+  1: [
+    `Teile die Zahl. Geht es <b>ohne Rest</b> auf, ist es ein Teiler. Bleibt ein Rest, ist es <b>kein</b> Teiler.
+     <div class="bild">${gruppenHTML(14, 4, '🌰')}</div>14 in 4er-Gruppen: 3 Gruppen, Rest 2 → 4 ∤ 14`,
+    `<b>Alle Teiler finden</b> mit dem Teiler-Regenbogen: Schreibe alle Mal-Aufgaben auf – beginne mit 1.
+     <div class="zeile">24 = 1 · 24 = 2 · 12 = 3 · 8 = 4 · 6</div>T<sub>24</sub> = { 1 ; 2 ; 3 ; 4 ; 6 ; 8 ; 12 ; 24 }. Die 1 und die Zahl selbst sind immer Teiler!`
+  ],
+  2: [
+    `Vielfache sind die Zahlen der <b>Malreihe</b>: V<sub>6</sub> = { 6 ; 12 ; 18 ; 24 ; 30 ; … }. Immer + 6.`,
+    `Ist eine Zahl ein Vielfaches von 7? Teile durch 7 – geht es ohne Rest auf, dann ja.
+     Fallen: 17, 27, 47 enden zwar auf 7, sind aber <b>keine</b> Vielfachen von 7! Gemeinsame Vielfache von 4 und 6: 12, 24, 36 …`
+  ],
+  3: [
+    `Schau mit der Lupe nur auf die <b>letzte Ziffer</b>:<br>durch 2 → 0, 2, 4, 6, 8 · durch 5 → 0, 5 · durch 10 → 0`,
+    `Eine 0 am Ende ist super: Dann ist die Zahl durch 2, 5 <b>und</b> 10 teilbar. Eine 5 am Ende: nur durch 5.
+     Eine gerade Ziffer (2, 4, 6, 8): nur durch 2.`
+  ],
+  4: [
+    `<b>Durch 4:</b> Schau auf die <b>letzten zwei</b> Ziffern. 1 468 → 68 → 68 : 4 = 17 ✓<br><b>Durch 8:</b> die <b>letzten drei</b> Ziffern. 15 296 → 296 → 296 : 8 = 37 ✓`,
+    `Vorsicht: Eine gerade Zahl ist nicht automatisch durch 4 teilbar! 34 : 4 = 8 Rest 2. Merke dir die Vielfachen von 4 bis 100:
+     4, 8, 12, 16, 20, 24, 28, 32, 36, 40 … · durch 25: Ende 00, 25, 50, 75.`
+  ],
+  5: [
+    `Die <b>Quersumme</b> ist die Summe aller Ziffern: 8 526 → 8 + 5 + 2 + 6 = 21.`,
+    `21 ist durch 3 teilbar (21 : 3 = 7), aber nicht durch 9 → 8 526 ist durch 3 teilbar, aber nicht durch 9.
+     Ist die Quersumme 9, 18, 27 …, dann geht beides!`
+  ],
+  6: [
+    `Dein Spickzettel:<br>2, 5, 10 → letzte Ziffer · 4 → letzte zwei · 8 → letzte drei<br>3, 9 → Quersumme · 6 → durch 2 <b>und</b> durch 3`,
+    `<b>Wer-bin-ich-Rätsel:</b> Fang mit dem stärksten Hinweis an (z. B. „durch 9 teilbar“), schreibe alle passenden Zahlen auf und streiche dann mit jedem Hinweis weiter.`
+  ],
+  7: [
+    `${P(5, 3)}: Die Grundzahl 5 wird so oft hingeschrieben, wie die Hochzahl sagt – also 3-mal: 5 · 5 · 5 = 125.`,
+    `Die große Falle: ${P(5, 3)} ist <b>nicht</b> 5 · 3! Rechne Schritt für Schritt: 5 · 5 = 25, dann 25 · 5 = 125.
+     Sonderfälle: ${P(0, 4)} = 0 · ${P(1, 9)} = 1 · ${P(7, 1)} = 7.`
+  ],
+  8: [
+    `Quadratzahl: ${P(6, 2)} = 6 · 6 = 36. Kubikzahl: ${P(3, 3)} = 3 · 3 · 3 = 27.
+     Zehnerpotenz: ${P(10, 5)} = 100 000 (5 Nullen).`,
+    `Beim Vergleichen: Rechne <b>beide</b> Seiten ganz aus, dann vergleiche. Beispiel: ${P(3, 2)} = 9 und ${P(2, 3)} = 8 → ${P(3, 2)} &gt; ${P(2, 3)}.
+     Und manchmal ist es gleich: ${P(2, 4)} = 16 = ${P(4, 2)}.`
+  ]
+};
+const AUFMUNTERN = [
+  'Kein Problem – jetzt weißt du, wie es geht!', 'Fehler sind zum Lernen da!', 'Fast! Schau dir den Weg kurz an.',
+  'Nicht schlimm – die nächste klappt!', 'Dranbleiben, du schaffst das!', 'Halb so wild – weiter geht’s!',
+  'Jeder Profi hat mal klein angefangen.', 'Kopf hoch – du bist auf einem guten Weg!'
+];
+const UEBUNG_AUFGABEN = 10, UEBUNG_FREI_AB = 8;
+
+/* =========================================================
+   SPEICHER & STATUS
+   ========================================================= */
+const SPEICHER = 'geheimzahlen_v1';
+const ALLE_FREI = new URLSearchParams(location.search).has('alle');
+const BLITZ_SEK = 60, WERKSTATT_MAX = 30;
+let speicher = (() => { try { return JSON.parse(localStorage.getItem(SPEICHER)) || { tiere: {} }; } catch (e) { return { tiere: {} }; } })();
+const sichern = () => { try { localStorage.setItem(SPEICHER, JSON.stringify(speicher)); } catch (e) {} };
+const profil = t => {
+  const p = (speicher.tiere[t] ??= { best: {}, aufgaben: 0 });
+  p.uebung ??= {}; p.blitz ??= {}; p.werkstatt ??= [];
+  return p;
+};
+const bestVon = nr => profil(S.tier).best[nr] || 0;
+const uebVon = nr => profil(S.tier).uebung[nr] || 0;
+const blitzVon = nr => profil(S.tier).blitz[nr] || 0;
+/* true = alle Level sind von Anfang an offen. false = jedes Level muss erst freigespielt werden. */
+const ALLE_LEVEL_OFFEN = true;
+const frei = nr => ALLE_LEVEL_OFFEN || ALLE_FREI || S.lehrer || nr === 1 || bestVon(nr - 1) >= FREI_AB || uebVon(nr - 1) >= UEBUNG_FREI_AB;
+const stufe = () => S.streak < 5 ? 0 : S.streak < 12 ? 1 : 2;
+
+const S = { tier: null, lehrer: false, lv: null, modus: 'streak', streak: 0, runde: null, a: null, wartet: false, timer: null, uhr: null, auswahl: null, info: null };
+const app = document.getElementById('app');
+const ueb = () => S.modus === 'uebung' || S.modus === 'werkstatt';
+const MODUSNAME = { uebung: 'Übung', streak: 'Streak', blitz: 'Blitz', werkstatt: 'Werkstatt' };
+const MODUSTITEL = { uebung: '📝 Übungsmodus', streak: '🔥 Streak-Modus', blitz: '⚡ Blitzrunde', werkstatt: '🔧 Fehlerwerkstatt' };
+
+/* =========================================================
+   FEHLERWERKSTATT – merkt sich Aufgabentypen mit Fehlern
+   ========================================================= */
+function signatur(a) {
+  const sauber = t => String(t || '').replace(/<[^>]+>/g, ' ').replace(/\d+/g, '#').replace(/\s+/g, ' ').trim();
+  return `${a.art}|${sauber(a.frage).slice(0, 42)}|${sauber(a.erklaerung).slice(0, 18)}`;
+}
+function merkeFehler(a, d) {
+  const lv = a.hinweisLv || a.werkLv || S.lv.nr;
+  if (!lv || lv > GENS.length) return;
+  const w = profil(S.tier).werkstatt, sig = signatur(a);
+  if (w.filter(e => e.sig === sig).length >= 2) return;      // höchstens 2× derselbe Typ
+  w.push({ lv, d, sig });
+  while (w.length > WERKSTATT_MAX) w.shift();
+}
+function repariere(sig) {
+  const w = profil(S.tier).werkstatt, i = w.findIndex(e => e.sig === sig);
+  if (i >= 0) w.splice(i, 1);
+}
+function werkstattGen() {
+  const w = profil(S.tier).werkstatt;
+  if (!w.length) return null;
+  const R = S.runde;
+  const e = w[(w.length - 1 - (R.aufgaben % w.length) + w.length) % w.length];   // neueste zuerst, dann reihum
+  let a;
+  for (let t = 0; t < 120; t++) { a = GENS[e.lv - 1](e.d); if (signatur(a) === e.sig) break; }
+  a.hinweisLv = e.lv; a.werkLv = e.lv; a.werkSig = e.sig; a.werkD = e.d;
+  return a;
+}
+const WERKSTATT_LV = { nr: 0, name: 'Fehlerwerkstatt', ico: '🔧', gen: werkstattGen };
+
+/* =========================================================
+   BILDSCHIRME: Anmeldung
+   ========================================================= */
+function zeigeStart() {
+  stoppeUhr();
+  S.lv = null; S.tier = null; S.lehrer = false; S.info = null;
+  app.innerHTML = `
+    <header class="titel">
+      <h1 class="lang">Geheimnis&shy;volle <span class="blitz">Zahlen</span></h1>
+      <div class="bubble">Teiler, Vielfache, Teilbarkeitsregeln und Potenzen in 9 Leveln – knack die Codes der geheimnisvollen Zahlen! Melde dich zuerst an.</div>
+    </header>
+    <form class="login aufgabe" id="login" novalidate>
+      <label for="nm">Dein Zugangsname</label>
+      <div class="loginzeile">
+        <input id="nm" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="z. B. Kaktus 27" maxlength="30">
+        <button class="btn gruen" id="los">Los geht’s ▶</button>
+      </div>
+      <div class="loginfehler" id="lf" role="alert"></div>
+      <p class="loginhilfe">Deinen Zugangsnamen bekommst du von deiner Lehrkraft: eine Pflanze und eine Zahl.</p>
+    </form>
+    <div class="pflanzenparade" aria-hidden="true">${PFLANZEN.map(p => `<span>${p[1]}</span>`).join('')}</div>`;
+  const nm = document.getElementById('nm');
+  document.getElementById('login').onsubmit = e => { e.preventDefault(); anmelden(nm.value); };
+  if (matchMedia('(pointer: fine)').matches) nm.focus();
+  scrollTo(0, 0);
+}
+
+async function holeJSON(param, ms = 8000) {
+  if (!SHEET_URL) return null;
+  try {
+    const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), ms);
+    const r = await fetch(`${SHEET_URL}?${param}`, { signal: ctl.signal });
+    clearTimeout(t);
+    return JSON.parse(await r.text());
+  } catch (e) { return null; }
+}
+
+async function anmelden(roh) {
+  const nm = document.getElementById('nm'), lf = document.getElementById('lf'), los = document.getElementById('los');
+  const k = norm(roh);
+  if (!k) { wackel(nm); return; }
+  los.disabled = true; lf.className = 'loginfehler info'; lf.textContent = 'Ich schaue in der Liste nach …';
+  const erg = await holeJSON(`name=${encodeURIComponent(roh.trim())}`);
+  los.disabled = false;
+  if (erg && erg.ok) return einloggen(erg.name, !!erg.lehrer);
+  if (erg && erg.ok === false) {
+    lf.className = 'loginfehler';
+    lf.innerHTML = erg.inaktiv
+      ? 'Dieser Zugang ist gerade nicht freigeschaltet. Sprich mit deiner Lehrkraft.'
+      : 'Diesen Namen kenne ich nicht. 🤔 Schau genau hin: Pflanze und Zahl, z. B. <b>Kaktus 27</b>.';
+    wackel(nm); return;
+  }
+  const lokal = lokalerName(k);            // Tabelle nicht erreichbar: Format selbst prüfen
+  if (lokal) return einloggen(lokal.name, lokal.lehrer);
+  lf.className = 'loginfehler';
+  lf.innerHTML = 'Diesen Namen kenne ich nicht. 🤔 Schau genau hin: Pflanze und Zahl, z. B. <b>Kaktus 27</b>.';
+  wackel(nm);
+}
+
+function einloggen(name, lehrer) {
+  S.tier = name; S.lehrer = lehrer; S.info = null; speicher.letztes = name; sichern(); zeigeKarte();
+}
+
+/* =========================================================
+   BILDSCHIRME: Levelkarte, Klassen-Ecke
+   ========================================================= */
+function sterne(n) {
+  return `<span class="sterne" aria-label="${n} von 3 Sternen">${[0, 1, 2].map(i => `<span class="${i < n ? 'an' : ''}">★</span>`).join('')}</span>`;
+}
+const streakSterne = b => b >= 20 ? 3 : b >= 12 ? 2 : b >= 5 ? 1 : 0;
+const uebSterne = p => p >= 10 ? 3 : p >= 8 ? 2 : p >= 6 ? 1 : 0;
+
+function zeigeKarte() {
+  stoppeUhr();
+  S.lv = null; S.runde = null;
+  const w = profil(S.tier).werkstatt.length;
+  app.innerHTML = `
+    <div class="spielerzeile">
+      <div class="spieler"><span class="emo">${emojiVon(S.tier)}</span><b>${S.tier}</b></div>
+      <button class="btn klein" id="wechsel">Abmelden</button>
+    </div>
+    ${S.lehrer ? '<p class="lehrerhinweis">🎓 Lehrer-Zugang: Alle Level sind offen.</p>' : ''}
+    <div id="klassenecke" class="klassenecke"></div>
+    <button class="werkstattkarte" id="werkstatt" ${w ? '' : 'disabled'}>
+      <span class="wk-ico">🔧</span>
+      <span class="wk-text"><b>Fehlerwerkstatt</b>
+      ${w ? `<span>${w} ${w === 1 ? 'Aufgabe wartet' : 'Aufgaben warten'} darauf, repariert zu werden. Übe genau das, was noch hakt!</span>`
+          : '<span>Hier sammeln sich Aufgaben, bei denen du Fehler gemacht hast. Gerade ist alles repariert! ✨</span>'}</span>
+      ${w ? `<span class="wk-zahl">${w}</span>` : ''}
+    </button>
+    <div class="bubble" style="display:block;margin-top:24px">Wähle ein Level und dann: <b>📝 Üben</b> – 10 Aufgaben mit Tipps, <b>🔥 Streak</b> – ohne Fehler so weit wie möglich, oder <b>⚡ Blitz</b> – so viele wie möglich in 60 Sekunden.${ALLE_LEVEL_OFFEN ? '' : `
+      Das nächste Level öffnet sich mit <b>${UEBUNG_FREI_AB} von 10</b> beim Üben oder einer <b>${FREI_AB}er-Streak</b>.`}</div>
+    <div class="lvgitter">${LEVELS.map(lv => {
+      const offen = frei(lv.nr), b = bestVon(lv.nr), u = uebVon(lv.nr), z = blitzVon(lv.nr);
+      return `<button class="lv" data-nr="${lv.nr}" style="--farbe:var(${lv.farbe})" ${offen ? '' : 'disabled'}>
+        <div class="kopf"><span class="ico">${lv.ico}</span><span class="nr">Level ${lv.nr}</span></div>
+        <div class="inhalt"><strong>${lv.name}</strong><p>${lv.info}</p>
+          <div class="rek"><span>📝 Üben: ${u}/10</span>${sterne(uebSterne(u))}</div>
+          <div class="rek2"><span>🔥 Streak: ${b}</span>${sterne(streakSterne(b))}</div>
+          <div class="rek2"><span>⚡ Blitz: ${z}</span></div></div>
+        ${offen ? '' : `<div class="schloss"><span>🔒 Erst ${UEBUNG_FREI_AB} von 10 beim Üben<br>oder eine ${FREI_AB}er-Streak in Level ${lv.nr - 1}</span></div>`}
+      </button>`;
+    }).join('')}</div>`;
+  document.getElementById('wechsel').onclick = zeigeStart;
+  document.getElementById('werkstatt').onclick = () => starteLevel(0, 'werkstatt');
+  app.querySelectorAll('.lv:not([disabled])').forEach(b => b.onclick = () => waehleModus(+b.dataset.nr));
+  zeigeKlassenecke();
+  scrollTo(0, 0);
+}
+
+async function zeigeKlassenecke() {
+  const box = document.getElementById('klassenecke');
+  if (!box) return;
+  const ich = S.tier;
+  if (!S.info || Date.now() - S.info.zeit > 30000) {
+    const erg = await holeJSON(`info=${encodeURIComponent(ich)}`);
+    if (S.tier !== ich) return;
+    S.info = { zeit: Date.now(), klassen: erg && erg.ok && Array.isArray(erg.klassen) ? erg.klassen : [] };
+  }
+  const ziel = document.getElementById('klassenecke');
+  if (!ziel) return;
+  const kl = S.info.klassen.filter(k => k.ziel > 0 || k.liste);
+  if (!kl.length) { ziel.innerHTML = ''; return; }
+  ziel.innerHTML = kl.map((k, i) => {
+    const proz = k.ziel > 0 ? Math.min(100, Math.round(k.stand / k.ziel * 100)) : 0, fertig = k.ziel > 0 && k.stand >= k.ziel;
+    return `<div class="zielkarte${fertig ? ' geschafft' : ''}">
+      <div class="zk-kopf"><b>🎯 Klassenziel${S.lehrer || kl.length > 1 ? ' · ' + k.klasse : ''}</b>
+        ${k.liste ? `<button class="btn klein gelb" data-i="${i}">🏆 Bestenliste</button>` : ''}</div>
+      ${k.ziel > 0 ? `
+        <div class="balken" role="progressbar" aria-valuemin="0" aria-valuemax="${k.ziel}" aria-valuenow="${k.stand}"><span style="width:${proz}%"></span><em>${k.stand} von ${k.ziel} richtigen Aufgaben</em></div>
+        <p>${fertig ? `🎉 Geschafft! Eure Klasse hat das Ziel erreicht${k.belohnung ? `: <b>${k.belohnung}</b>` : '!'}`
+          : `Gemeinsam schafft ihr das! Jede richtige Aufgabe zählt.${k.belohnung ? ` Belohnung: <b>${k.belohnung}</b>` : ''}`}</p>` : '<p>Wer liegt diese Woche vorne?</p>'}
+    </div>`;
+  }).join('');
+  ziel.querySelectorAll('[data-i]').forEach(b => b.onclick = () => zeigeBestenliste(kl[+b.dataset.i]));
+}
+
+function zeigeBestenliste(k) {
+  const m = document.createElement('div'); m.className = 'modal';
+  const tabelle = (liste, einheit) => liste && liste.length
+    ? `<ol class="rangliste">${liste.map(([n, w], i) => `<li class="${n === S.tier ? 'ich' : ''}"><span class="platz">${['🥇', '🥈', '🥉'][i] || i + 1 + '.'}</span><span class="tn">${emojiVon(n)} ${n}</span><b>${w}</b><small>${einheit}</small></li>`).join('')}</ol>`
+    : '<p class="leerliste">Diese Woche noch keine Einträge – leg los!</p>';
+  m.innerHTML = `<div class="aufgabe bestenbox"><h2>🏆 Bestenliste der Woche</h2><p class="unterzeile">${k.klasse} · seit Montag</p>
+    <div class="tabs"><button class="tab an" data-t="r">✅ Richtige Aufgaben</button><button class="tab" data-t="s">🔥 Längste Streak</button></div>
+    <div id="tab-r">${tabelle(k.liste.richtig, 'richtig')}</div><div id="tab-s" hidden>${tabelle(k.liste.streak, 'in Folge')}</div>
+    <div class="mitte"><button class="btn gruen" id="ok">Weiter ▶</button></div></div>`;
+  document.body.appendChild(m);
+  m.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+    m.querySelectorAll('.tab').forEach(x => x.classList.toggle('an', x === t));
+    m.querySelector('#tab-r').hidden = t.dataset.t !== 'r'; m.querySelector('#tab-s').hidden = t.dataset.t !== 's';
+  });
+  m.querySelector('#ok').onclick = () => m.remove();
+  m.onclick = e => { if (e.target === m) m.remove(); };
+}
+
+function waehleModus(nr) {
+  const lv = LEVELS[nr - 1];
+  const m = document.createElement('div'); m.className = 'modal';
+  m.innerHTML = `<div class="aufgabe modusbox"><h2>${lv.ico} ${lv.name}</h2>
+    <details class="soGehts" open><summary>💡 So geht’s – die Aufgaben in diesem Level</summary>
+      <ul>${ERKLAER[nr].map(([i, t, x]) => `<li><span class="sg-ico">${i}</span><span><b>${t}:</b> ${x}</span></li>`).join('')}</ul></details>
+    <p style="margin:0 0 14px">Wie möchtest du spielen?</p>
+    <button class="modus uebung" data-m="uebung"><span class="mk">📝 Übungsmodus</span><span>10 Aufgaben · Tipps, wenn es mal hakt · Ergebnis am Ende</span><small>Bestes Ergebnis: ${uebVon(nr)}/10</small></button>
+    <button class="modus streak" data-m="streak"><span class="mk">🔥 Streak-Modus</span><span>Wie viele schaffst du ohne Fehler? Es wird immer kniffliger!</span><small>Rekord: ${bestVon(nr)}</small></button>
+    <button class="modus blitz" data-m="blitz"><span class="mk">⚡ Blitzrunde</span><span>${BLITZ_SEK} Sekunden – so viele richtige Aufgaben wie möglich!</span><small>Rekord: ${blitzVon(nr)} richtig</small></button>
+    <button class="btn klein" id="abbruch" style="margin-top:6px">Zurück</button></div>`;
+  document.body.appendChild(m);
+  m.querySelectorAll('.modus').forEach(b => b.onclick = () => { m.remove(); starteLevel(nr, b.dataset.m); });
+  m.querySelector('#abbruch').onclick = () => m.remove();
+  m.onclick = e => { if (e.target === m) m.remove(); };
+  m.querySelector('.modus').focus();
+}
+
+/* =========================================================
+   SPIELEN
+   ========================================================= */
+function starteLevel(nr, modus) {
+  stoppeUhr();
+  S.lv = modus === 'werkstatt' ? WERKSTATT_LV : LEVELS[nr - 1]; S.modus = modus; S.streak = 0;
+  const p = profil(S.tier);
+  S.runde = { id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`, start: Date.now(), letzte: Date.now(), aktiv: 0,
+    aufgaben: 0, richtig: 0, fehler: 0, best: 0, gesendet: 0, verlauf: [], tipps: 0, repariert: 0,
+    ziel: modus === 'werkstatt' ? Math.min(UEBUNG_AUFGABEN, Math.max(5, p.werkstatt.length)) : UEBUNG_AUFGABEN };
+  const R = S.runde;
+  let rechts;
+  if (ueb()) rechts = `<div class="streakbox blau" id="sbox"><span class="zahl" id="nrbox">1/${R.ziel}</span><small>Aufgabe</small></div>
+       <button class="rekordbox tippknopf" id="tippknopf" disabled><span class="zahl">💡</span><small>Tipps</small></button>`;
+  else if (modus === 'blitz') rechts = `<div class="streakbox lila" id="sbox"><span class="zahl" id="blitzzahl">0</span><small>⚡ richtig</small></div>
+       <div class="rekordbox"><span class="zahl" id="uhrzahl">${BLITZ_SEK}</span><small>Sekunden</small></div>`;
+  else rechts = `<div class="streakbox" id="sbox"><span class="zahl" id="streak">0</span><small>🔥 Streak</small></div>
+       <div class="rekordbox"><span class="zahl" id="rekord">${bestVon(nr)}</span><small>Rekord</small></div>`;
+  app.innerHTML = `
+    <div class="hud">
+      <button class="btn klein" id="zurueck">◀ Levels</button>
+      <div class="lvname"><small>${S.lv.nr ? `Level ${S.lv.nr} · ` : ''}${MODUSTITEL[modus]} · ${emojiVon(S.tier)} ${S.tier}</small>${S.lv.name}</div>
+      ${rechts}
+    </div>
+    ${ueb() ? `<div class="punkte" id="punkte">${'<span></span>'.repeat(R.ziel)}</div>` : ''}
+    ${modus === 'blitz' ? '<div class="uhrbalken"><span id="uhrbalken"></span></div>' : ''}
+    <section class="aufgabe" id="aufgabe" aria-live="polite"></section>`;
+  document.getElementById('zurueck').onclick = beendeLevel;
+  if (ueb()) document.getElementById('tippknopf').onclick = zeigeTipps;
+  if (modus === 'blitz') {
+    R.blitzEnde = Date.now() + BLITZ_SEK * 1000;
+    S.uhr = setInterval(tick, 100);
+  }
+  neueAufgabe();
+}
+
+function stoppeUhr() { clearInterval(S.uhr); S.uhr = null; clearTimeout(S.timer); }
+function tick() {
+  const R = S.runde; if (!R || S.modus !== 'blitz') return stoppeUhr();
+  const rest = Math.max(0, R.blitzEnde - Date.now());
+  const z = document.getElementById('uhrzahl'), b = document.getElementById('uhrbalken');
+  if (z) z.textContent = Math.ceil(rest / 1000);
+  if (b) { b.style.width = `${rest / (BLITZ_SEK * 10)}%`; b.classList.toggle('knapp', rest < 10000); }
+  if (rest <= 0) { stoppeUhr(); zeigeBlitzErgebnis(); }
+}
+
+function hud(pop) {
+  const R = S.runde;
+  if (ueb()) {
+    document.getElementById('nrbox').textContent = `${Math.min(R.aufgaben + 1, R.ziel)}/${R.ziel}`;
+    document.querySelectorAll('#punkte span').forEach((s, i) => {
+      s.className = i < R.verlauf.length ? (R.verlauf[i] ? 'ok' : 'nein') : i === R.verlauf.length ? 'jetzt' : '';
+      s.textContent = i < R.verlauf.length ? (R.verlauf[i] ? '✓' : '✗') : '';
+    });
+    const t = document.getElementById('tippknopf'); if (t) t.disabled = !R.tipps;
+    return;
+  }
+  if (S.modus === 'blitz') {
+    document.getElementById('blitzzahl').textContent = R.richtig;
+  } else {
+    document.getElementById('streak').textContent = S.streak;
+    document.getElementById('rekord').textContent = bestVon(S.lv.nr);
+  }
+  if (pop) { const b = document.getElementById('sbox'); b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop'); }
+}
+
+function uebStufe() {
+  const R = S.runde, i = R.aufgaben;
+  let d = R.fehler >= 3 ? (i < 6 ? 0 : 1) : (i < 4 ? 0 : i < 8 ? 1 : 2);
+  if (S.lv.nr === BOSS) d = Math.max(1, Math.min(d, R.fehler >= 3 ? 1 : 2));
+  return d;
+}
+function aktuelleStufe() {
+  if (S.modus === 'werkstatt') return null;
+  if (ueb()) return uebStufe();
+  const r = S.modus === 'blitz' ? (S.runde.richtig < 5 ? 0 : S.runde.richtig < 12 ? 1 : 2) : stufe();
+  return S.lv.nr === BOSS ? Math.max(1, r) : r;
+}
+
+function neueAufgabe() {
+  clearTimeout(S.timer);
+  const R = S.runde;
+  if (!R) return;
+  if (ueb() && R.aufgaben >= R.ziel) { zeigeErgebnis(); return; }
+  let d = aktuelleStufe();
+  const a = S.lv.gen(d);
+  if (!a) { zeigeErgebnis(); return; }                       // Werkstatt leer
+  if (d == null) d = a.werkD ?? 0;
+  S.a = a; S.d = d; S.wartet = false; S.auswahl = null;
+  if (ueb()) hud(false);
+  const box = document.getElementById('aufgabe');
+  let h = `<span class="stufe s${d}">${['leicht', 'mittel', 'schwer'][d]}</span>
+    ${a.werkLv ? `<span class="stufe werk">🔧 aus Level ${a.werkLv}: ${LEVELS[a.werkLv - 1].name}</span>` : ''}
+    <p class="frage">${a.frage}</p>
+    ${a.bild ? `<div class="bild" id="bild">${a.bild}</div>` : ''}
+    ${a.zeile ? `<div class="zeile">${a.zeile}</div>` : ''}`;
+  if (a.art === 'mc') h += `<div class="optionen">${a.optionen.map(o => `<button class="opt" data-k="${o.key}">${o.html}</button>`).join('')}</div>`;
+  if (a.art === 'vergleich') h += `<div class="zeile">${a.p} <span class="vbox" id="vbox">?</span> ${a.q}</div>
+    <div class="optionen" style="max-width:420px">${['lt', 'eq', 'gt'].map(k => `<button class="opt sym" data-k="${k}">${SYM[k]}</button>`).join('')}</div>`;
+  if (a.art === 'eingabe') h += `<form class="eingabe" id="form"><input id="ein" type="text" inputmode="numeric" autocomplete="off" aria-label="Deine Antwort">
+    ${a.einheit ? `<span class="einheit">${a.einheit}</span>` : ''}<button class="btn gruen">Prüfen</button></form>`;
+  if (a.art === 'tippen') h += `<div class="zahlchips${a.stein ? ' steine' : ''}" id="chips">${a.chips.map(c => `<button class="zchip" data-v="${c}">${a.chipText ? a.chipText(c) : Z(c)}</button>`).join('')}</div>
+    <div class="malinfo">Angetippt: <span id="anz">0</span>${a.leerOk ? ' <span class="hinw">· Passt keine? Dann tippe gleich auf „Prüfen“.</span>' : ''}</div><div class="mitte"><button class="btn gruen" id="pruefen">Prüfen</button></div>`;
+  h += '<div id="rueck"></div>';
+  box.innerHTML = h;
+
+  box.querySelectorAll('.opt').forEach(b => b.onclick = () => pruefe(b.dataset.k, b));
+  if (a.art === 'eingabe') {
+    const ein = document.getElementById('ein');
+    document.getElementById('form').onsubmit = e => {
+      e.preventDefault();
+      const w = ein.value.trim().replace(/[\s.]/g, '');
+      if (!/^\d+$/.test(w)) { wackel(ein); return; }
+      pruefe(+w);
+    };
+    if (matchMedia('(pointer: fine)').matches) ein.focus();
+  }
+  if (a.art === 'tippen') {
+    box.querySelectorAll('.zchip').forEach(c => c.onclick = () => {
+      if (S.wartet) return;
+      c.classList.toggle('an');
+      document.getElementById('anz').textContent = box.querySelectorAll('.zchip.an').length;
+    });
+    document.getElementById('pruefen').onclick = () => pruefe([...box.querySelectorAll('.zchip.an')].map(c => +c.dataset.v).sort((x, y) => x - y).join(','));
+  }
+}
+
+function wackel(el) { el.classList.remove('wackel'); void el.offsetWidth; el.classList.add('wackel'); }
+
+function pruefe(antwort, knopf) {
+  if (S.wartet || !S.runde) return;
+  const a = S.a;
+  const ok = a.art === 'tippen' ? antwort === a.ziel : antwort === a.loesung;
+  S.wartet = true;
+  const box = document.getElementById('aufgabe');
+  box.querySelectorAll('.opt, button, input').forEach(b => { if (!b.closest('#rueck')) b.disabled = true; });
+  if (knopf) {
+    knopf.classList.add(ok ? 'richtig' : 'falsch');
+    if (!ok) box.querySelectorAll('.opt').forEach(b => { if (b.dataset.k === a.loesung) b.classList.add('richtig'); });
+  }
+  if (a.art === 'vergleich') document.getElementById('vbox').innerHTML = SYM[antwort];
+  if (a.art === 'tippen') {
+    const z = new Set(a.ziel.split(',').filter(Boolean).map(Number));
+    box.querySelectorAll('.zchip').forEach(c => { const v = +c.dataset.v, an = c.classList.contains('an'); c.classList.add(z.has(v) ? (an ? 'ok' : 'fehlt') : (an ? 'nein' : 'x')); });
+  }
+  auswerten(ok);
+}
+
+/* Welcher Tipp gehört zur aktuellen Aufgabe? (Boss/Werkstatt: Tipp des Ursprungs-Levels) */
+const tippLevel = () => S.a.hinweisLv || S.lv.nr;
+function tippHTML(stufe, lvNr) {
+  return `<div class="tippbox"><div class="tk">💡 Tipp ${stufe} vom Zahlen-Profi</div>${TIPPS[lvNr][stufe - 1]}</div>`;
+}
+
+function auswerten(ok) {
+  const R = S.runde, p = profil(S.tier), nr = S.lv.nr, jetzt = Date.now(), a = S.a;
+  R.aktiv += Math.min(jetzt - R.letzte, 120000); R.letzte = jetzt;
+  R.aufgaben++; p.aufgaben++; R.verlauf.push(ok);
+  const letzte = ueb() && R.aufgaben >= R.ziel;
+
+  if (ok) {
+    R.richtig++; S.streak++; R.best = Math.max(R.best, S.streak);
+    if (S.modus === 'werkstatt') { repariere(a.werkSig); R.repariert++; }
+    if (S.modus === 'blitz') {
+      sichern(); hud(true);
+      knall(pick(['Zack!', 'Bäm!', 'Blitz!', 'Wumms!', 'Ja!']), 'klein');
+      S.timer = setTimeout(neueAufgabe, 450);
+    } else if (!ueb()) {
+      const alt = p.best[nr] || 0, warFrei = nr < BOSS && frei(nr + 1);
+      if (S.streak > alt) p.best[nr] = S.streak;
+      sichern(); hud(true);
+      const meilenstein = MEILENSTEINE.includes(S.streak);
+      knall(meilenstein ? `${S.streak}er-Streak!` : pick(['Richtig!', 'Zack!', 'Bäm!', 'Klasse!', 'Stark!', 'Wumms!', 'Super!']), meilenstein ? 'gross' : '');
+      if (!warFrei && nr < BOSS && frei(nr + 1)) toast(nr === BOSS - 1 ? '⚡ Das Boss-Level ist frei! ⚡' : `🔓 Level ${nr + 1} ist freigeschaltet!`);
+      else if (S.streak === alt + 1 && alt >= 3) toast('🏆 Neuer Rekord!');
+      S.timer = setTimeout(neueAufgabe, meilenstein ? 1500 : 950);
+    } else {
+      sichern(); hud(false);
+      knall(S.modus === 'werkstatt' ? pick(['Repariert! 🔧', 'Sitzt jetzt!', 'Geschafft!']) : S.streak >= 3 ? `${S.streak} in Folge!` : pick(['Richtig!', 'Super!', 'Klasse!', 'Genau!', 'Prima!']), '');
+      S.timer = setTimeout(neueAufgabe, 950);
+    }
+  } else {
+    const war = S.streak; S.streak = 0; R.fehler++;
+    if (S.modus !== 'werkstatt') merkeFehler(a, S.d);
+    sichern(); hud(false);
+    if (S.modus === 'blitz') {
+      knall('Hoppla!', 'schlecht klein');
+      document.getElementById('rueck').innerHTML = `<div class="blitzfalsch">Richtig wäre: <span class="loes">${a.loesungHTML}</span>
+        ${a.loesungBild && a.art !== 'mc' && a.art !== 'eingabe' ? `<div class="bild">${a.loesungBild}</div>` : ''}<small>🔧 Kommt in deine Fehlerwerkstatt.</small></div>`;
+      S.timer = setTimeout(neueAufgabe, a.loesungBild && a.art !== 'mc' && a.art !== 'eingabe' ? 2200 : 1500);
+    } else {
+      let kopf, tipp = '';
+      if (ueb()) {
+        knall('Hoppla!', 'schlecht');
+        kopf = pick(AUFMUNTERN);
+        if (R.fehler === 3 || R.fehler === 7 || (S.modus === 'werkstatt' && R.fehler === 1)) {
+          const st = R.fehler >= 7 ? 2 : 1;
+          R.tipps = Math.max(R.tipps, st); R.tippLv = tippLevel();
+          tipp = tippHTML(st, R.tippLv);
+          hud(false);
+        }
+      } else {
+        knall('Autsch!', 'schlecht');
+        kopf = war > 0 ? `Oh nein – deine ${war}er-Streak ist geplatzt!` : 'Leider nicht richtig.';
+      }
+      document.getElementById('rueck').innerHTML = `<div class="falschbox">
+        <div class="autsch">${kopf}</div>
+        ${!ueb() && war >= 3 ? `<p class="trost">${pick(['Starke Serie! Die nächste wird noch länger.', 'Gleich nochmal – du hast den Dreh raus!', 'Das war richtig gut – auf ein Neues!'])}</p>` : ''}
+        <div>Richtig ist: <span class="loes">${a.loesungHTML}</span></div>
+        ${a.loesungBild ? `<div class="bild">${a.loesungBild}</div>` : ''}
+        <p>${a.erklaerung}</p>
+        ${tipp}
+        ${S.modus !== 'werkstatt' ? '<p class="werkhinweis">🔧 Diese Aufgabe kommt in deine Fehlerwerkstatt.</p>' : ''}
+        <button class="btn blau" id="weiter">${letzte ? 'Zum Ergebnis ▶' : ueb() ? (tipp ? 'Verstanden – weiter ▶' : 'Weiter ▶') : 'Neue Streak starten ▶'}</button></div>`;
+      const w = document.getElementById('weiter'); w.onclick = neueAufgabe; w.focus({ preventScroll: true });
+      (tipp ? document.querySelector('#rueck .tippbox') : w).scrollIntoView({ behavior: 'smooth', block: tipp ? 'start' : 'nearest' });
+    }
+  }
+  if (R.aufgaben % 5 === 0) senden(false);
+}
+
+function zeigeTipps() {
+  const R = S.runde; if (!R || !R.tipps) return;
+  const m = document.createElement('div'); m.className = 'modal';
+  let h = '';
+  for (let s = 1; s <= R.tipps; s++) h += tippHTML(s, R.tippLv || S.lv.nr);
+  m.innerHTML = `<div class="aufgabe" style="max-width:560px;text-align:left">${h}<div class="mitte"><button class="btn gruen" id="ok">Weiter üben ▶</button></div></div>`;
+  document.body.appendChild(m);
+  m.querySelector('#ok').onclick = () => m.remove();
+  m.onclick = e => { if (e.target === m) m.remove(); };
+}
+
+function zeigeErgebnis() {
+  const R = S.runde, nr = S.lv.nr, p = profil(S.tier), werk = S.modus === 'werkstatt';
+  const alt = werk ? 0 : p.uebung[nr] || 0, warFrei = !werk && nr < BOSS && frei(nr + 1);
+  if (!werk && R.richtig > alt) p.uebung[nr] = R.richtig;
+  sichern(); senden(false);
+  const neuFrei = !werk && !warFrei && nr < BOSS && frei(nr + 1);
+  const r = R.richtig, n = R.aufgaben, rest = p.werkstatt.length;
+  const text = werk
+    ? (rest === 0 ? 'Wahnsinn – deine Werkstatt ist leer. Alle Fehler sind repariert! ✨'
+      : R.repariert ? `Du hast ${R.repariert} ${R.repariert === 1 ? 'Fehler' : 'Fehler'} repariert. Noch ${rest} ${rest === 1 ? 'wartet' : 'warten'} – mach gleich weiter!`
+      : 'Diese Aufgaben sind knifflig. Lies dir die Tipps durch und versuch es nochmal!')
+    : r === 10 ? 'Perfekt – alles richtig! Trau dich jetzt an den Streak-Modus oder die Blitzrunde! 🔥'
+    : r >= 8 ? 'Super! Du hast das richtig gut drauf.'
+    : r >= 6 ? 'Gut gemacht! Noch eine Runde, dann sitzt es.'
+    : r >= 4 ? 'Du bist auf dem Weg! Schau dir die Tipps noch einmal an und versuch es erneut.'
+    : 'Nicht aufgeben! Lies dir die Tipps in Ruhe durch – beim nächsten Mal wird es besser.';
+  if (!R.tipps && R.fehler >= 2 && nr !== BOSS && !werk) { R.tipps = 1; R.tippLv = nr; }
+  document.getElementById('aufgabe').innerHTML = `<div class="ergebnis">
+    <h2>${werk ? (rest === 0 ? 'Alles repariert!' : 'Werkstatt-Runde beendet!') : r >= 8 ? 'Geschafft!' : 'Runde beendet!'}</h2>
+    <div class="ergzahl">${r} <small>von ${n} richtig</small></div>
+    ${werk ? '' : sterne(uebSterne(r))}
+    <div class="punkte gross">${R.verlauf.map(v => `<span class="${v ? 'ok' : 'nein'}">${v ? '✓' : '✗'}</span>`).join('')}</div>
+    <p class="ergtext">${text}</p>
+    ${neuFrei ? `<p class="frei">🔓 ${nr === BOSS - 1 ? 'Das Boss-Level' : `Level ${nr + 1}`} ist jetzt freigeschaltet!</p>` : ''}
+    ${!werk && r > alt && alt > 0 ? '<p class="frei">🏆 Neues Bestergebnis!</p>' : ''}
+    <div class="mitte">
+      ${werk ? (rest ? '<button class="btn gruen" id="nochmal">Weiter reparieren 🔧</button>' : '') : '<button class="btn gruen" id="nochmal">Nochmal 10 ▶</button>'}
+      ${R.tipps && R.tippLv ? '<button class="btn" id="tipps">💡 Tipps ansehen</button>' : ''}
+      ${!werk && r >= 8 ? '<button class="btn rot" id="zustreak">🔥 Streak-Modus</button>' : ''}
+      <button class="btn" id="levels">◀ Levels</button>
+    </div></div>`;
+  const nochmal = document.getElementById('nochmal');
+  if (nochmal) nochmal.onclick = () => starteLevel(nr, S.modus);
+  document.getElementById('levels').onclick = zeigeKarte;
+  const t = document.getElementById('tipps'); if (t) t.onclick = zeigeTipps;
+  const z = document.getElementById('zustreak'); if (z) z.onclick = () => starteLevel(nr, 'streak');
+  if (r >= 8 || (werk && rest === 0)) knall(r === 10 || rest === 0 ? 'Perfekt!' : 'Stark!', 'gross');
+  R.fertig = true; S.info = null;
+  (nochmal || document.getElementById('levels')).focus({ preventScroll: true });
+}
+
+function zeigeBlitzErgebnis() {
+  const R = S.runde; if (!R || R.fertig) return;
+  R.fertig = true; S.wartet = true; clearTimeout(S.timer);
+  const nr = S.lv.nr, p = profil(S.tier), alt = p.blitz[nr] || 0;
+  if (R.richtig > alt) p.blitz[nr] = R.richtig;
+  R.aktiv += Math.min(Date.now() - R.letzte, 120000); R.letzte = Date.now();
+  sichern(); senden(false); S.info = null;
+  const neu = R.richtig > alt && R.richtig > 0;
+  const text = neu && alt > 0 ? `Neuer Rekord! Vorher: ${alt}.` : R.richtig >= 15 ? 'Blitzschnell! Unglaublich!'
+    : R.richtig >= 8 ? 'Stark! Schaffst du noch mehr?' : 'Gleich nochmal – mit jeder Runde wirst du schneller!';
+  document.getElementById('aufgabe').innerHTML = `<div class="ergebnis">
+    <h2>⏱️ Zeit ist um!</h2>
+    <div class="ergzahl">${R.richtig} <small>richtig in ${BLITZ_SEK} Sekunden</small></div>
+    <p class="ergtext">${R.aufgaben - R.richtig ? `${R.aufgaben - R.richtig} ${R.aufgaben - R.richtig === 1 ? 'Fehler kommt' : 'Fehler kommen'} in deine 🔧 Fehlerwerkstatt. ` : 'Kein einziger Fehler! '}${text}</p>
+    ${neu ? '<p class="frei">🏆 Neuer Blitz-Rekord!</p>' : ''}
+    <div class="mitte"><button class="btn gruen" id="nochmal">Nochmal ⚡</button><button class="btn" id="levels">◀ Levels</button></div></div>`;
+  document.getElementById('nochmal').onclick = () => starteLevel(nr, 'blitz');
+  document.getElementById('levels').onclick = zeigeKarte;
+  if (neu) knall('Rekord!', 'gross');
+  document.getElementById('nochmal').focus({ preventScroll: true });
+}
+
+function knall(text, art) {
+  const box = document.getElementById('aufgabe');
+  if (!box) return;
+  box.querySelectorAll('.knallhalter').forEach(k => k.remove());
+  const h = document.createElement('div'); h.className = 'knallhalter';
+  h.innerHTML = `<div class="knall ${art}">${text}</div>`;
+  box.appendChild(h);
+  setTimeout(() => h.remove(), 1600);
+}
+
+let toastTimer;
+function toast(t) {
+  const el = document.getElementById('toast');
+  el.textContent = t; el.classList.remove('zeigen'); void el.offsetWidth; el.classList.add('zeigen');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('zeigen'), 2600);
+}
+
+function beendeLevel() {
+  stoppeUhr();
+  const R = S.runde;
+  senden(false);
+  if (!R || !R.aufgaben || R.fertig) { zeigeKarte(); return; }
+  R.fertig = true; S.info = null;
+  const m = document.createElement('div'); m.className = 'modal';
+  const titel = S.modus === 'blitz' ? 'Blitzrunde abgebrochen' : ueb() ? 'Übung abgebrochen' : 'Runde geschafft!';
+  m.innerHTML = `<div class="aufgabe"><h2>${titel}</h2>
+    <div class="bilanz"><div><b>${R.aufgaben}</b><small>Aufgaben</small></div><div><b>${R.richtig}</b><small>richtig</small></div><div><b>🔥 ${R.best}</b><small>beste Serie</small></div></div>
+    <p>${ueb() || S.modus === 'blitz' ? 'Komm bald wieder und mach die Runde voll!' : R.best >= 10 ? 'Wahnsinn – was für eine Serie!' : R.best >= 5 ? 'Starke Leistung!' : 'Weiter üben – die nächste Streak wird länger!'}</p>
+    <button class="btn gruen" id="ok">Weiter ▶</button></div>`;
+  document.body.appendChild(m);
+  m.querySelector('#ok').onclick = () => { m.remove(); zeigeKarte(); };
+  m.querySelector('#ok').focus();
+}
+
+/* ---------- Senden an die Tabelle ---------- */
+function senden(beacon) {
+  const R = S.runde;
+  if (!SHEET_URL || !R || !R.aufgaben || R.gesendet === R.aufgaben) return;
+  R.gesendet = R.aufgaben;
+  const daten = JSON.stringify({
+    id: R.id, tier: S.tier, level: S.lv.nr, levelName: `${S.lv.name} (${MODUSNAME[S.modus]})`,
+    aufgaben: R.aufgaben, richtig: R.richtig, streak: R.best,
+    dauer: Math.round(R.aktiv / 6000) / 10
+  });
+  try {
+    if (beacon && navigator.sendBeacon) { navigator.sendBeacon(SHEET_URL, new Blob([daten], { type: 'text/plain' })); return; }
+    fetch(SHEET_URL, { method: 'POST', mode: 'no-cors', keepalive: true, headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: daten }).catch(() => {});
+  } catch (e) {}
+}
+addEventListener('pagehide', () => senden(true));
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') senden(true); });
+
+zeigeStart();
+</script>
+</body>
+</html>
