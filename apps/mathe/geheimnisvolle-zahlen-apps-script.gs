@@ -9,7 +9,7 @@
  *                Version: „Neue Version“ → Bereitstellen  (die URL bleibt gleich)
  *
  * Wer sich anmelden darf, steht im Blatt „Zugänge“:
- *   Spalte A Zugangsname (z. B. „Kaktus 27“) · B Pflanze · C Klasse · D aktiv (Häkchen)
+ *   Spalte A Zugangsname (z. B. „1 Apfel“) · B Pflanze · C Klasse · D aktiv (Häkchen)
  * Klasse, die mit „Lehr“ beginnt (z. B. „Lehrkraft“) = alle Level offen.
  */
 const BLATT_PROTOKOLL = 'Protokoll';
@@ -71,7 +71,7 @@ function klassenInfo(z) {
   return aus;
 }
 
-/** Anmeldung prüfen:  …/exec?name=Kaktus 27      Klassen-Ecke:  …/exec?info=Kaktus 27 */
+/** Anmeldung prüfen:  …/exec?name=1 Apfel      Klassen-Ecke:  …/exec?info=1 Apfel */
 function doGet(e) {
   const p = (e && e.parameter) || {};
   if (p.info !== undefined) {
