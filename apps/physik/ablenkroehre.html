@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Elektronen im Querfeld – Ablenkröhre</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&display=swap">
+<style>
+:root{
+  --bg:#eef2f6; --panel:#fff; --ink:#14212d; --muted:#55626e; --line:#cdd6de;
+  --primary:#1f4e79; --beam:#0e8a9a; --plus:#b8432f; --minus:#2c5fa8; --warn:#9c3b1c; --warn-bg:#fbe6de;
+  --grid:#e3e9ef; --tube:#f6f9fb;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#121a21; --panel:#1b252e; --ink:#e6ecf1; --muted:#9fb0bd; --line:#33424f;
+  --primary:#8cb9e3; --beam:#4fd0de; --plus:#ef8a76; --minus:#86aef0; --warn:#f2a183; --warn-bg:#3d241c;
+  --grid:#24313c; --tube:#16202a;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.5 "Andika","Segoe UI",system-ui,sans-serif}
+.wrap{max-width:1000px;margin:0 auto;padding:18px 16px 48px;display:flex;flex-direction:column;gap:16px}
+h1{margin:0;font-size:1.7rem;color:var(--primary);line-height:1.2}
+.lead{margin:0;color:var(--muted);max-width:70ch}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+canvas{width:100%;height:auto;display:block;background:var(--tube);border-radius:8px}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px 22px}
+label{display:flex;flex-direction:column;gap:4px;font-weight:700}
+.row{display:flex;align-items:center;gap:10px}
+input[type=range]{flex:1;accent-color:var(--primary);min-height:32px}
+output{font-variant-numeric:tabular-nums;min-width:6.5ch;text-align:right;font-weight:700}
+.seg{display:inline-flex;border:1.5px solid var(--primary);border-radius:8px;overflow:hidden}
+.seg button{font:inherit;padding:6px 14px;border:0;background:transparent;color:var(--primary);cursor:pointer;min-height:40px}
+.seg button[aria-pressed=true]{background:var(--primary);color:var(--panel)}
+.check{flex-direction:row;align-items:center;font-weight:400;gap:8px}
+.check input{width:20px;height:20px;accent-color:var(--primary)}
+.vals{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.val{border:1px solid var(--line);border-radius:8px;padding:8px 12px}
+.val .k{color:var(--muted);font-size:.9rem}
+.val .v{font-size:1.25rem;font-weight:700;font-variant-numeric:tabular-nums}
+.warn{background:var(--warn-bg);color:var(--warn);border-radius:8px;padding:8px 12px;font-weight:700}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.8em;line-height:1.05;margin:0 .1em}
+.frac>span:first-child{border-bottom:1.5px solid currentColor;padding:0 .15em}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--line);padding:5px 8px;text-align:center}
+th{color:var(--primary)}
+.hint{color:var(--muted);font-size:.95rem;margin:0}
+sub{font-size:.7em}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Geladene Teilchen im Querfeld</h1>
+    <p class="lead">Teilchen werden mit der Beschleunigungsspannung U<sub>B</sub> beschleunigt und fliegen dann waagerecht zwischen zwei Kondensatorplatten hindurch. An den Platten liegt die Ablenkspannung U<sub>A</sub>. Danach treffen sie auf einen Leuchtschirm.</p>
+  </header>
+
+  <div class="card"><canvas id="cv" width="960" height="480" aria-label="Bahn des Teilchens in der Ablenkröhre"></canvas></div>
+
+  <div class="card controls">
+    <label><span>Beschleunigungsspannung U<sub>B</sub></span>
+      <span class="row"><input id="ub" type="range" min="200" max="3000" step="50" value="2000"><output id="ubo"></output></span>
+    </label>
+    <label><span>Ablenkspannung U<sub>A</sub> (obere Platte gegenüber unterer)</span>
+      <span class="row"><input id="ua" type="range" min="-1500" max="1500" step="50" value="600"><output id="uao"></output></span>
+    </label>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font-weight:700">Teilchen</span>
+      <span class="seg" role="group" aria-label="Teilchen wählen">
+        <button id="pe" aria-pressed="true">Elektron</button><button id="pp" aria-pressed="false">Proton</button>
+      </span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <label class="check"><input id="grid" type="checkbox"> Messpunkte im Kondensator zeigen</label>
+      <label class="check"><input id="trail" type="checkbox" checked> Bahn nachzeichnen</label>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="vals">
+      <div class="val"><div class="k">Eintrittsgeschwindigkeit v<sub>0</sub></div><div class="v" id="v0"></div></div>
+      <div class="val"><div class="k">Flugzeit im Kondensator</div><div class="v" id="tk"></div></div>
+      <div class="val"><div class="k">Ablenkung am Plattenende y</div><div class="v" id="yk"></div></div>
+      <div class="val"><div class="k">Ablenkung am Schirm Y</div><div class="v" id="ys"></div></div>
+    </div>
+    <p id="warn" class="warn" hidden>Das Teilchen trifft eine Platte und erreicht den Schirm nicht.</p>
+    <p class="hint" style="margin-top:10px">Abmessungen: Plattenlänge l = 8,0 cm, Plattenabstand d = 4,0 cm, Schirm 20 cm hinter dem Plattenende. Die Teilchen treten in der Mitte zwischen den Platten ein.</p>
+  </div>
+
+  <div class="card" id="tabcard" hidden>
+    <table>
+      <thead><tr><th>x in cm</th><th>y in cm</th><th>y : x² in <span class="frac"><span>1</span><span>cm</span></span></th></tr></thead>
+      <tbody id="tab"></tbody>
+    </table>
+    <p class="hint" style="margin-top:8px">y wird von der Mittellinie aus gemessen, nach oben positiv.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  const e = 1.602e-19, me = 9.109e-31, mp = 1.673e-27;
+  const L = 0.08, D = 0.04, S = 0.20;              // m
+  const $ = id => document.getElementById(id);
+  const cv = $("cv"), cx = cv.getContext("2d");
+  let particle = "e", anim = 0, t0 = null;
+
+  const fmt = (x, n=2) => x.toLocaleString("de-DE",{minimumFractionDigits:n,maximumFractionDigits:n});
+  function sci(x, n=2){
+    if (x === 0) return "0";
+    const k = Math.floor(Math.log10(Math.abs(x)));
+    const m = x / Math.pow(10,k);
+    return fmt(m,n-1) + " · 10<sup>" + k + "</sup>";
+  }
+  const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+  function state(){
+    const UB = +$("ub").value, UA = +$("ua").value;
+    const m = particle === "e" ? me : mp;
+    const q = particle === "e" ? -e : e;            // Vorzeichen der Ladung
+    const v0 = Math.sqrt(2*e*UB/m);
+    // obere Platte auf +UA gegenüber unterer: Feld zeigt nach unten (E_y = -UA/D)
+    const ay = q * (-UA/D) / m;                      // Beschleunigung nach oben positiv
+    return {UB, UA, m, q, v0, ay};
+  }
+  // Bahn: y(x) im Kondensator, danach Gerade
+  function path(st){
+    const pts = []; let hit = null;
+    const N = 240;
+    for (let i=0;i<=N;i++){
+      const x = L*i/N, t = x/st.v0, y = 0.5*st.ay*t*t;
+      if (Math.abs(y) >= D/2){ hit = {x, y:Math.sign(y)*D/2}; pts.push([x, hit.y]); break; }
+      pts.push([x,y]);
+    }
+    let yk = null, slope = null, ys = null;
+    if (!hit){
+      const tk = L/st.v0; yk = 0.5*st.ay*tk*tk; slope = st.ay*tk/st.v0; ys = yk + slope*S;
+      pts.push([L+S, ys]);
+    }
+    return {pts, hit, yk, ys};
+  }
+
+  function draw(progress){
+    const st = state(), p = path(st);
+    const W = cv.width, H = cv.height;
+    const x0 = 150, sc = (W - x0 - 60) / (L+S);     // px pro m
+    const cy = H/2;
+    const X = x => x0 + x*sc, Y = y => cy - y*sc;
+    cx.clearRect(0,0,W,H);
+    // Raster
+    cx.strokeStyle = css("--grid"); cx.lineWidth = 1;
+    for (let gx=0; gx<=L+S+1e-9; gx+=0.01){ cx.beginPath(); cx.moveTo(X(gx), 20); cx.lineTo(X(gx), H-20); cx.stroke(); }
+    // Elektronenkanone
+    cx.fillStyle = css("--line"); cx.fillRect(20, cy-22, 90, 44);
+    cx.fillStyle = css("--muted"); cx.font = "15px Andika, sans-serif"; cx.textAlign="center";
+    cx.fillText(particle==="e" ? "Elektronenkanone" : "Protonenquelle", 65, cy+44);
+    cx.textAlign="left"; cx.fillText("U", 30, cy-32); cx.font = "11px Andika, sans-serif"; cx.fillText("B", 41, cy-28); cx.font = "15px Andika, sans-serif"; cx.fillText("= " + st.UB + " V", 52, cy-32); cx.textAlign="center";
+    // Platten
+    const plusTop = st.UA >= 0;
+    cx.fillStyle = plusTop ? css("--plus") : css("--minus"); cx.fillRect(X(0), Y(D/2)-8, L*sc, 8);
+    cx.fillStyle = plusTop ? css("--minus") : css("--plus"); cx.fillRect(X(0), Y(-D/2), L*sc, 8);
+    cx.font = "bold 20px Andika, sans-serif";
+    if (st.UA !== 0){
+      cx.fillStyle = css("--ink");
+      cx.fillText(plusTop ? "+" : "−", X(L)+16, Y(D/2)+2);
+      cx.fillText(plusTop ? "−" : "+", X(L)+16, Y(-D/2)+6);
+      // Feldlinien
+      cx.strokeStyle = css("--muted"); cx.globalAlpha = .35; cx.lineWidth = 1.2;
+      for (let fx = 0.01; fx < L; fx += 0.015){
+        cx.beginPath(); cx.moveTo(X(fx), Y(D/2)); cx.lineTo(X(fx), Y(-D/2)); cx.stroke();
+        const ay = plusTop ? Y(-D/2)-8 : Y(D/2)+8, dir = plusTop ? 1 : -1;
+        cx.beginPath(); cx.moveTo(X(fx)-4, ay-6*dir); cx.lineTo(X(fx), ay); cx.lineTo(X(fx)+4, ay-6*dir); cx.stroke();
+      }
+      cx.globalAlpha = 1;
+    }
+    // Schirm
+    cx.fillStyle = css("--primary"); cx.fillRect(X(L+S), 25, 6, H-55);
+    cx.font = "15px Andika, sans-serif"; cx.fillStyle = css("--muted");
+    cx.fillText("Schirm", X(L+S)+3, H-6);
+    // Mittellinie
+    cx.setLineDash([6,6]); cx.strokeStyle = css("--muted"); cx.beginPath(); cx.moveTo(110, cy); cx.lineTo(X(L+S), cy); cx.stroke(); cx.setLineDash([]);
+    // Strahl vor dem Kondensator
+    cx.strokeStyle = css("--beam"); cx.lineWidth = 3; cx.beginPath(); cx.moveTo(110, cy); cx.lineTo(X(0), cy); cx.stroke();
+    // Bahn bis zum Fortschritt
+    const pts = p.pts;
+    const total = pts.length;
+    const upto = Math.max(1, Math.floor(progress * (total-1)));
+    if ($("trail").checked || progress >= 1){
+      cx.beginPath(); cx.moveTo(X(pts[0][0]), Y(pts[0][1]));
+      // letzte Strecke (Gerade) anteilig zeichnen
+      for (let i=1;i<=upto && i<total;i++) cx.lineTo(X(pts[i][0]), Y(pts[i][1]));
+      cx.stroke();
+    }
+    // Teilchen
+    const cur = pts[Math.min(upto, total-1)];
+    cx.fillStyle = css("--beam"); cx.beginPath(); cx.arc(X(cur[0]), Y(cur[1]), 6, 0, 7); cx.fill();
+    // Leuchtfleck
+    if (!p.hit && progress >= 1){
+      cx.fillStyle = css("--beam"); cx.globalAlpha=.35; cx.beginPath(); cx.arc(X(L+S)+3, Y(p.ys), 12, 0, 7); cx.fill(); cx.globalAlpha=1;
+    }
+    // Messpunkte
+    if ($("grid").checked){
+      cx.fillStyle = css("--ink"); cx.font = "13px Andika, sans-serif";
+      for (let k=1;k<=8;k++){
+        const x = k/100, t = x/st.v0, y = 0.5*st.ay*t*t;
+        if (Math.abs(y) > D/2) break;
+        cx.beginPath(); cx.arc(X(x), Y(y), 4, 0, 7); cx.fill();
+      }
+    }
+    // Maßstab
+    cx.fillStyle = css("--muted"); cx.font = "13px Andika, sans-serif"; cx.textAlign = "left";
+    cx.fillText("Raster: 1 cm", X(0), H-6);
+  }
+
+  function update(){
+    const st = state(), p = path(st);
+    $("ubo").textContent = st.UB + " V";
+    $("uao").textContent = st.UA + " V";
+    $("v0").innerHTML = sci(st.v0) + " <span class='frac'><span>m</span><span>s</span></span>";
+    $("tk").innerHTML = p.hit ? "–" : fmt(L/st.v0*1e9,2) + " ns";
+    $("yk").textContent = p.hit ? "–" : fmt(p.yk*100,2) + " cm";
+    $("ys").textContent = p.hit ? "–" : fmt(p.ys*100,1) + " cm";
+    const miss = !p.hit && Math.abs(p.ys) > 0.079;
+    $("warn").textContent = p.hit ? "Das Teilchen trifft eine Platte und erreicht den Schirm nicht." : "Der Strahl verfehlt den Schirm (zu stark abgelenkt).";
+    $("warn").hidden = !(p.hit || miss);
+    const tb = $("tab"); tb.innerHTML = "";
+    $("tabcard").hidden = !$("grid").checked;
+    for (let k=1;k<=8;k++){
+      const x = k/100, t = x/st.v0, y = 0.5*st.ay*t*t;
+      if (Math.abs(y) > D/2) break;
+      const tr = document.createElement("tr");
+      tr.innerHTML = "<td>"+k+"</td><td>"+fmt(y*100,3)+"</td><td>"+fmt(y*100/(k*k),4)+"</td>";
+      tb.appendChild(tr);
+    }
+    t0 = null; cancelAnimationFrame(anim); anim = requestAnimationFrame(step);
+  }
+  function step(ts){
+    if (t0 === null) t0 = ts;
+    const pr = Math.min(1, (ts - t0)/1400);
+    draw(pr);
+    if (pr < 1) anim = requestAnimationFrame(step);
+  }
+  ["ub","ua"].forEach(id => $(id).addEventListener("input", update));
+  ["grid","trail"].forEach(id => $(id).addEventListener("change", update));
+  $("pe").onclick = () => { particle="e"; $("pe").setAttribute("aria-pressed","true"); $("pp").setAttribute("aria-pressed","false"); update(); };
+  $("pp").onclick = () => { particle="p"; $("pp").setAttribute("aria-pressed","true"); $("pe").setAttribute("aria-pressed","false"); update(); };
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => draw(1));
+  update();
+})();
+</script>
+</body>
+</html>

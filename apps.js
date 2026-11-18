@@ -48,6 +48,16 @@ const APPS = [
     neu: true
   },
 
+  {
+    titel: "Ablenkröhre: Teilchen im Querfeld",
+    fach: "Physik",
+    thema: "Elektrizitätslehre",
+    klasse: "11/12",
+    beschreibung: "Stelle Beschleunigungs- und Ablenkspannung ein und beobachte die Bahn von Elektronen und Protonen im Kondensator – mit Messpunkten zum Prüfen der Parabelform.",
+    datei: "apps/physik/ablenkroehre.html",
+    neu: true
+  },
+
   /* Beispiel für einen weiteren Eintrag – zum Benutzen die
      Zeichen /* und *\/ drumherum entfernen und ausfüllen:
 
